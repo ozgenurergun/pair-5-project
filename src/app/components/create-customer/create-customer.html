@@ -1,0 +1,167 @@
+  <div class="relative py-4 mb-4">
+    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+      <div class="w-full border-t border-gray-600"></div>
+    </div>
+    <div class="relative flex">
+      <span class="pr-3 bg-[#2C2A4A] text-2xl font-semibold text-gray-300">Create Customer</span>
+    </div>
+  </div>
+
+  <div class="border border-gray-500 rounded-lg p-2 max-w-5xl mx-auto mt-8">
+    <div class="border border-gray-600 rounded-md p-8">
+      <h2 class="text-xl font-semibold text-center text-gray-200 mb-8">Demografic Info</h2>
+
+      <form [formGroup]="createCustomerForm" (submit)="createCustomer()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+          <div>
+            <label for="first-name" class="block text-sm font-medium text-gray-400 mb-1"
+              >First Name *</label
+            >
+            <input 
+              formControlName="firstName"
+              type="text"
+              id="first-name"
+              class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label for="middle-name" class="block text-sm font-medium text-gray-400 mb-1"
+              >Middle Name *</label
+            >
+            <input
+            formControlName="middleName"
+              type="text"
+              id="middle-name"
+              class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label for="last-name" class="block text-sm font-medium text-gray-400 mb-1"
+              >Last Name *</label
+            >
+            <input
+            formControlName="lastName"
+              type="text"
+              id="last-name"
+              class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="birth-date" class="block text-sm font-medium text-gray-400 mb-1"
+              >Birth Date</label
+            >
+            <div class="relative">
+              <input
+              formControlName="dateOfBirth"
+                type="text"
+                id="birth-date"
+                class="w-full bg-gray-200 text-gray-900 rounded-lg pl-4 pr-10 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onfocus="(this.type='date')"
+                onblur="(this.type='text')"
+              />
+              <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-5 h-5 text-gray-500"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5v-.008ZM9.75 18h.008v.008H9.75v-.008ZM7.5 18h.008v.008H7.5v-.008ZM14.25 15h.008v.008H14.25v-.008ZM14.25 18h.008v.008H14.25v-.008ZM16.5 15h.008v.008H16.5v-.008ZM16.5 18h.008v.008H16.5v-.008Z"
+                  />
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <div>
+    <label for="gender" class="block text-sm font-medium text-gray-400 mb-1">Gender *</label>
+    <div class="relative">
+        <select
+          id="gender"
+          class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+          
+          formControlName="gender" 
+          >
+            <option value="" disabled selected>Seçiniz...</option>
+            <option value="male">Erkek</option>
+            <option value="female">Kadın</option>
+            <option value="other">Diğer</option>
+        </select>
+        <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-5 h-5 text-gray-500"
+            >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                />
+            </svg>
+        </span>
+    </div>
+</div>
+
+          <div>
+            <label for="father-name" class="block text-sm font-medium text-gray-400 mb-1"
+              >Father Name</label
+            >
+            <input
+              formControlName="fatherName"
+              type="text"
+              id="father-name"
+              class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="mother-name" class="block text-sm font-medium text-gray-400 mb-1"
+              >Mother Name</label
+            >
+            <input
+              formControlName="motherName"
+              type="text"
+              id="mother-name"
+              class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label for="national-id" class="block text-sm font-medium text-gray-400 mb-1"
+              >National ID</label
+            >
+            <input
+              formControlName="nationalId"
+              type="text"
+              id="national-id"
+              class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+        <div class="flex items-center justify-center space-x-6 mt-12">
+          <button
+            type="button"
+            class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg"
+          >
+            Next
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
