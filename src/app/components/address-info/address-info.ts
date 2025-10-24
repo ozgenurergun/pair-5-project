@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AddressFormComponent } from "../create-address/create-address";
 
 @Component({
   selector: 'app-address-info',
-  imports: [],
+  imports: [AddressFormComponent],
   templateUrl: './address-info.html',
   styleUrl: './address-info.scss',
 })

@@ -5,10 +5,13 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class CustomerService {
+export class AddressService {
+
+
   constructor(private httpClient:HttpClient) {}
 
-  postCustomer(customerData: any): Observable<any> {
-    return this.httpClient.post("http://localhost:8091/customerservice/api/individual-customers/", customerData);   
+  postAddress(addressData: any): Observable<any> {
+    return this.httpClient.post("http://localhost:8091/customerservice/api/addresses", addressData);   
   }
-}      
+  
+}
