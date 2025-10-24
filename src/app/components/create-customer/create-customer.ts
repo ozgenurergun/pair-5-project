@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+// 1. ADIM: ChangeDetectorRef'i import et
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core'; 
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomerService } from '../../services/customer-service';
 
@@ -8,13 +9,23 @@ import { CustomerService } from '../../services/customer-service';
   templateUrl: './create-customer.html',
   styleUrl: './create-customer.scss',
 })
-export class CreateCustomer {
+export class CreateCustomer implements OnInit { // OnInit'i de implement etmen iyi olur
   createCustomerForm!:FormGroup;
+  submitted = false;
 
-  constructor(private formBuilder:FormBuilder,private customerService:CustomerService){}
+  // Sadece nationalId için backend hatası
+  nationalIdBackendError: string = '';
+
+  // 2. ADIM: Constructor'a 'cd' olarak enjekte et
+  constructor(
+    private formBuilder:FormBuilder,
+    private customerService:CustomerService,
+    private cd: ChangeDetectorRef // <-- EKLENDİ
+  ){}
 
   ngOnInit(){
     this.buildForm();
+    this.setupNationalIdValueChange();
   }
 
   buildForm(){
@@ -30,21 +41,80 @@ export class CreateCustomer {
     })
   }
 
+  // NationalId değiştiğinde backend hatasını temizle
+  setupNationalIdValueChange() {
+    this.createCustomerForm.get('nationalId')?.valueChanges.subscribe(() => {
+      this.nationalIdBackendError = '';
+    });
+  }
+
+  // Alan geçersiz mi kontrolü
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.createCustomerForm.get(fieldName);
+    
+    // Temel Angular doğrulama hatası var mı?
+    const hasValidationError = !!(field && field.invalid && (field.dirty || field.touched || this.submitted));
+    
+    // NationalId için backend hatası da kontrol et
+    if (fieldName === 'nationalId' && this.nationalIdBackendError) {
+      // Backend hatası varsa, alanı geçersiz say!
+      return true;
+    }
+    
+    return hasValidationError;
+  }
+
+  // Form reset
+  resetForm() {
+    this.createCustomerForm.reset();
+    this.submitted = false;
+    this.nationalIdBackendError = '';
+  }
+
   createCustomer() {
+    this.submitted = true;
+
     if(this.createCustomerForm.valid){
       const customerData = this.createCustomerForm.value;
 
       this.customerService.postCustomer(customerData).subscribe({
         next:(response) => {
           console.log("işlem başarılı", response);
+          this.resetForm();
         },
-        error:(err) => {
+        error: (err) => {
           console.log("Hata oluştu", err);
+          // Backend'den gelen mesajı al
+          const errorMessage = err.error?.message || err.error?.error || 'Bu TC Kimlik No ile müşteri oluşturulamadı.';
+          
+          if (errorMessage) {
+            this.nationalIdBackendError = errorMessage;
+          } else {
+            this.nationalIdBackendError = 'Bu TC Kimlik No ile müşteri oluşturulamadı.';
+          }
+            // Hata mesajı atandıktan sonra, ilgili kontrol alanını 'touched' yapın
+            this.createCustomerForm.get('nationalId')?.markAsTouched();
+
+            // 3. ADIM: Angular'a "EKRANI YENİDEN KONTROL ET" de
+            this.cd.markForCheck(); // <-- EKLENDİ
         }
-      })
+      });
     }
     else{
-      console.log("başarısız")
+      // Tüm alanları touch et ki hatalar görünsün
+      this.markFormGroupTouched(this.createCustomerForm);
     }
+  }
+
+  // Tüm form alanlarını touched olarak işaretle
+  private markFormGroupTouched(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      control?.markAsTouched();
+
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      }
+    });
   }
 }
