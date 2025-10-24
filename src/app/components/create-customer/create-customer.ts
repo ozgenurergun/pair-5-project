@@ -1,5 +1,5 @@
 // 1. ADIM: ChangeDetectorRef'i import et
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core'; 
+import { Component, ChangeDetectorRef, OnInit, Output, EventEmitter } from '@angular/core'; 
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomerService } from '../../services/customer-service';
 
@@ -12,6 +12,9 @@ import { CustomerService } from '../../services/customer-service';
 export class CreateCustomer implements OnInit { // OnInit'i de implement etmen iyi olur
   createCustomerForm!:FormGroup;
   submitted = false;
+
+  //id için 
+  @Output() nextStep = new EventEmitter<string>();
 
   // Sadece nationalId için backend hatası
   nationalIdBackendError: string = '';
@@ -80,6 +83,13 @@ export class CreateCustomer implements OnInit { // OnInit'i de implement etmen i
       this.customerService.postCustomer(customerData).subscribe({
         next:(response) => {
           console.log("işlem başarılı", response);
+          const newCustomerId = response.id;
+          if (newCustomerId) {
+            this.nextStep.emit(newCustomerId);
+          }
+          else{
+            console.log("Backendden id gelmedi");
+          }
           this.resetForm();
         },
         error: (err) => {
