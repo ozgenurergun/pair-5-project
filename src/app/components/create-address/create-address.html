@@ -1,1 +1,104 @@
-<p>create-address works!</p>
+<div class="bg-slate-600 rounded-lg p-8 w-full max-w-3xl mx-auto text-white">
+  
+  <form [formGroup]="addressForm" (ngSubmit)="onSave()">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+      
+      <div>
+        <label for="city" class="block text-sm font-medium mb-1">City *</label>
+        <div class="relative">
+          <select 
+            id="city" 
+            formControlName="city"
+            class="w-full bg-white text-gray-900 rounded-full px-5 py-3 border-none
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+            [class.border-2]="isFieldInvalid('city')"
+            [class.border-red-500]="isFieldInvalid('city')"
+          >
+            <option [ngValue]="null" disabled selected>Seçiniz...</option>
+            <option value="Istanbul">Istanbul</option>
+            <option value="Ankara">Ankara</option>
+          </select>
+          <span class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+            <svg class="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+          </span>
+        </div>
+        @if (isFieldInvalid('city')) {
+          <div class="text-red-300 mt-1 text-sm"><small>City zorunludur.</small></div>
+        }
+      </div>
+
+      <div>
+        <label for="streetName" class="block text-sm font-medium mb-1">Street Name *</label>
+        <div class="relative">
+          <select 
+            id="streetName"
+            formControlName="streetName"
+            class="w-full bg-white text-gray-900 rounded-full px-5 py-3 border-none
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+            [class.border-2]="isFieldInvalid('streetName')"
+            [class.border-red-500]="isFieldInvalid('streetName')"
+          >
+            <option [ngValue]="null" disabled selected>Seçiniz...</option>
+            <option value="Atatürk Cd.">Atatürk Cd.</option>
+            <option value="Cumhuriyet Sk.">Cumhuriyet Sk.</option>
+          </select>
+          <span class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+            <svg class="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+          </span>
+        </div>
+        @if (isFieldInvalid('streetName')) {
+          <div class="text-red-300 mt-1 text-sm"><small>Street Name zorunludur.</small></div>
+        }
+      </div>
+
+      <div class="md:col-span-2">
+        <label for="houseFlatNumber" class="block text-sm font-medium mb-1">House/Flat Number *</label>
+        <input 
+          type="text" 
+          id="houseFlatNumber"
+          formControlName="houseFlatNumber"
+          class="w-full bg-white text-gray-900 rounded-full px-5 py-3 border-none
+                 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          [class.border-2]="isFieldInvalid('houseFlatNumber')"
+          [class.border-red-500]="isFieldInvalid('houseFlatNumber')"
+        />
+        @if (isFieldInvalid('houseFlatNumber')) {
+          <div class="text-red-300 mt-1 text-sm"><small>House/Flat Number zorunludur.</small></div>
+        }
+      </div>
+
+      <div class="md:col-span-2">
+        <label for="addressDescription" class="block text-sm font-medium mb-1">Address Description *</label>
+        <textarea 
+          id="addressDescription" 
+          formControlName="addressDescription"
+          rows="4"
+          class="w-full bg-white text-gray-900 rounded-full px-5 py-3 border-none
+                 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          [class.border-2]="isFieldInvalid('addressDescription')"
+          [class.border-red-500]="isFieldInvalid('addressDescription')"
+        ></textarea>
+        @if (isFieldInvalid('addressDescription')) {
+          <div class="text-red-300 mt-1 text-sm"><small>Address Description zorunludur.</small></div>
+        }
+      </div>
+
+    </div> <div class="flex items-center justify-center space-x-6 mt-12">
+      <button 
+        type="button" 
+        (click)="onCancel()"
+        class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg"
+      >
+        Cancel
+      </button>
+      <button 
+        type="submit"
+        class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg"
+        [disabled]="addressForm.invalid && submitted"
+      >
+        Save
+      </button>
+    </div>
+
+  </form>
+</div>
