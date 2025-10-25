@@ -1,29 +1,27 @@
 <fieldset class="border border-gray-600 rounded-lg p-8 max-w-5xl mx-auto mt-8">
-<legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">
-    Address Info
-</legend>
- 
+  <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">Address Info</legend>
+
   <div class="min-h-[350px] flex items-center justify-center">
-<div class="border-2 border-dashed border-gray-400 rounded-lg p-4">
-
-
-<app-create-address  [customerId]="customerId"  ></app-create-address>
- 
-</div>
-</div>
- 
+    <div class="border-2 border-dashed border-gray-400 rounded-lg p-4">
+        
+      <app-create-address [customerId]="customerId" (addressSaved)="onSaveAddress()"></app-create-address>
+    </div>
+    <app-address-list [customerId]="customerId" #addressList></app-address-list>
+  </div>
 </fieldset>
- 
+
 <div class="flex items-center justify-between max-w-5xl mx-auto mt-12">
-<button
-    type="button" (click)="onPrevious()" class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer"
->
+  <button
+    type="button"
+    (click)="onPrevious()"
+    class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer"
+  >
     Previous
-</button>
-<button
-    type="button" class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer
-           disabled:opacity-50 disabled:cursor-not-allowed"
->
+  </button>
+  <button
+    type="button"
+    class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+  >
     Next
-</button>
+  </button>
 </div>

@@ -76,26 +76,6 @@ export class AddressFormComponent implements OnInit, OnDestroy {
       });
   }
 
-  createAddress() {
-    this.submitted = true;
-    if (this.addressForm.valid) {
-      const addressData = this.addressForm.value;
-      this.addressService.postAddress(addressData).subscribe({
-        next: (response) => {
-          console.log('İşlem başarılı', response);
-          this.resetForm();
-          this.addressSaved.emit(response); // Yeni kaydedilen adresi ebeveyne gönder
-          this.closeForm(); // Formu kapat
-        },
-        error: (error) => {
-          console.error('Adres kaydederken hata oluştu!', error);
-        },
-      });
-    } else {
-      this.markFormGroupTouched(this.addressForm); 
-    }
-  }
-
   ngOnDestroy() {
     
     this.unsubscribe$.next();

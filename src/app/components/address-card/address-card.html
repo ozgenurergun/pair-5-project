@@ -1,1 +1,23 @@
-<p>address-card works!</p>
+@if (address) { 
+<div
+  class="text-white p-4 rounded-lg flex justify-between items-start border border-transparent"
+  [class.border-blue-500]="isSelected()"
+  [class.bg-slate-700]="isSelected()"
+>
+  <div>
+    <h3 class="font-semibold mb-1">
+      Address {{ addressIndex + 1 }}
+      
+      @if (address.default) {
+        <span class="text-orange-500 font-bold">[Primary]</span>
+      }
+      </h3>
+    <p class="text-sm text-gray-300">
+      {{ address.street }}, <br />
+      {{ address.houseNumber }}
+    </p>
+  </div>
+  </div>
+} @else {
+<p>Adres yüklenemedi.</p>
+}
