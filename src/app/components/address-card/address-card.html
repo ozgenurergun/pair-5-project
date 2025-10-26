@@ -1,23 +1,33 @@
-@if (address) { 
+@if (address) {
 <div
-  class="text-white p-4 rounded-lg flex justify-between items-start border border-transparent"
-  [class.border-blue-500]="isSelected()"
-  [class.bg-slate-700]="isSelected()"
+    class="bg-[#2A2A48] text-white p-4 rounded-lg flex justify-between items-center cursor-pointer border border-transparent hover:border-gray-500 transition"
+    (click)="onSelect()"
+    [class.border-orange-500]="isSelected()"
 >
-  <div>
-    <h3 class="font-semibold mb-1">
-      Address {{ addressIndex + 1 }}
-      
-      @if (address.default) {
-        <span class="text-orange-500 font-bold">[Primary]</span>
+<div>
+<h3 class="font-semibold text-base mb-1">
+        Address {{ addressIndex + 1 }}
+        @if (address.default) {
+<span class="text-orange-500 font-bold ml-1">[Primary]</span>
+        }
+</h3>
+<p class="text-sm text-gray-300 leading-snug">
+        {{ address.cityName }}, {{ address.street }}, <br />
+        {{ address.houseNumber }}
+</p>
+</div>
+ 
+    <!-- Sağdaki daire (radio benzeri) -->
+<div
+      class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+      [class.border-orange-500]="isSelected()"
+      [class.border-gray-400]="!isSelected()"
+>
+      @if (isSelected()) {
+<div class="w-2.5 h-2.5 bg-orange-500 rounded-full"></div>
       }
-      </h3>
-    <p class="text-sm text-gray-300">
-      {{ address.street }}, <br />
-      {{ address.houseNumber }}
-    </p>
-  </div>
-  </div>
+</div>
+</div>
 } @else {
 <p>Adres yüklenemedi.</p>
 }

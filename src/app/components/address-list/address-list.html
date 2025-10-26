@@ -3,6 +3,9 @@
   <app-address-card
     [address]="address"
     [addressIndex]="i"
+    [searchCustomer]="searchCustomer"
+    [selectedAddressId]="selectedAddressId"
+    (addressSelected)="onAddressSelected(+($event))"
   >
   </app-address-card>
   }

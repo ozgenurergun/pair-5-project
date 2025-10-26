@@ -23,6 +23,10 @@ export class AddressService {
 
   getByCustomerId(customerId: string): Observable<CustomerSearchResponse> {
   return this.httpClient.get<CustomerSearchResponse>(`http://localhost:8091/searchservice/api/customer-search/findByCustomerId?customerId=${customerId}`); 
-}
+  }
+
+  setPrimaryAddress(addressId:number) :Observable<any>{
+    return this.httpClient.put(`http://localhost:8091/searchservice/api/customer-search/api/addresses/${addressId}/set-primary`,{});
+  }
   
 }

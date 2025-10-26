@@ -22,6 +22,26 @@ import { CustomerSearchResponse } from '../../models/response/customer/customer-
   styleUrl: './address-list.scss',
 })
 export class AddressList implements OnInit {
+  @Input() addressIndex: number = 0;
+  @Input() isSelected: boolean = false;
+  @Output() selectAddress = new EventEmitter<any>();
+
+  @Input() searchCustomer!: CustomerSearchResponse;
+
+  selectedAddressId: number | null = null;
+ 
+  onAddressSelected(addressId: number) {
+
+    this.selectedAddressId = addressId;
+
+    console.log('Seçilen adres ID:', this.selectedAddressId);
+
+  }
+ 
+  onSelectAddress() {
+    this.selectAddress.emit(this.address);
+  }
+
   @Input() customerId: string | undefined;
 
   address = signal<CustomerSearchResponse | undefined>(undefined);

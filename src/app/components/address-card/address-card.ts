@@ -13,7 +13,7 @@ export class AddressCard {
   // 1. Ebeveynden (address-list) gelen adres verisi
   @Input() searchCustomer!: CustomerSearchResponse;     
   // // 2. Ebeveynden gelen, o an SEÇİLİ olan adresin ID'si
-  @Input() selectedAddressId: string | number | null = null;     
+  @Input() selectedAddressId: number | null = null;     
   // 3. Ebeveynden gelen, bu kartın listedeki sırası (Address 1, Address 2...)
   @Input() addressIndex: number = 0;     
   // 4. Bu karttaki radio buton tıklandığında Ebeveyne haber vermek için
@@ -23,8 +23,9 @@ export class AddressCard {
   onSelect() {     
       this.addressSelected.emit(this.address.addressId); // Adresin kendi ID'sini gönderin
     }
+
+    
   // Bu kartın seçili olup olmadığını kontrol eder (radio'nun checked durumu için) 
-  
   isSelected(): boolean { 
       return this.address && this.address.addressId === this.selectedAddressId; 
     }

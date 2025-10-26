@@ -18,6 +18,7 @@ export interface Address {
   houseNumber: string;
   description: string;
   districtId: number;
+  cityName:string;
   customerId: string;
   default: boolean;
 }

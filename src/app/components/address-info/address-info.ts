@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AddressFormComponent } from '../create-address/create-address';
 import { AddressList } from '../address-list/address-list';
-import { CreatedAddressResponse } from '../../models/response/customer/created-address-response';
+import { AddressService } from '../../services/address-service';
 
 @Component({
   selector: 'app-address-info',
@@ -14,6 +14,8 @@ export class AddressInfo implements OnInit {
   @ViewChild('addressList') addressList!: AddressList;
   @Output() previousStep = new EventEmitter<void>();
   @Output() nextStep = new EventEmitter<void>();
+
+  constructor(private addressService:AddressService){}
 
   ngOnInit() {
     console.log('CustomerId', this.customerId);
@@ -33,5 +35,27 @@ export class AddressInfo implements OnInit {
     } else {
       console.error('Adres kaydedilemez, Customer ID yok!');
     }
+  }
+  
+  onNext() {
+    this.nextStep.emit();
+    }
+
+  onMakePrimary() {
+    const selectedId = this.addressList?.selectedAddressId;
+    if (!this.customerId || !selectedId) {
+      console.warn('Primary yapılacak adres seçilmemiş.');
+      return;
+    }
+
+    
+ 
+    this.addressService.setPrimaryAddress(selectedId).subscribe({
+      next: (res) => {
+        console.log('Primary adres ayarlandı:', res);
+        this.addressList.fetchAddress(this.customerId!);
+      },
+      error: (err) => console.error('Primary adres ayarlanamadı:', err),
+    });
   }
 }
