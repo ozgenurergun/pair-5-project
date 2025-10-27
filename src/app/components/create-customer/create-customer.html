@@ -118,6 +118,7 @@
           formControlName="nationalId"
           type="text"
           id="national-id"
+          (input)="clearBackendIdError()"
           class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           [class.border-red-500]="isFieldInvalid('nationalId')" 
         />
@@ -128,17 +129,7 @@
           @if (nationalIdBackendError) {
             <small>{{ nationalIdBackendError }}</small>
           } 
-          
-          @else {
-            @if (createCustomerForm.get('nationalId')?.hasError('required')) {
-              <small>TC Kimlik No zorunludur</small>
-            } @else if (createCustomerForm.get('nationalId')?.hasError('minlength') ||
-                         createCustomerForm.get('nationalId')?.hasError('maxlength')) {
-              <small>TC Kimlik No 11 haneli olmalıdır</small>
-            } @else if (createCustomerForm.get('nationalId')?.hasError('pattern')) {
-              <small>TC Kimlik No sadece rakam içermelidir</small>
-            }
-          }
+
 
         </div>
         }
@@ -147,7 +138,7 @@
       <button
         type="button"
         class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer"
-        (click)="resetForm()" >
+        >
         Cancel
       </button>
       <button

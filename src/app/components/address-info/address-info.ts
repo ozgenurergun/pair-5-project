@@ -12,8 +12,8 @@ import { AddressService } from '../../services/address-service';
 export class AddressInfo implements OnInit {
   @Input() customerId?: string;
   @ViewChild('addressList') addressList!: AddressList;
-  @Output() previousStep = new EventEmitter<void>();
-  @Output() nextStep = new EventEmitter<void>();
+  @Output() previousStep = new EventEmitter<String>();
+  @Output() nextStep = new EventEmitter<String>();
 
   constructor(private addressService:AddressService){}
 
@@ -22,7 +22,7 @@ export class AddressInfo implements OnInit {
   }
 
   onPrevious() {
-    this.previousStep.emit(); // Ebeveyne 'geri git' der
+    this.previousStep.emit('demographics'); // Ebeveyne 'geri git' der
   }
 
   onSaveAddress() {
