@@ -1,11 +1,12 @@
 // 1. ADIM: ChangeDetectorRef'i import et
 import { Component, ChangeDetectorRef, OnInit, Output, EventEmitter } from '@angular/core'; 
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CustomerService } from '../../services/customer-service';
+import { CommonModule } from '@angular/common';
+import { CustomerCreation } from '../../services/customer-creation';
 
 @Component({
   selector: 'app-create-customer',
-  imports: [FormsModule,ReactiveFormsModule],
+  imports: [FormsModule,ReactiveFormsModule, CommonModule],
   templateUrl: './create-customer.html',
   styleUrl: './create-customer.scss',
 })
@@ -19,36 +20,26 @@ export class CreateCustomer implements OnInit { // OnInit'i de implement etmen i
   // Sadece nationalId için backend hatası
   nationalIdBackendError: string = '';
 
-  // 2. ADIM: Constructor'a 'cd' olarak enjekte et
   constructor(
     private formBuilder:FormBuilder,
-    private customerService:CustomerService,
-    private cd: ChangeDetectorRef // <-- EKLENDİ
+    private customerCreationService:CustomerCreation
   ){}
 
   ngOnInit(){
     this.buildForm();
-    this.setupNationalIdValueChange();
   }
 
   buildForm(){
     this.createCustomerForm = this.formBuilder.group({
-      firstName: new FormControl("", [Validators.required, Validators.minLength(2), Validators.maxLength(50)]),
-      lastName: new FormControl(""),
-      middleName: new FormControl(""),
-      nationalId: new FormControl("", [Validators.required, Validators.minLength(11), Validators.maxLength(11), Validators.pattern('^[0-9]+$')]),
-      dateOfBirth: new FormControl(""),
-      motherName: new FormControl(""),
-      fatherName: new FormControl(""),
-      gender: new FormControl("")
+      firstName: new FormControl(this.customerCreationService.state().firstName ?? "", [Validators.required, Validators.minLength(2), Validators.maxLength(50)]),
+      lastName: new FormControl(this.customerCreationService.state().lastName ?? ""),
+      middleName: new FormControl(this.customerCreationService.state().middleName ?? ""),
+      nationalId: new FormControl(this.customerCreationService.state().nationalId ?? "", [Validators.required, Validators.minLength(11), Validators.maxLength(11), Validators.pattern('^[0-9]+$')]),
+      dateOfBirth: new FormControl(this.customerCreationService.state().dateOfBirth ?? ""),
+      motherName: new FormControl(this.customerCreationService.state().motherName ?? ""),
+      fatherName: new FormControl(this.customerCreationService.state().fatherName ?? ""),
+      gender: new FormControl(this.customerCreationService.state().gender ?? "")
     })
-  }
-
-  // NationalId değiştiğinde backend hatasını temizle
-  setupNationalIdValueChange() {
-    this.createCustomerForm.get('nationalId')?.valueChanges.subscribe(() => {
-      this.nationalIdBackendError = '';
-    });
   }
 
   // Alan geçersiz mi kontrolü
@@ -57,12 +48,6 @@ export class CreateCustomer implements OnInit { // OnInit'i de implement etmen i
     
     // Temel Angular doğrulama hatası var mı?
     const hasValidationError = !!(field && field.invalid && (field.dirty || field.touched || this.submitted));
-    
-    // NationalId için backend hatası da kontrol et
-    if (fieldName === 'nationalId' && this.nationalIdBackendError) {
-      // Backend hatası varsa, alanı geçersiz say!
-      return true;
-    }
     
     return hasValidationError;
   }
@@ -74,47 +59,32 @@ export class CreateCustomer implements OnInit { // OnInit'i de implement etmen i
     this.nationalIdBackendError = '';
   }
 
-  createCustomer() {
-    this.submitted = true;
+  submit() {
+  this.submitted = true;
 
-    if(this.createCustomerForm.valid){
-      const customerData = this.createCustomerForm.value;
-
-      this.customerService.postCustomer(customerData).subscribe({
-        next:(response) => {
-          console.log("işlem başarılı", response);
-          const newCustomerId = response.id;
-          if (newCustomerId) {
-            this.nextStep.emit(newCustomerId);
-          }
-          else{
-            console.log("Backendden id gelmedi");
-          }
-          this.resetForm();
-        },
-        error: (err) => {
-          console.log("Hata oluştu", err);
-          // Backend'den gelen mesajı al
-          const errorMessage = err.error?.message || err.error?.error || 'Bu TC Kimlik No ile müşteri oluşturulamadı.';
-          
-          if (errorMessage) {
-            this.nationalIdBackendError = errorMessage;
-          } else {
-            this.nationalIdBackendError = 'Bu TC Kimlik No ile müşteri oluşturulamadı.';
-          }
-            // Hata mesajı atandıktan sonra, ilgili kontrol alanını 'touched' yapın
-            this.createCustomerForm.get('nationalId')?.markAsTouched();
-
-            // 3. ADIM: Angular'a "EKRANI YENİDEN KONTROL ET" de
-            this.cd.markForCheck(); // <-- EKLENDİ
-        }
-      });
-    }
-    else{
-      // Tüm alanları touch et ki hatalar görünsün
-      this.markFormGroupTouched(this.createCustomerForm);
-    }
+  if (this.createCustomerForm.invalid) {
+    this.markFormGroupTouched(this.createCustomerForm);
+    return;
   }
+
+  const nationalId = this.createCustomerForm.get('nationalId')?.value;
+
+  // Backend'e gidip var mı kontrolü yapıyoruz
+  this.customerCreationService.chekNatIdExists(nationalId).subscribe((exists) => {
+    if (exists) {
+      this.nationalIdBackendError = 'Bu TC kimlik numarasına ait bir müşteri zaten var!';
+    } else {
+      const newValue = {
+        ...this.customerCreationService.state(),
+        ...this.createCustomerForm.value,
+      };
+      this.customerCreationService.state.set(newValue);
+      this.nationalIdBackendError = '';
+      console.log('Yeni müşteri state’e eklendi:', newValue);
+      this.nextStep.emit('address');
+    }
+  });
+}
 
   // Tüm form alanlarını touched olarak işaretle
   private markFormGroupTouched(formGroup: FormGroup) {

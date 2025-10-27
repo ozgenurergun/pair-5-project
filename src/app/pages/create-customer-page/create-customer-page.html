@@ -1,6 +1,5 @@
 <section class="flex-1 bg-[#2C2A4A] p-8 text-white overflow-y-auto">
-  <app-header></app-header>
-
+  
   <fieldset class="border border-gray-500 rounded-lg p-6 mt-6">
     <legend class="px-3 text-2xl font-semibold text-gray-300 bg-[#2C2A4A]">Create Customer</legend>
 
@@ -14,7 +13,6 @@
     
     @case ('address') {
     <app-address-info
-      [customerId]="createdCustomerId"
       (previousStep)="onAddressPrevious()"
       (nextStep)="onAddressNext()"
     ></app-address-info>
