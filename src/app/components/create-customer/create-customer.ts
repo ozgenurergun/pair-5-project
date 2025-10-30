@@ -37,7 +37,7 @@ export class CreateCustomer implements OnInit {
         Validators.minLength(2),
         Validators.maxLength(50),
       ]),
-      lastName: new FormControl(this.customerCreationService.state().lastName ?? ''),
+      lastName: new FormControl(this.customerCreationService.state().lastName ?? '', [Validators.required]),
       middleName: new FormControl(this.customerCreationService.state().middleName ?? ''),
       nationalId: new FormControl(this.customerCreationService.state().nationalId ?? '', [
         Validators.required,
@@ -45,10 +45,10 @@ export class CreateCustomer implements OnInit {
         Validators.maxLength(11),
         Validators.pattern('^[0-9]+$'),
       ]),
-      dateOfBirth: new FormControl(this.customerCreationService.state().dateOfBirth ?? ''),
+      dateOfBirth: new FormControl(this.customerCreationService.state().dateOfBirth ?? '', [Validators.required]),
       motherName: new FormControl(this.customerCreationService.state().motherName ?? ''),
       fatherName: new FormControl(this.customerCreationService.state().fatherName ?? ''),
-      gender: new FormControl(this.customerCreationService.state().gender ?? ''),
+      gender: new FormControl(this.customerCreationService.state().gender ?? '', [Validators.required]),
     });
   }
 

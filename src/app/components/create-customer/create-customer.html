@@ -1,12 +1,8 @@
 <fieldset class="border border-gray-600 rounded-lg p-8 max-w-5xl mx-auto mt-8">
-  
-  <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">
-    Demografic Info
-  </legend>
+  <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">Demografic Info</legend>
 
   <form [formGroup]="createCustomerForm" (submit)="submit()">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-      
       <div class="form-group">
         <label for="first-name" class="block text-sm font-medium text-gray-400 mb-1"
           >First Name *</label
@@ -16,15 +12,16 @@
           type="text"
           id="first-name"
           class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          [class.border-red-500]="isFieldInvalid('firstName')" 
+          [class.border-red-500]="isFieldInvalid('firstName')"
         />
         @if (isFieldInvalid('firstName')) {
-        <div class="text-red-400 mt-1 text-sm"> @if (createCustomerForm.get('firstName')?.hasError('required')) {
-          <small>Ad alanı zorunludur</small>
+        <div class="text-red-400 mt-1 text-sm">
+          @if (createCustomerForm.get('firstName')?.hasError('required')) {
+          <small>First name is required.</small>
           } @if (createCustomerForm.get('firstName')?.hasError('minlength')) {
-          <small>Ad en az 2 karakter olmalıdır</small>
+          <small>First name muts be min 2 characters.</small>
           } @if (createCustomerForm.get('firstName')?.hasError('maxlength')) {
-          <small>Ad en fazla 50 karakter olabilir</small>
+          <small>First name muts be max 50 characters.</small>
           }
         </div>
         }
@@ -32,7 +29,9 @@
 
       <div>
         <label for="middle-name" class="block text-sm font-medium text-gray-400 mb-1"
-          >Middle Name</label> <input
+          >Middle Name</label
+        >
+        <input
           formControlName="middleName"
           type="text"
           id="middle-name"
@@ -42,17 +41,28 @@
 
       <div>
         <label for="last-name" class="block text-sm font-medium text-gray-400 mb-1"
-          >Last Name *</label> <input
+          >Last Name *</label
+        >
+        <input
           formControlName="lastName"
           type="text"
           id="last-name"
           class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        @if (isFieldInvalid('lastName')) {
+        <div class="text-red-400 mt-1 text-sm">
+          @if (createCustomerForm.get('lastName')?.hasError('required')) {
+          <small>Last name is required.</small>
+          }
+        </div>
+        }
       </div>
 
       <div>
         <label for="birth-date" class="block text-sm font-medium text-gray-400 mb-1"
-          >Birth Date *</label> <div class="relative">
+          >Birth Date *</label
+        >
+        <div class="relative">
           <input
             formControlName="dateOfBirth"
             type="text"
@@ -61,28 +71,65 @@
             onfocus="(this.type='date')"
             onblur="(this.type='text')"
           />
+          @if (isFieldInvalid('dateOfBirth')) {
+          <div class="text-red-400 mt-1 text-sm">
+            @if (createCustomerForm.get('dateOfBirth')?.hasError('required')) {
+            <small>Please choose one option.</small>
+            }
+          </div>
+          }
           <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-500"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5v-.008ZM9.75 18h.008v.008H9.75v-.008ZM7.5 18h.008v.008H7.5v-.008ZM14.25 15h.008v.008H14.25v-.008ZM14.25 18h.008v.008H14.25v-.008ZM16.5 15h.008v.008H16.5v-.008ZM16.5 18h.008v.008H16.5v-.008Z" /></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5 text-gray-500"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5v-.008ZM9.75 18h.008v.008H9.75v-.008ZM7.5 18h.008v.008H7.5v-.008ZM14.25 15h.008v.008H14.25v-.008ZM14.25 18h.008v.008H14.25v-.008ZM16.5 15h.008v.008H16.5v-.008ZM16.5 18h.008v.008H16.5v-.008Z"
+              />
+            </svg>
           </span>
         </div>
       </div>
 
       <div>
-        <label for="gender" class="block text-sm font-medium text-gray-400 mb-1"
-          >Gender *</label> <div class="relative">
+        <label for="gender" class="block text-sm font-medium text-gray-400 mb-1">Gender *</label>
+        <div class="relative">
           <select
             id="gender"
             class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
             formControlName="gender"
           >
-            <option value="" disabled selected>Seçiniz...</option>
-            <option value="male">Erkek</option>
-            <option value="female">Kadın</option>
-            <option value="other">Diğer</option>
+            <option value="" disabled selected>Please choose...</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
           </select>
+          
           <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-500"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5 text-gray-500"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+            </svg>
           </span>
+          @if (isFieldInvalid('gender')) {
+          <div class="text-red-400 mt-1 text-sm">
+            @if (createCustomerForm.get('gender')?.hasError('required')) {
+            <small>Please choose one option.</small>
+            }
+          </div>
+          }
         </div>
       </div>
 
@@ -120,36 +167,37 @@
           id="national-id"
           (input)="clearBackendIdError()"
           class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          [class.border-red-500]="isFieldInvalid('nationalId')" 
+          [class.border-red-500]="isFieldInvalid('nationalId')"
         />
 
         @if (isFieldInvalid('nationalId')) {
         <div class="text-red-400 mt-1 text-sm">
-          
-          @if (nationalIdBackendError) {
-            <small>{{ nationalIdBackendError }}</small>
-          } 
-
-
+          @if (createCustomerForm.get('nationalId')?.hasError('required')) {
+          <small>National ID is required.</small>
+          } @if ((createCustomerForm.get('nationalId')?.hasError('minlength')) ||
+          (createCustomerForm.get('firstName')?.hasError('maxlength'))) {
+          <small>National ID must be 11 charachers.</small>
+          } @if (nationalIdBackendError) {
+          <small>{{ nationalIdBackendError }}</small>
+          }
         </div>
         }
       </div>
-    </div> <div class="flex items-center justify-center space-x-6 mt-12">
+    </div>
+    <div class="flex items-center justify-center space-x-6 mt-12">
       <button
         type="button"
         class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer"
-        >
+      >
         Cancel
       </button>
       <button
         type="submit"
-        class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer
-               disabled:opacity-50 disabled:cursor-not-allowed"
-        [disabled]="createCustomerForm.invalid || nationalIdBackendError" 
+        class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="createCustomerForm.invalid || nationalIdBackendError"
       >
         Next
       </button>
     </div>
   </form>
-  
 </fieldset>
