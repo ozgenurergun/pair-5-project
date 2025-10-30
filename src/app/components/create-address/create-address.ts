@@ -36,29 +36,12 @@ export class AddressFormComponent implements OnInit, OnDestroy {
   // Her bir FormArray elemanı (her adres) için ayrı ilçe listesi tutar
   districts: { [key: number]: District[] } = {};
 
-  editIndex: number | null = 0; 
+  editIndex: number | null = null; 
+
+
 
   private unsubscribe$ = new Subject<void>();
 
-  // YENİ: State'i kaydetmek için özel bir metod
-  // Bunu hem "Next" hem de "Previous" butonları kullanacak.
-  private saveAddressesToState(): void {
-    // Formun o anki değerini al (validasyon kontrolü yapmadan)
-    const addressesToSave: Address[] = this.addressForm.value.addresses.map((addr: any) => {
-      const { city, ...restOfAddress } = addr;
-      // Geriye kalanlar (districtId, street, houseNumber vb.) state'deki Address modeline uyar
-      return restOfAddress as Address;
-    });
-
-    // Global state'i güncelle
-    const currentState = this.customerCreationService.state();
-    const newState = {...currentState,
-      addresses: addressesToSave // Adres dizisini formdakiyle değiştir
-    };
-    
-    this.customerCreationService.state.set(newState);
-    console.log('Address state güncellendi:', newState);
-  }
 
 
   constructor(
@@ -71,7 +54,6 @@ export class AddressFormComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.buildForm(); // Formu state'e göre build et
     this.loadCities(); // Şehirleri yükle
-
     
   }
 
@@ -79,6 +61,8 @@ export class AddressFormComponent implements OnInit, OnDestroy {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
+
+ 
 
   buildForm() {
     this.addressForm = this.formBuilder.group({
@@ -141,9 +125,15 @@ export class AddressFormComponent implements OnInit, OnDestroy {
   // FormArray'e yeni bir adres formu ekler
   addAddress(address?: Address) {
     this.addresses.push(this.newAddress(address));
-    this.editIndex = this.addresses.length - 1; 
 
     
+  }
+
+  // YENİ: "+ Add Another Address" butonunun çağıracağı yeni metod
+  addNewAddressButton() {
+    this.addAddress(); // Boş bir adres formu ekle
+    // Ve yeni eklenen bu formu (sondakini) düzenleme modunda aç
+    this.editIndex = this.addresses.length - 1; 
   }
 
   // YENİ: Düzenleme modunu açmak için
@@ -160,6 +150,8 @@ export class AddressFormComponent implements OnInit, OnDestroy {
       return;
     }
     this.editIndex = null;
+
+ 
   }
 
   // YENİ: "Ana Adres Yap" mantığı
@@ -180,10 +172,10 @@ export class AddressFormComponent implements OnInit, OnDestroy {
     if (isChecked) {
       this.setPrimary(index);
     }
+   
     // Eğer check kaldırılırsa, o adres "default: false" olur ve
     // o an hiçbir adres "default" olarak kalmaz. Bu gayet normal.
   }
-
 
   // FormArray'den belirli bir index'teki adres formunu siler
   removeAddress(index: number) {
@@ -194,6 +186,8 @@ export class AddressFormComponent implements OnInit, OnDestroy {
     if (this.editIndex === index) {
       this.editIndex = null;
     }
+
+
   }
 
   loadCities(): void {
@@ -227,13 +221,16 @@ export class AddressFormComponent implements OnInit, OnDestroy {
   // "Next" butonu: Form verisini state'e kaydeder
   submit(): void {
     this.submitted = true;
+
+
+
     if (this.addressForm.invalid) {
       this.markFormGroupTouched(this.addressForm);
       console.error('Address form is invalid.');
       return;
     }
 
-    this.saveAddressesToState(); // <--- YENİ METODU ÇAĞIR
+
 
     // Tıpkı ContactInfo örneğindeki gibi
     if (this.addressForm.valid) {
@@ -255,6 +252,8 @@ export class AddressFormComponent implements OnInit, OnDestroy {
       this.customerCreationService.state.set(newState);
       console.log('State güncellendi:', newState);
 
+      
+
       // Ana sayfaya (create-customer-page) bir sonraki adıma geçmesini söyle
       //this.nextStep.emit('contact-medium');
     }
@@ -262,7 +261,7 @@ export class AddressFormComponent implements OnInit, OnDestroy {
 
   // "Previous" butonu: Ana sayfaya haber verir
   onPrevious(): void {
-    this.saveAddressesToState(); 
+    this.submit();
     this.previousStep.emit('demographics');
   }
 

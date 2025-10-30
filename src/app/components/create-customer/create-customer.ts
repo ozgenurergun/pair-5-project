@@ -14,10 +14,8 @@ export class CreateCustomer implements OnInit {
   createCustomerForm!: FormGroup;
   submitted = false;
 
-  //id için
   @Output() nextStep = new EventEmitter<string>();
 
-  // Sadece nationalId için backend hatası
   nationalIdBackendError: string = '';
 
   constructor(
@@ -57,7 +55,7 @@ export class CreateCustomer implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.createCustomerForm.get(fieldName);
 
-    // Temel Angular doğrulama hatası var mı?
+    
     const hasValidationError = !!(
       field &&
       field.invalid &&
@@ -103,8 +101,13 @@ export class CreateCustomer implements OnInit {
           this.createCustomerForm.get('nationalId')?.setErrors({ idExists: true });
         } else {
           console.log(`%c[CREATE-CUSTOMER] STATE YAZILDI (Adres'e gitmeden önce)`,'color: #FF9800; font-weight: bold;');
-          console.log(`%c[CREATE-CUSTOMER] Yazılan yeni state:`,'color: #FF9800;', this.createCustomerForm);
-          const newValue = {...this.customerCreationService.state, ...this.createCustomerForm.value};
+          
+          // --- DÜZELTME BURADA ---
+          // Mevcut state'i ...state() ile çağırarak al, sonra form değerlerini üzerine yaz
+          const newValue = {...this.customerCreationService.state(), ...this.createCustomerForm.value};
+          // --- DÜZELTME BİTTİ ---
+
+          console.log(`%c[CREATE-CUSTOMER] Yazılan yeni state:`,'color: #FF9800;', newValue);
           this.customerCreationService.state.set(newValue);
           this.nextStep.emit('address');
         }
