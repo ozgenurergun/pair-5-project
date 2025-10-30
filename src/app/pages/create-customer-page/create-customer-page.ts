@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { CreateCustomer } from '../../components/create-customer/create-customer';
 import { AddressInfo } from "../../components/address-info/address-info";
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-create-customer-page',
-  imports: [CreateCustomer, AddressInfo],
+  imports: [CreateCustomer, AddressInfo, CommonModule],
   templateUrl: './create-customer-page.html',
   styleUrl: './create-customer-page.scss',
 })
@@ -24,6 +25,5 @@ export class CreateCustomerPage {
   onAddressNext(){
     console.log("Devam");
     this.currentStep = 'demographics'
-    this.createdCustomerId = " ";
   }
 }

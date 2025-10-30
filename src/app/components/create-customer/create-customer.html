@@ -175,7 +175,7 @@
           @if (createCustomerForm.get('nationalId')?.hasError('required')) {
           <small>National ID is required.</small>
           } @if ((createCustomerForm.get('nationalId')?.hasError('minlength')) ||
-          (createCustomerForm.get('firstName')?.hasError('maxlength'))) {
+          (createCustomerForm.get('nationalId')?.hasError('maxlength'))) {
           <small>National ID must be 11 charachers.</small>
           } @if (nationalIdBackendError) {
           <small>{{ nationalIdBackendError }}</small>

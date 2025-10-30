@@ -1,61 +1,41 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+// src/app/components/address-info/address-info.ts
+import { Component, EventEmitter, Output } from '@angular/core';
 import { AddressFormComponent } from '../create-address/create-address';
-import { AddressList } from '../address-list/address-list';
-import { AddressService } from '../../services/address-service';
+// AddressList'i import etmeye gerek kalmadı.
+// import { AddressList } from '../address-list/address-list';
+// AddressService'e de gerek kalmadı.
+// import { AddressService } from '../../services/address-service';
 
 @Component({
   selector: 'app-address-info',
-  imports: [AddressFormComponent, AddressList],
+  imports: [AddressFormComponent], // Sadece yeni FormArray'li formu import et
   templateUrl: './address-info.html',
   styleUrl: './address-info.scss',
+  standalone: true
 })
-export class AddressInfo implements OnInit {
-  @Input() customerId?: string;
-  @ViewChild('addressList') addressList!: AddressList;
+export class AddressInfo {
+  // customerId'ye gerek kalmadı, çünkü state'den geliyor
+  // @Input() customerId?: string;
+  // @ViewChild('addressList') addressList!: AddressList;
+
   @Output() previousStep = new EventEmitter<String>();
   @Output() nextStep = new EventEmitter<String>();
 
-  constructor(private addressService:AddressService){}
+  constructor() {} // Servislere gerek kalmadı
 
-  ngOnInit() {
-    console.log('CustomerId', this.customerId);
-  }
-
+  // ngOnInit'e gerek kalmadı
+  // ngOnInoıo
+  
+  // Bu metod 'app-create-address' içindeki 'Previous' butonundan tetiklenecek
   onPrevious() {
     this.previousStep.emit('demographics'); // Ebeveyne 'geri git' der
   }
 
-  onSaveAddress() {
-    // Modal'daki formu kaydederken:
-    if (this.customerId) {
-      console.log(`Bu adresi ${this.customerId} ID'li müşteriye ekle...`);
-      setTimeout(() => {
-        this.addressList.fetchAddress(this.customerId!);
-      },300);
-    } else {
-      console.error('Adres kaydedilemez, Customer ID yok!');
-    }
+  // Bu metod 'app-create-address' içindeki 'Next' butonundan tetiklenecek
+  onNext(event: string) {
+    this.nextStep.emit(event); // Ebeveyne 'ileri git' der (event 'contact-medium' olacak)
   }
   
-  onNext() {
-    this.nextStep.emit();
-    }
-
-  onMakePrimary() {
-    const selectedId = this.addressList?.selectedAddressId;
-    if (!this.customerId || !selectedId) {
-      console.warn('Primary yapılacak adres seçilmemiş.');
-      return;
-    }
-
-    
- 
-    this.addressService.setPrimaryAddress(selectedId).subscribe({
-      next: (res) => {
-        console.log('Primary adres ayarlandı:', res);
-        this.addressList.fetchAddress(this.customerId!);
-      },
-      error: (err) => console.error('Primary adres ayarlanamadı:', err),
-    });
-  }
+  // onSaveAddress'e gerek kalmadı, çünkü save işlemi 'app-create-address' içinde yapılıyor.
+  // onMakePrimary'e de gerek kalmadı, o mantık FormArray'deki 'default' checkbox'ı ile çözüldü.
 }

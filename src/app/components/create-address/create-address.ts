@@ -1,98 +1,127 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+// src/app/components/create-address/create-address.ts
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, effect, computed, ChangeDetectorRef } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
   FormGroup,
   Validators,
   ReactiveFormsModule,
+  FormArray,
+  AbstractControl,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AddressService } from '../../services/address-service';
 import { CityService } from '../../services/city-service';
 import { City } from '../../models/response/customer/city-response';
 import { District } from '../../models/response/customer/district-response';
 import { Subject, takeUntil } from 'rxjs';
+import { CustomerCreation } from '../../services/customer-creation';
+import { Address } from '../../models/createCustomerModel';
 
 @Component({
-  selector: 'app-create-address', // Bu bileşeni <app-create-address> olarak çağıracaksın
-  standalone: true, // Veya modülüne import et
+  selector: 'app-create-address',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './create-address.html',
   styleUrl: './create-address.scss',
 })
 export class AddressFormComponent implements OnInit, OnDestroy {
-  // OnInit ve OnDestroy eklendi
-
-  // Ebeveynden (app-address-info) customerId'yi almak için
-  @Input() customerId: string | undefined;
-  // Ebeveyne "Kaydettim" sinyali (ve yeni adresi) göndermek için
-  @Output() addressSaved = new EventEmitter<any>(); // <any> yerine Adres Modelini kullan
-
-  // NOT: @Output() cancel'ı kaldırdım.
-  // Bu bileşen "Cancel" işlemini 'closeForm()' ile kendi içinde yönetiyor.
+  @Output() nextStep = new EventEmitter<string>();
+  @Output() previousStep = new EventEmitter<string>();
 
   addressForm!: FormGroup;
   submitted = false;
 
-  // Formun görünürlük durumu
-  isFormVisible = false;
-
   // Dropdown listeleri
   cities: City[] = [];
-  districts: District[] = [];
+  // Her bir FormArray elemanı (her adres) için ayrı ilçe listesi tutar
+  districts: { [key: number]: District[] } = {};
 
-  // Abonelikleri yönetmek için
   private unsubscribe$ = new Subject<void>();
 
   constructor(
     private formBuilder: FormBuilder,
-    private addressService: AddressService,
-    private cityService: CityService
+    private cityService: CityService,
+    private customerCreationService: CustomerCreation,
+    private cdr:ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-    this.buildForm();
-    this.loadCities(); // Bileşen yüklendiğinde şehirleri çek
+    this.buildForm(); // Formu state'e göre build et
+    this.loadCities(); // Şehirleri yükle
 
-    // Formdaki 'city' alanının değişikliklerini dinle
-
-    this.addressForm
-      .get('city')
-      ?.valueChanges.pipe(takeUntil(this.unsubscribe$))
-      .subscribe((cityId) => {
-        // İlçe listesini sıfırla
-        this.districts = [];
-        this.addressForm.get('district')?.setValue(null);
-
-        if (cityId) {
-          // 1. ADIM: API'den gelen 'cities' listesinden seçilen şehri bul
-          const selectedCity = this.cities.find((city) => city.id === cityId);
-
-          if (selectedCity && selectedCity.districts) {
-            // 2. ADIM: Bulunan şehrin 'districts' dizisini listeye ata
-            this.districts = selectedCity.districts;
-          }
-        }
-      });
+    
   }
 
   ngOnDestroy() {
-    
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
 
+  // State'e göre formu ve FormArray'i oluşturur
   buildForm() {
-    // Görseldeki forma göre
     this.addressForm = this.formBuilder.group({
-      city: new FormControl(null, [Validators.required]),
-      districtId: new FormControl(null, [Validators.required]),
-      default: false,
-      customerId: new FormControl(this.customerId),
-      street: new FormControl(null, [Validators.required, Validators.minLength(2)]),
-      houseNumber: new FormControl('', [Validators.required, Validators.minLength(2)]),
-      description: new FormControl('', [Validators.required, Validators.minLength(10)]),
+      addresses: this.formBuilder.array([]), // Tıpkı ContactInfo örneğindeki gibi
     });
+
+    const currentAddresses = this.customerCreationService.state().addresses;
+
+    if (currentAddresses && currentAddresses.length > 0) {
+      currentAddresses.forEach((addr) => this.addAddress(addr));
+    } else {
+      // Başlangıçta 1 boş adres formu ekle
+      this.addAddress();
+    }
+  }
+
+  // FormArray'e kolay erişim için getter
+  get addresses() {
+    return this.addressForm.get('addresses') as FormArray;
+  }
+
+  // FormArray için yeni bir adres FormGroup'u oluşturur
+  newAddress(address?: Address): FormGroup {
+    const formGroup = this.formBuilder.group({
+      // Bu 'city' alanı, il/ilçe dropdown'larını yönetmek için kullanılır, state'e kaydedilmez.
+      city: new FormControl(null, [Validators.required]),
+      
+      // State modeline (Address) uygun alanlar
+      districtId: new FormControl(address?.districtId ?? null, [Validators.required]),
+      street: new FormControl(address?.street ?? '', [Validators.required, Validators.minLength(2)]),
+      houseNumber: new FormControl(address?.houseNumber ?? '', [Validators.required, Validators.minLength(1)]),
+      description: new FormControl(address?.description ?? '', [Validators.required, Validators.minLength(10)]),
+      default: new FormControl(address?.default ?? false),
+    });
+
+    // Bu form grubunun 'city' alanı değiştikçe ilçe listesini dinamik olarak günceller
+    formGroup
+      .get('city')
+      ?.valueChanges.pipe(takeUntil(this.unsubscribe$))
+      .subscribe((cityId) => {
+        const index = this.addresses.controls.indexOf(formGroup);
+        this.districts[index] = []; // O index'e ait ilçe listesini sıfırla
+        formGroup.get('districtId')?.setValue(null); // İlçe seçimini sıfırla
+
+        if (cityId) {
+          const selectedCity = this.cities.find((city) => city.id === cityId);
+          if (selectedCity && selectedCity.districts) {
+            this.districts[index] = selectedCity.districts;
+            this.cdr.markForCheck();
+          }
+        }
+      });
+
+    return formGroup;
+  }
+
+  // FormArray'e yeni bir adres formu ekler
+  addAddress(address?: Address) {
+    this.addresses.push(this.newAddress(address));
+  }
+
+  // FormArray'den belirli bir index'teki adres formunu siler
+  removeAddress(index: number) {
+    this.addresses.removeAt(index);
+    delete this.districts[index]; // O index'e ait ilçe listesini de sil
   }
 
   loadCities(): void {
@@ -101,90 +130,77 @@ export class AddressFormComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe({
         next: (data: City[]) => {
-          this.cities = data; // API'den gelen şehirleri (içindeki ilçelerle) listeye at
+          this.cities = data; 
+          this.addresses.controls.forEach((control, index) => {
+             const districtId = control.get('districtId')?.value;
+             if (districtId) {
+                const city = this.cities.find(c => c.districts.some(d => d.id === districtId));
+                if (city) {
+                  // DÜZELTME BURADA: { emitEvent: false } eklendi.
+                  // Bu, ilçe seçiminin sıfırlanmasını engeller.
+                  control.get('city')?.setValue(city.id, { emitEvent: false }); 
+                  this.districts[index] = city.districts; 
+                }
+             }
+          });
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error('Şehirler yüklenirken hata oluştu:', error);
+          this.cdr.markForCheck();
+          // Hata olsa bile city[] boş kalır, en azından sayfa açılır.
         },
       });
   }
-
-  // 5. ADIM: createAddress ve onSave metodlarını BİRLEŞTİR
-  // HTML (ngSubmit)="onSave()" metodunu çağıracak
-  onSave() {
+  // "Next" butonu: Form verisini state'e kaydeder
+  submit(): void {
     this.submitted = true;
-
-    if (!this.customerId) {
-        console.error('Adres kaydedilemez, customerId yok!');
-        return;
+    if (this.addressForm.invalid) {
+      this.markFormGroupTouched(this.addressForm);
+      console.error('Address form is invalid.');
+      return;
     }
 
+    // Tıpkı ContactInfo örneğindeki gibi
     if (this.addressForm.valid) {
-        
-        // 1. Form değerlerinin tamamını al
-        const formValue = this.addressForm.value;
+      console.log("merhaba")
+      // Formdaki 'city' alanını state'e kaydetmemek için ayıklıyoruz
+      // (Orijinal create-address.ts'teki mantık)
+      const addressesToSave: Address[] = this.addressForm.value.addresses.map((addr: any) => {
+        const { city, ...restOfAddress } = addr;
+        // Geriye kalanlar (districtId, street, houseNumber vb.) state'deki Address modeline uyar
+        return restOfAddress as Address;
+      });
 
-        // 2. 🚨 ÇÖZÜM: 'city' alanını ayır ve geriye kalan tüm verileri al (Rest Operator)
-        // city: Bu form elemanını bir değişkene atarız.
-        // ...rest: Formun diğer tüm geçerli alanlarını (street, district, houseNumber vb.) içeren bir obje oluşturur.
-        const { city, ...restAddressData } = formValue; 
+      // Global state'i güncelle
+      const currentState = this.customerCreationService.state();
+      const newState = {...currentState,
+        addresses: addressesToSave // Adres dizisini formdakiyle değiştir
+      };
+      
+      this.customerCreationService.state.set(newState);
+      console.log('State güncellendi:', newState);
 
-        // 3. API'ye gönderilecek nihai veri objesini oluştur.
-        // Artık 'city' alanı bu objenin içinde DEĞİL.
-        const finalPayload = {
-            ...restAddressData, // Geride kalan temiz veriler
-            customerId: this.customerId, // Customer ID'yi ekle
-        };
-
-        // 4. API isteğini gönder
-        this.addressService.postAddress(finalPayload).subscribe({
-            next: (response) => {
-                console.log('İşlem başarılı', response);
-                this.addressSaved.emit(response);
-                this.closeForm();
-            },
-            error: (error) => {
-                console.log('Gönderilen veri:', finalPayload); // Kontrol amaçlı log
-                console.error('Adres kaydederken hata oluştu!', error);
-            },
-        });
-    } else {
-        this.markFormGroupTouched(this.addressForm);
+      // Ana sayfaya (create-customer-page) bir sonraki adıma geçmesini söyle
+      //this.nextStep.emit('contact-medium');
     }
-}
-
-  // --- Form Görünürlük ve Resetleme ---
-
-  openForm() {
-    this.isFormVisible = true;
-    this.submitted = false;
   }
 
-  closeForm() {
-    this.isFormVisible = false;
-    this.addressForm.reset();
-    this.submitted = false;
-    // Şehir seçimi de sıfırlanınca ilçe listesini temizle
-    this.districts = [];
-  }
-
-  // Form reset
-  resetForm() {
-    this.addressForm.reset();
-    this.submitted = false;
+  // "Previous" butonu: Ana sayfaya haber verir
+  onPrevious(): void {
+    this.previousStep.emit('demographics');
   }
 
   // --- Validasyon Metodları ---
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.addressForm.get(fieldName);
+  isFieldInvalid(formGroup: AbstractControl, fieldName: string): boolean {
+    const field = formGroup.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched || this.submitted));
   }
 
-  private markFormGroupTouched(formGroup: FormGroup) {
-    Object.keys(formGroup.controls).forEach((key) => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
-      if (control instanceof FormGroup) {
+  private markFormGroupTouched(formGroup: FormGroup | FormArray) {
+    Object.values(formGroup.controls).forEach((control) => {
+      control.markAsTouched();
+      if (control instanceof FormGroup || control instanceof FormArray) {
         this.markFormGroupTouched(control);
       }
     });
