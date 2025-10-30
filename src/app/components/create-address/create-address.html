@@ -3,86 +3,123 @@
     
     @for (addressGroup of addresses.controls; track $index; let i = $index) {
       <div [formGroupName]="i" class="mb-8 border border-gray-700 rounded-lg p-6 relative">
+        
         <legend class="px-3 text-lg font-semibold text-gray-300 bg-[#2C2A4A] -mt-10 mb-4 w-auto">
           Address {{ i + 1 }}
+          @if (addressGroup.get('default')?.value) {
+            <span class="text-orange-500 font-bold ml-1">[Primary]</span>
+          }
         </legend>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+        @if (i === editIndex) {
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+            
+            <div>
+              <label [for]="'city-' + i" class="block text-sm font-medium mb-1">City *</label>
+              <div class="relative">
+                <select [id]="'city-' + i" formControlName="city"
+                  class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
+                  <option [ngValue]="null">Select City...</option>
+                  @for (city of cities; track city.id) {
+                    <option [ngValue]="city.id">{{ city.name }}</option>
+                  }
+                </select>
+                @if (isFieldInvalid(addressGroup, 'city')) {
+                  <div class="text-red-400 mt-1 text-sm"><small>City is required.</small></div>
+                }
+              </div>
+            </div>
+
+            <div>
+              <label [for]="'district-' + i" class="block text-sm font-medium mb-1">District *</label>
+              <div class="relative">
+                <select [id]="'district-' + i" formControlName="districtId"
+                  class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                  [attr.disabled]="!addressGroup.get('city')?.value ? true : null">
+                  <option [ngValue]="null" disabled selected>Select District...</option>
+                  @for (district of districts[i]; track district.id) {
+                    <option [ngValue]="district.id">{{ district.name }}</option>
+                  }
+                </select>
+                @if (isFieldInvalid(addressGroup, 'districtId')) {
+                  <div class="text-red-400 mt-1 text-sm"><small>District is required.</small></div>
+                }
+              </div>
+            </div>
+
+            <div>
+              <label [for]="'street-' + i" class="block text-sm font-medium mb-1">Street *</label>
+              <input type="text" [id]="'street-' + i" formControlName="street"
+                class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              @if (isFieldInvalid(addressGroup, 'street')) {
+                <div class="text-red-400 mt-1 text-sm"><small>Street is required.</small></div>
+              }
+            </div>
+
+            <div>
+              <label [for]="'houseNumber-' + i" class="block text-sm font-medium mb-1">House/Flat Number *</label>
+              <input type="text" [id]="'houseNumber-' + i" formControlName="houseNumber"
+                class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              @if (isFieldInvalid(addressGroup, 'houseNumber')) {
+                <div class="text-red-400 mt-1 text-sm"><small>House/Flat Number is required.</small></div>
+              }
+            </div>
+
+            <div class="md:col-span-2">
+              <label [for]="'description-' + i" class="block text-sm font-medium mb-1">Address Description *</label>
+              <textarea [id]="'description-' + i" formControlName="description" rows="3"
+                class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              @if (isFieldInvalid(addressGroup, 'description')) {
+                <div class="text-red-400 mt-1 text-sm"><small>Description must be at least 10 characters.</small></div>
+              }
+            </div>
+
+            <div class="md:col-span-2 flex items-center">
+              <input type="checkbox" [id]="'default-' + i" formControlName="default" 
+                     (change)="handlePrimaryCheck(i, $event)" 
+                     class="h-4 w-4 rounded">
+              <label [for]="'default-' + i" class="ml-2 text-sm font-medium text-gray-300">Set as primary address</label>
+            </div>
+          </div>
           
-          <div>
-            <label [for]="'city-' + i" class="block text-sm font-medium mb-1">City *</label>
-            <div class="relative">
-              <select [id]="'city-' + i" formControlName="city"
-                class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
-                <option [ngValue]="null">Select City...</option>
-                @for (city of cities; track city.id) {
-                  <option [ngValue]="city.id">{{ city.name }}</option>
-                }
-              </select>
-              @if (isFieldInvalid(addressGroup, 'city')) {
-                <div class="text-red-400 mt-1 text-sm"><small>City is required.</small></div>
+          <div class="flex justify-end mt-4">
+             <button type="button" (click)="saveAddress(i)"
+              class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm cursor-pointer">
+              Done
+            </button>
+          </div>
+
+        } @else {
+          <div class="text-gray-300">
+            <p class="font-medium">
+              {{ addressGroup.get('street')?.value || 'No street' }}, {{ addressGroup.get('houseNumber')?.value || 'N/A' }}
+            </p>
+            <p class="text-sm text-gray-400">
+              {{ addressGroup.get('description')?.value || 'No description' }}
+            </p>
+            
+            <div class="flex items-center space-x-4 mt-4">
+              @if (!addressGroup.get('default')?.value) {
+                <button type="button" (click)="setPrimary(i)"
+                  class="text-orange-400 hover:text-orange-300 text-sm font-medium">
+                  Make Primary
+                </button>
+              }
+              <button type="button" (click)="setEditIndex(i)"
+                class="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                Edit
+              </button>
+              @if (addresses.length > 1) {
+                <button type="button" (click)="removeAddress(i)"
+                  class="text-red-400 hover:text-red-300 text-sm font-medium">
+                  Remove
+                </button>
               }
             </div>
           </div>
-
-          <div>
-            <label [for]="'district-' + i" class="block text-sm font-medium mb-1">District *</label>
-            <div class="relative">
-              <select [id]="'district-' + i" formControlName="districtId"
-                class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                [attr.disabled]="!addressGroup.get('city')?.value ? true : null">
-                <option [ngValue]="null" disabled selected>Select District...</option>
-                @for (district of districts[i]; track district.id) {
-                  <option [ngValue]="district.id">{{ district.name }}</option>
-                }
-              </select>
-              @if (isFieldInvalid(addressGroup, 'districtId')) {
-                <div class="text-red-400 mt-1 text-sm"><small>District is required.</small></div>
-              }
-            </div>
-          </div>
-
-          <div>
-            <label [for]="'street-' + i" class="block text-sm font-medium mb-1">Street *</label>
-            <input type="text" [id]="'street-' + i" formControlName="street"
-              class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            @if (isFieldInvalid(addressGroup, 'street')) {
-              <div class="text-red-400 mt-1 text-sm"><small>Street is required.</small></div>
-            }
-          </div>
-
-          <div>
-            <label [for]="'houseNumber-' + i" class="block text-sm font-medium mb-1">House/Flat Number *</label>
-            <input type="text" [id]="'houseNumber-' + i" formControlName="houseNumber"
-              class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            @if (isFieldInvalid(addressGroup, 'houseNumber')) {
-              <div class="text-red-400 mt-1 text-sm"><small>House/Flat Number is required.</small></div>
-            }
-          </div>
-
-          <div class="md:col-span-2">
-            <label [for]="'description-' + i" class="block text-sm font-medium mb-1">Address Description *</label>
-            <textarea [id]="'description-' + i" formControlName="description" rows="3"
-              class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            @if (isFieldInvalid(addressGroup, 'description')) {
-              <div class="text-red-400 mt-1 text-sm"><small>Description must be at least 10 characters.</small></div>
-            }
-          </div>
-
-          <div class="md:col-span-2 flex items-center">
-            <input type="checkbox" [id]="'default-' + i" formControlName="default" class="h-4 w-4 rounded">
-            <label [for]="'default-' + i" class="ml-2 text-sm font-medium text-gray-300">Set as primary address</label>
-          </div>
-
-        </div>
-
-        @if (addresses.length > 1) {
-          <button type="button" (click)="removeAddress(i)"
-            class="absolute top-4 right-4 text-red-400 hover:text-red-300 font-medium">
-            Remove
-          </button>
         }
-      </div>
+        
+        </div>
     }
   </div>
 
@@ -100,8 +137,7 @@
     </button>
     <button type="submit"
       class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-      [disabled]="addressForm.invalid">
-      Next
+      [disabled]="addressForm.invalid || editIndex !== null"> Next
     </button>
   </div>
 </form>
