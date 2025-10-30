@@ -2,10 +2,11 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CustomerCreation } from '../../services/customer-creation';
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-create-customer',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './create-customer.html',
   styleUrl: './create-customer.scss',
 })
