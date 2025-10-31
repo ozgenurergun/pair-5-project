@@ -52,8 +52,14 @@
               <input type="text" [id]="'street-' + i" formControlName="street"
                 class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
               @if (isFieldInvalid(addressGroup, 'street')) {
-                <div class="text-red-400 mt-1 text-sm"><small>Street is required.</small></div>
-              }
+                <div class="text-red-400 mt-1 text-sm">
+                @if (addressGroup.get('street')?.hasError('required')) {
+                <small>Street is required.</small>
+                  }@if (addressGroup.get('street')?.hasError('minlength')) {
+                <small>Street is required.</small>
+                  }
+                
+            </div>}
             </div>
 
             <div>

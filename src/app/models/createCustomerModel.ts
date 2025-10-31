@@ -17,12 +17,12 @@ export interface Address {
   description: string;
   default: boolean;
   districtId: number;
-  customerId: string; 
+  customerId?: string; 
 }
 
 export interface ContactMedium {
   type: string;
   value: string;
-  customerId: string;
+  customerId?: string;
   primary: boolean;
 }
