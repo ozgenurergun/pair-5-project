@@ -1,4 +1,4 @@
-<form [formGroup]="addressForm" (ngSubmit)="submit()">
+<form [formGroup]="addressForm" >
   <div formArrayName="addresses">
     
     @for (addressGroup of addresses.controls; track $index; let i = $index) {
@@ -20,9 +20,9 @@
                 <select [id]="'city-' + i" formControlName="city"
                   class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
                   <option [ngValue]="null">Select City...</option>
-                  @for (city of cities; track city.id) {
-                    <option [ngValue]="city.id">{{ city.name }}</option>
-                  }
+                  @for (city of cities(); track city.id) {
+             <option [ngValue]="city.id">{{ city.name }}</option>
+}
                 </select>
                 @if (isFieldInvalid(addressGroup, 'city')) {
                   <div class="text-red-400 mt-1 text-sm"><small>City is required.</small></div>
@@ -91,8 +91,12 @@
 
         } @else {
           <div class="text-gray-300">
+            <p class="font-medium text-base">
+              {{ getCityName(addressGroup.get('districtId')?.value) }}, 
+              {{ getDistrictName(addressGroup.get('districtId')?.value) }}
+            </p>
             <p class="font-medium">
-              {{ addressGroup.get('street')?.value || 'No street' }}, {{ addressGroup.get('houseNumber')?.value || 'N/A' }}
+             {{ addressGroup.get('street')?.value + ' street' || 'No street' }}, {{ 'No: ' + addressGroup.get('houseNumber')?.value || 'N/A' }}
             </p>
             <p class="text-sm text-gray-400">
               {{ addressGroup.get('description')?.value || 'No description' }}
@@ -135,7 +139,7 @@
       class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer">
       Previous
     </button>
-    <button type="submit"
+    <button type="button" (click)="onNext()"
       class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       [disabled]="addressForm.invalid || editIndex !== null"> Next
     </button>

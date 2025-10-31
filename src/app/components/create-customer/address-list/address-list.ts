@@ -9,11 +9,11 @@ import {
   signal,
   SimpleChanges,
 } from '@angular/core';
-import { CreatedAddressResponse } from '../../models/response/customer/created-address-response';
+import { CreatedAddressResponse } from '../../../models/response/customer/created-address-response';
 import { AddressCard } from '../address-card/address-card';
 import { CommonModule } from '@angular/common';
-import { AddressService } from '../../services/address-service';
-import { CustomerSearchResponse } from '../../models/response/customer/customer-search-response';
+import { AddressService } from '../../../services/address-service';
+import { CustomerSearchResponse } from '../../../models/response/customer/customer-search-response';
 
 @Component({
   selector: 'app-address-list',

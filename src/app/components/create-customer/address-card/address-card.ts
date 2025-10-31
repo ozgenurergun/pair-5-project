@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CreatedAddressResponse } from '../../models/response/customer/created-address-response';
-import { Address, CustomerSearchResponse } from '../../models/response/customer/customer-search-response';
+import { CreatedAddressResponse } from '../../../models/response/customer/created-address-response';
+import { Address, CustomerSearchResponse } from '../../../models/response/customer/customer-search-response';
 
 @Component({
   selector: 'app-address-card',
