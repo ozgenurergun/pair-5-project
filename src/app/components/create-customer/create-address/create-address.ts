@@ -144,7 +144,7 @@ const isFirstAddress = this.addresses.length === 0 && !address;
         Validators.required,
         Validators.minLength(10),
       ]),
-      default: new FormControl(address?.default ?? isFirstAddress),
+      isDefault: new FormControl(address?.isDefault ?? isFirstAddress),
     });
 
     // Bu form grubunun 'city' alanı değiştikçe ilçe listesini dinamik olarak günceller

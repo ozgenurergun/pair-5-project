@@ -15,14 +15,12 @@ export interface Address {
   street: string;
   houseNumber: string;
   description: string;
-  default: boolean;
+  isDefault: boolean;
   districtId: number;
-  customerId?: string; 
 }
 
 export interface ContactMedium {
   type: string;
   value: string;
-  customerId?: string;
-  primary: boolean;
+  isPrimary: boolean;
 }

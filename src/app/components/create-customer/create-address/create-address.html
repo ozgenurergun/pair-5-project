@@ -6,7 +6,7 @@
         
         <legend class="px-3 text-lg font-semibold text-gray-300 bg-[#2C2A4A] -mt-10 mb-4 w-auto">
           Address {{ i + 1 }}
-          @if (addressGroup.get('default')?.value) {
+          @if (addressGroup.get('isDefault')?.value) {
             <span class="text-orange-500 font-bold ml-1">[Primary]</span>
           }
         </legend>
@@ -76,12 +76,12 @@
               <textarea [id]="'description-' + i" formControlName="description" rows="3"
                 class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
               @if (isFieldInvalid(addressGroup, 'description')) {
-                <div class="text-red-400 mt-1 text-sm"><small>Description must be at least 10 characters.</small></div>
+                <div class="text-red-400 mt-1 text-sm"><small>Address description must be at least 10 characters long.</small></div>
               }
             </div>
 
             <div class="md:col-span-2 flex items-center">
-              <input type="checkbox" [id]="'default-' + i" formControlName="default" 
+              <input type="checkbox" [id]="'default-' + i" formControlName="isDefault" 
                      (change)="handlePrimaryCheck(i, $event)" 
                      class="h-4 w-4 rounded">
               <label [for]="'default-' + i" class="ml-2 text-sm font-medium text-gray-300">Set as primary address</label>
@@ -91,7 +91,7 @@
           <div class="flex justify-end mt-4">
              <button type="button" (click)="saveAddress(i)"
               class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm cursor-pointer">
-              Done
+              Save
             </button>
           </div>
 

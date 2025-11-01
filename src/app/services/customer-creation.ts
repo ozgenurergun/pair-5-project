@@ -42,4 +42,11 @@ export class CustomerCreation {
       })
     );
   }
+
+  private apiUrlCustomer = 'http://localhost:8091/customerservice/api/individual-customers/'
+
+  postCustomer(customerData:CreateCustomerModel):Observable<any>{
+    console.log("Dbye gidiyor")
+    return this.http.post(this.apiUrlCustomer, customerData);
+  }
 }

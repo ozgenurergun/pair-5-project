@@ -46,10 +46,10 @@ export class CreateContactMedium implements OnInit {
     //const stateMediums: ContactMedium[] = []; // Şimdilik boş bir dizi varsayalım
 
     // State'deki diziyi form alanlarıyla eşleştir
-    const email = stateMediums?.find((m) => m.type === 'Email')?.value || '';
-    const mobilePhone = stateMediums?.find((m) => m.type === 'MobilePhone')?.value || '';
-    const homePhone = stateMediums?.find((m) => m.type === 'HomePhone')?.value || '';
-    const fax = stateMediums?.find((m) => m.type === 'Fax')?.value || '';
+    const email = stateMediums?.find((m) => m.type === 'EMAIL')?.value || '';
+    const mobilePhone = stateMediums?.find((m) => m.type === 'PHONE')?.value || '';
+    const homePhone = stateMediums?.find((m) => m.type === 'HOMEPHONE')?.value || '';
+    const fax = stateMediums?.find((m) => m.type === 'FAX')?.value || '';
 
     // Formu state'deki verilerle güncelle
     this.contactMediumForm.patchValue({
@@ -66,30 +66,30 @@ export class CreateContactMedium implements OnInit {
 
     if (formValue.email) {
       mediums.push({
-        type: 'Email',
+        type: 'EMAIL',
         value: formValue.email,
-        primary: true, // Örnek olarak email'i primary yapalım
+        isPrimary: true, // Örnek olarak email'i primary yapalım
       });
     }
     if (formValue.mobilePhone) {
       mediums.push({
-        type: 'MobilePhone',
+        type: 'PHONE',
         value: formValue.mobilePhone,
-        primary: false,
+        isPrimary: false,
       });
     }
     if (formValue.homePhone) {
       mediums.push({
-        type: 'HomePhone',
+        type: 'HOMEPHONE',
         value: formValue.homePhone,
-        primary: false,
+        isPrimary: false,
       });
     }
     if (formValue.fax) {
       mediums.push({
-        type: 'Fax',
+        type: 'FAX',
         value: formValue.fax,
-        primary: false,
+        isPrimary: false,
       });
     }
 
@@ -136,6 +136,20 @@ isFieldInvalid(formGroup: AbstractControl, fieldName: string): boolean {
     // TODO: Formdaki veriyi state'e kaydet
     console.log('Form submitted:', this.contactMediumForm.value);
     this.saveContactMediumsToState();
+
+    const completeCustomerData = this.customerCreationService.state();
+    this.customerCreationService.postCustomer(completeCustomerData).subscribe({
+      next: (response) => {
+        console.log('Customer created successfully!', response);
+        // Başarılı olursa yapılacak ek işlemler (örn: formu sıfırlama,
+        // kullanıcıyı başka sayfaya yönlendirme vb.)
+      },
+      error: (err) => {
+        console.error('Customer creation failed', err);
+        // Hata yönetimi, örn. kullanıcıya bir hata mesajı gösterme
+      }
+    });
+
     // Yaratma işlemini tetikle
     //this.create.emit();
   }
