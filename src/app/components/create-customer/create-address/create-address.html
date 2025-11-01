@@ -12,8 +12,8 @@
         </legend>
 
         @if (i === editIndex) {
+          
           <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-            
             <div>
               <label [for]="'city-' + i" class="block text-sm font-medium mb-1">City *</label>
               <div class="relative">
@@ -21,15 +21,14 @@
                   class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
                   <option [ngValue]="null">Select City...</option>
                   @for (city of cities(); track city.id) {
-             <option [ngValue]="city.id">{{ city.name }}</option>
-}
+                    <option [ngValue]="city.id">{{ city.name }}</option>
+                  }
                 </select>
                 @if (isFieldInvalid(addressGroup, 'city')) {
                   <div class="text-red-400 mt-1 text-sm"><small>City is required.</small></div>
                 }
               </div>
             </div>
-
             <div>
               <label [for]="'district-' + i" class="block text-sm font-medium mb-1">District *</label>
               <div class="relative">
@@ -46,22 +45,20 @@
                 }
               </div>
             </div>
-
             <div>
               <label [for]="'street-' + i" class="block text-sm font-medium mb-1">Street *</label>
               <input type="text" [id]="'street-' + i" formControlName="street"
                 class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
               @if (isFieldInvalid(addressGroup, 'street')) {
                 <div class="text-red-400 mt-1 text-sm">
-                @if (addressGroup.get('street')?.hasError('required')) {
-                <small>Street is required.</small>
+                  @if (addressGroup.get('street')?.hasError('required')) {
+                    <small>Street is required.</small>
                   }@if (addressGroup.get('street')?.hasError('minlength')) {
-                <small>Street is required.</small>
+                    <small>Street must be at least 2 characters.</small> 
                   }
-                
-            </div>}
+                </div>
+              }
             </div>
-
             <div>
               <label [for]="'houseNumber-' + i" class="block text-sm font-medium mb-1">House/Flat Number *</label>
               <input type="text" [id]="'houseNumber-' + i" formControlName="houseNumber"
@@ -70,16 +67,14 @@
                 <div class="text-red-400 mt-1 text-sm"><small>House/Flat Number is required.</small></div>
               }
             </div>
-
             <div class="md:col-span-2">
               <label [for]="'description-' + i" class="block text-sm font-medium mb-1">Address Description *</label>
               <textarea [id]="'description-' + i" formControlName="description" rows="3"
                 class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
               @if (isFieldInvalid(addressGroup, 'description')) {
-                <div class="text-red-400 mt-1 text-sm"><small>Address description must be at least 10 characters long.</small></div>
+                <div class="text-red-400 mt-1 text-sm"><small>Description must be at least 10 characters.</small></div>
               }
             </div>
-
             <div class="md:col-span-2 flex items-center">
               <input type="checkbox" [id]="'default-' + i" formControlName="isDefault" 
                      (change)="handlePrimaryCheck(i, $event)" 
@@ -88,12 +83,19 @@
             </div>
           </div>
           
-          <div class="flex justify-end mt-4">
-             <button type="button" (click)="saveAddress(i)"
+          <div class="flex justify-end items-center space-x-4 mt-4">
+<button type="button" (click)="cancelEdit(i)"
+              class="bg-gray-200 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm cursor-pointer
+                     disabled:opacity-50 disabled:cursor-not-allowed"
+              [disabled]="addresses.length === 1">
+              Cancel
+</button>
+ 
+            <button type="button" (click)="saveAddress(i)"
               class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm cursor-pointer">
-              Save
-            </button>
-          </div>
+              Done
+</button>
+</div>
 
         } @else {
           <div class="text-gray-300">
@@ -109,19 +111,19 @@
             </p>
             
             <div class="flex items-center space-x-4 mt-4">
-              @if (!addressGroup.get('default')?.value) {
+              @if (!addressGroup.get('isDefault')?.value) {
                 <button type="button" (click)="setPrimary(i)"
-                  class="text-orange-400 hover:text-orange-300 text-sm font-medium">
+                  class="text-orange-400 hover:text-orange-300 text-sm font-medium cursor-pointer">
                   Make Primary
                 </button>
               }
               <button type="button" (click)="setEditIndex(i)"
-                class="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                class="text-blue-400 hover:text-blue-300 text-sm font-medium cursor-pointer">
                 Edit
               </button>
               @if (addresses.length > 1) {
-                <button type="button" (click)="removeAddress(i)"
-                  class="text-red-400 hover:text-red-300 text-sm font-medium">
+                <button type="button" (click)="openDeleteConfirm(i)"
+                  class="text-red-400 hover:text-red-300 text-sm font-medium cursor-pointer">
                   Remove
                 </button>
               }
@@ -129,17 +131,24 @@
           </div>
         }
         
-        </div>
+      </div>
     }
   </div>
 
-<div class="flex justify-center mt-6">
-    <button type="button" (click)="addNewAddressButton()"
-      class="bg-blue-600 text-white font-bold py-2 px-6 rounded-full hover:bg-blue-700 transition-colors text-lg cursor-pointer">
-      + Add Another Address
-    </button>
-  </div>
-
+  <div class="flex justify-center mt-6">
+<button type="button" (click)="addNewAddressButton()"
+      class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer
+             disabled:opacity-50 disabled:cursor-not-allowed"
+      [disabled]="editIndex !== null">
+      @if (addresses.controls.length === 0) {
+        + Add Address
+      } @else {
+        + Add Another Address
+      }
+</button>
+</div>
+ 
+  
   <div class="flex items-center justify-between max-w-5xl mx-auto mt-12">
     <button type="button" (click)="onPrevious()"
       class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer">
@@ -147,7 +156,27 @@
     </button>
     <button type="button" (click)="onNext()"
       class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-      [disabled]="addressForm.invalid || editIndex !== null"> Next
-    </button>
+      [disabled]="addressForm.invalid || editIndex !== null || addresses.controls.length === 0"> Next
+</button>
   </div>
 </form>
+
+@if (isErrorModalVisible) {
+  <app-popup
+    title=""
+    [message]="errorModalMessage"
+    confirmText="Okey"
+    (onConfirm)="closeErrorModal()"
+  ></app-popup>
+}
+
+@if (isDeleteModalVisible) {
+  <app-popup
+    title=""
+    message="Are you sure to delete this address account?"
+    confirmText="Yes"
+    cancelText="No"
+    (onConfirm)="confirmDelete()"
+    (onCancel)="cancelDelete()"
+  ></app-popup>
+}

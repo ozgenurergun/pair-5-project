@@ -14,7 +14,7 @@ export class Popup {
   @Input() confirmText: string = 'Yes'; // Onay butonu yazısı
   // İptal butonunu opsiyonel yapalım. Eğer bu boş gelirse, buton hiç görünmez.
   // Bu sayede "Hata" popup'ları için tek buton ('OK') kullanabilirsin.
-  @Input() cancelText: string = 'No'; // İptal butonu yazısı
+  @Input() cancelText: string = ''; // İptal butonu yazısı
  
   // --- Çıktılar (Outputs) ---
   // Kullanıcı butonlara bastığında parent component'i bilgilendirir

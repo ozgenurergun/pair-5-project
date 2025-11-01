@@ -29,11 +29,12 @@ import { District } from '../../../models/response/customer/district-response';
 import { Subject, takeUntil } from 'rxjs';
 import { CustomerCreation } from '../../../services/customer-creation';
 import { Address } from '../../../models/createCustomerModel';
+import { Popup } from '../../popup/popup';
 
 @Component({
   selector: 'app-create-address',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, Popup],
   templateUrl: './create-address.html',
   styleUrl: './create-address.scss',
 })
@@ -52,12 +53,19 @@ export class AddressFormComponent implements OnInit, OnDestroy {
 
   private unsubscribe$ = new Subject<void>();
 
+  // --- YENİ: Popup'ları yönetmek için state'ler ---
+  isDeleteModalVisible = false;
+  addressToDeleteIndex: number | null = null;
+  isErrorModalVisible = false;
+  errorModalMessage: string = '';
+  // ----------------------------------------------
+
   constructor(
     private formBuilder: FormBuilder,
     private cityService: CityService,
     private customerCreationService: CustomerCreation
-    //private cdr: ChangeDetectorRef
-  ) {}
+  ) //private cdr: ChangeDetectorRef
+  {}
 
   ngOnInit() {
     this.buildForm(); // Formu state'e göre build et
@@ -71,7 +79,7 @@ export class AddressFormComponent implements OnInit, OnDestroy {
 
   buildForm() {
     this.addressForm = this.formBuilder.group({
-      addresses: this.formBuilder.array([]),
+      addresses: this.formBuilder.array([], [Validators.minLength(1)]),
     });
 
     const currentAddresses = this.customerCreationService.state().addresses;
@@ -81,21 +89,23 @@ export class AddressFormComponent implements OnInit, OnDestroy {
       // Eğer state'den adresler yüklendiyse, hiçbirini düzenleme modunda açma
       this.editIndex = null;
     } else {
-      this.addAddress(); // 1 boş adres ekle
-      this.editIndex = 0; // İlk adresi düzenleme modunda aç
+      //this.addAddress(); // 1 boş adres ekle
+      //this.editIndex = 0; // İlk adresi düzenleme modunda aç
     }
   }
 
-/// YENİ: Kartta şehir adını göstermek için helper metod (Sinyal ile güncellendi)
+  /// YENİ: Kartta şehir adını göstermek için helper metod (Sinyal ile güncellendi)
   public getCityName(districtId: number): string {
     const citiesList = this.cities(); // <--- DEĞİŞİKLİK
-    
+
     if (!districtId || !citiesList || citiesList.length === 0) {
       return '';
     }
-    
-    const city = citiesList.find(c => // <--- DEĞİŞİKLİK
-      c.districts && c.districts.some(d => d.id === districtId)
+
+    const city = citiesList.find(
+      (
+        c // <--- DEĞİŞİKLİK
+      ) => c.districts && c.districts.some((d) => d.id === districtId)
     );
     return city ? city.name : 'Unknown City';
   }
@@ -108,8 +118,9 @@ export class AddressFormComponent implements OnInit, OnDestroy {
       return '';
     }
 
-    for (const city of citiesList) { // <--- DEĞİŞİKLİK
-      const district = city.districts.find(d => d.id === districtId);
+    for (const city of citiesList) {
+      // <--- DEĞİŞİKLİK
+      const district = city.districts.find((d) => d.id === districtId);
       if (district) {
         return district.name;
       }
@@ -124,7 +135,7 @@ export class AddressFormComponent implements OnInit, OnDestroy {
 
   // FormArray için yeni bir adres FormGroup'u oluşturur
   newAddress(address?: Address): FormGroup {
-const isFirstAddress = this.addresses.length === 0 && !address;
+    const isFirstAddress = this.addresses.length === 0 && !address;
 
     const formGroup = this.formBuilder.group({
       // Bu 'city' alanı, il/ilçe dropdown'larını yönetmek için kullanılır, state'e kaydedilmez.
@@ -186,22 +197,64 @@ const isFirstAddress = this.addresses.length === 0 && !address;
     this.editIndex = index;
   }
 
-  // YENİ: Karttaki formu kaydetmek (kapatmak) için
+  cancelEdit(index: number) {
+    // Eğer bu son adres değilse, formu (muhtemelen boş olan) kaldır.
+    if (this.addresses.length > 1) {
+      this.removeAddress(index); // removeAddress, editIndex'i zaten null'a çeker.
+    } else {
+      // Bu son adrestir, kaldıramayız.
+      // Sadece düzenleme modunu kapat.
+      // Not: Eğer form invalid ise, kart invalid olarak kalır
+      // ve kullanıcı "Next"e basamaz. Bu, "Done" ile aynı davranıştır.
+      this.editIndex = null;
+    }
+  }
+
+  // GÜNCELLENDİ: "Done" butonu (Validasyon Popup'ı)
   saveAddress(index: number) {
     const addressGroup = this.addresses.at(index);
     if (addressGroup.invalid) {
-      // Form geçersizse kapatma, kullanıcıya hata göster
+      // Form geçersizse, tüm alanlara dokunulmuş say ve popup'ı tetikle
       this.markFormGroupTouched(addressGroup as FormGroup);
-      return;
+      this.errorModalMessage = 'All mandatory address fields must be filled.';
+      this.isErrorModalVisible = true;
+      return; // Kartı kapatma
     }
+    // Form geçerliyse kartı kapat
     this.editIndex = null;
+  }
+
+  // YENİ: Hata popup'ını kapatma metodu
+  closeErrorModal() {
+    this.isErrorModalVisible = false;
+    this.errorModalMessage = '';
+  }
+
+  // YENİ: "Remove" butonu artık silme onay popup'ını açar
+  openDeleteConfirm(index: number) {
+    this.addressToDeleteIndex = index;
+    this.isDeleteModalVisible = true;
+  }
+
+  // YENİ: Silme popup'ı "Yes" derse bu metod çalışır
+  confirmDelete() {
+    if (this.addressToDeleteIndex !== null) {
+      this.removeAddress(this.addressToDeleteIndex); // Esas silme işlemi
+    }
+    this.cancelDelete(); // Modalı kapat
+  }
+
+  // YENİ: Silme popup'ı "No" derse veya silme sonrası
+  cancelDelete() {
+    this.isDeleteModalVisible = false;
+    this.addressToDeleteIndex = null;
   }
 
   // YENİ: "Ana Adres Yap" mantığı
   // Sadece bir adresin "default" olmasını sağlar
   setPrimary(indexToSet: number) {
     this.addresses.controls.forEach((control, i) => {
-      control.get('default')?.setValue(i === indexToSet);
+      control.get('isDefault')?.setValue(i === indexToSet);
     });
 
     // YENİ: Checkbox'tan tetiklenirse diye
@@ -281,6 +334,10 @@ const isFirstAddress = this.addresses.length === 0 && !address;
         return restOfAddress as Address;
       });
 
+      this.errorModalMessage =
+        'Lütfen tüm adreslerinizi kontrol edin. Eksik veya hatalı alanlar var.';
+      this.isErrorModalVisible = true;
+
       // Global state'i güncelle
       const currentState = this.customerCreationService.state();
       const newState = {
@@ -298,9 +355,7 @@ const isFirstAddress = this.addresses.length === 0 && !address;
   onNext(): void {
     this.submit();
     this.nextStep.emit('contact-mediums');
-
   }
-
 
   // "Previous" butonu: Ana sayfaya haber verir
   onPrevious(): void {
