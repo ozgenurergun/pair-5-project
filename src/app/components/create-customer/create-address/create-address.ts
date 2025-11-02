@@ -212,6 +212,7 @@ export class AddressFormComponent implements OnInit, OnDestroy {
 
   // GÜNCELLENDİ: "Done" butonu (Validasyon Popup'ı)
   saveAddress(index: number) {
+    
     const addressGroup = this.addresses.at(index);
     if (addressGroup.invalid) {
       // Form geçersizse, tüm alanlara dokunulmuş say ve popup'ı tetikle
@@ -318,6 +319,7 @@ export class AddressFormComponent implements OnInit, OnDestroy {
     this.submitted = true;
 
     if (this.addressForm.invalid) {
+      console.log('LOG-1 (Form Value):', this.addressForm.value.addresses);
       this.markFormGroupTouched(this.addressForm);
       console.error('Address form is invalid.');
       return;
@@ -334,6 +336,8 @@ export class AddressFormComponent implements OnInit, OnDestroy {
         return restOfAddress as Address;
       });
 
+      console.log('LOG-2 (addressesToSave):', addressesToSave);
+
       this.errorModalMessage =
         'Lütfen tüm adreslerinizi kontrol edin. Eksik veya hatalı alanlar var.';
       this.isErrorModalVisible = true;
@@ -348,6 +352,7 @@ export class AddressFormComponent implements OnInit, OnDestroy {
       this.customerCreationService.state.set(newState);
       console.log('State güncellendi:', newState);
 
+      console.log('LOG-3 (Final State):', newState);
       // Ana sayfaya (create-customer-page) bir sonraki adıma geçmesini söyle
     }
   }
