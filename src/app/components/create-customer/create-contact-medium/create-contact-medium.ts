@@ -4,6 +4,7 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validator
 import { CommonModule } from '@angular/common';
 import { CustomerCreation } from '../../../services/customer-creation';
 import { ContactMedium } from '../../../models/createCustomerModel';
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-create-contact-medium',
@@ -106,7 +107,10 @@ export class CreateContactMedium implements OnInit {
       ...currentState,
       contactMediums: contactMediums, // Adres dizisini formdakiyle değiştir
     };
-          this.customerCreationService.state.set(newState);
+          this.customerCreationService.state.update((prev) => ({
+  ...prev,
+  contactMediums: contactMediums,
+}));
 
   }
 
@@ -149,7 +153,6 @@ isFieldInvalid(formGroup: AbstractControl, fieldName: string): boolean {
         // Hata yönetimi, örn. kullanıcıya bir hata mesajı gösterme
       }
     });
-
     // Yaratma işlemini tetikle
     //this.create.emit();
   }
