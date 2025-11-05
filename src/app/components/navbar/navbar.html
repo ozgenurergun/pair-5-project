@@ -1,6 +1,6 @@
 <nav class="w-24 bg-gray-200 p-3 flex flex-col items-center space-y-4 shadow-lg">
   <button
-    class="flex flex-col items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all"
+    class="flex flex-col items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all cursor-pointer"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -17,7 +17,7 @@
       /></svg>
       <span class="text-sm font-medium mt-1">B2C</span></button
   ><button
-    class="flex flex-col items-center justify-center w-20 h-20 rounded-lg bg-white shadow-md text-gray-900 ring-2 ring-blue-500/50 transition-all"
+    class="flex flex-col items-center justify-center w-20 h-20 rounded-lg bg-white shadow-md text-gray-900 ring-2 ring-blue-500/50 transition-all cursor-pointer"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +34,7 @@
       /></svg>
       <span class="text-sm font-medium mt-1">B2B</span></button
   ><button
-    class="flex items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all"
+    class="flex items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all cursor-pointer"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -51,7 +51,7 @@
       />
     </svg></button
   ><button
-    class="flex items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all"
+    class="flex items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all cursor-pointer"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +68,8 @@
       />
     </svg></button
   ><button
-    class="flex items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all mt-auto mb-4"
+  (click)="logout()" 
+    class="flex items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all mt-auto mb-4 cursor-pointer"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
