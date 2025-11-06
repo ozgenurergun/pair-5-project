@@ -1,8 +1,8 @@
-/*
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CustomerSearchResponseList } from '../models/response/customer/customer-search-response';
+import { CustomerSearchList } from '../models/response/customer/customer-search-response';
 
 @Injectable({ providedIn: 'root' })
 export class SearchCustomerService {
@@ -11,7 +11,7 @@ export class SearchCustomerService {
   constructor(private http: HttpClient) {}
 
 
-  searchCustomers(filters: any, page: number, size: number): Observable<CustomerSearchResponseList> {
+  searchCustomers(filters: any, page: number, size: number): Observable<CustomerSearchList> {
     let params = new HttpParams()
       .set('page', page)
       .set('size', size);
@@ -24,6 +24,6 @@ export class SearchCustomerService {
     });
 
 
-    return this.http.get<CustomerSearchResponseList>(`${this.baseUrl}search`, { params });
+    return this.http.get<CustomerSearchList>(`${this.baseUrl}search`, { params });
   }
-}*/
+}

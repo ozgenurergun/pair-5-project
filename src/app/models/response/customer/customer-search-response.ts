@@ -1,24 +1,32 @@
+export type CustomerSearchList = CustomerSearchResponse[]
+
 export interface CustomerSearchResponse {
   id: string;
-  customerNumber: string;
-  firstName: string;
-  lastName: string;
-  nationalId: string;
-  dateOfBirth: string;
-  fatherName: string;
-  motherName: string;
-  gender: string;
-  addresses: Address[];
-  contactMediums: any[];
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
+  nationalId?: string;
+  dateOfBirth?: string | null;
+  motherName?: string;
+  fatherName?: string;
+  gender?: string;
+  customerNumber?: string;
+  addresses?: Address[];
+  contactMediums?: ContactMedium[]
 }
 
 export interface Address {
-  addressId: number;
+  id: number;
   street: string;
   houseNumber: string;
   description: string;
+  isDefault: boolean;
   districtId: number;
-  cityName:string;
-  customerId: string;
-  default: boolean;
+}
+
+export interface ContactMedium {
+  id: number;
+  type: string;
+  value: string;
+  isPrimary: boolean;
 }
