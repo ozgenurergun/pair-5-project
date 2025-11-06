@@ -1,52 +1,114 @@
-import { Component, OnInit, Signal, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { SearchCustomerService } from '../../services/customersearch-service';
-import { CustomerSearchList } from '../../models/response/customer/customer-search-response';
+import { SearchCustomerService } from '../../services/customersearch-service'; // Kendi yolunu doğrula
+import { CustomerSearchList } from '../../models/response/customer/customer-search-response'; // Kendi yolunu doğrula
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-customer-search',
   standalone: true,
   imports: [
-    ReactiveFormsModule // Yeni @for/@if syntax'ı için CommonModule'e gerek yok
+    ReactiveFormsModule,
+    RouterModule 
   ],
   templateUrl: './customer-search.html',
   styleUrl: './customer-search.scss',
 })
 export class CustomerSearch implements OnInit {
   
-  // Servisleri ve FormBuilder'ı enjekte ediyoruz
   private fb = inject(FormBuilder);
   private searchCustomerService = inject(SearchCustomerService);
+  private router = inject(Router); 
 
-  searchForm!: FormGroup; // Formumuz
-  //searchResults: Signal<CustomerSearchList>([]);
-  //searchResults: CustomerSearchList = []; // Sonuçları tutacak dizi
-  //hasSearched: boolean = false; // Arama yapılıp yapılmadığını tutan bayrak
-
-  searchResults = signal<CustomerSearchList>([]); // Başlangıç değeri boş bir dizi
+  searchForm!: FormGroup;
+  searchResults = signal<CustomerSearchList>([]);
   hasSearched = signal(false);
+  isSearchDisabled = signal(true);
+
+  // === YENİ KURAL MANTIĞI ===
+  // FR 4 & 5: Alanları iki gruba ayırıyoruz
+  private uniqueIdFields = ['nationalId', 'id', 'customerNumber', 'value', 'orderNumber'];
+  private nameFields = ['firstName', 'lastName'];
+  // ==========================
 
   ngOnInit(): void {
-    // Formu, HTML'deki 'formControlName'ler ile eşleşecek şekilde kur
     this.searchForm = this.fb.group({
       nationalId: [''],
-      id: [''],
-      customerNumber: [''],
-      value: [''],
+      id: [''],           
+      customerNumber: [''], 
+      value: [''],        
       firstName: [''],
       lastName: [''],
       orderNumber: ['']
     });
+
+    this.subscribeToFormChanges();
   }
 
   /**
-   * Arama butonu tetiklendiğinde.
+   * FR 4, 5, 6, 7 için form dinleyicisi (Yeniden Yazıldı)
    */
+  private subscribeToFormChanges(): void {
+    this.searchForm.valueChanges.subscribe(() => {
+      // getRawValue() kullanmak, disable edilmiş alanların da değerini okur.
+      // Bu, "reset" sonrası tüm alanların durumunu doğru görmek için önemlidir.
+      const value = this.searchForm.getRawValue();
+      
+      const aUniqueIdIsFilled = this.uniqueIdFields.some(field => value[field]);
+      const aNameFieldIsFilled = this.nameFields.some(field => value[field]);
+
+      // FR 6 & 7: Arama butonu durumu
+      this.isSearchDisabled.set(!aUniqueIdIsFilled && !aNameFieldIsFilled);
+
+      // === ASIL KİLİTLEME MANTIĞI ===
+
+      // 1. Kural: İsim alanı doluysa, tüm benzersiz ID'leri kilitle
+      this.uniqueIdFields.forEach(field => {
+        const control = this.searchForm.get(field);
+        if (!control) return;
+
+        if (aNameFieldIsFilled) {
+          if (control.enabled) control.disable({ emitEvent: false });
+        } else if (control.disabled) {
+          control.enable({ emitEvent: false });
+        }
+      });
+
+      // 2. Kural: Benzersiz ID doluysa, tüm isim alanlarını kilitle
+      this.nameFields.forEach(field => {
+        const control = this.searchForm.get(field);
+        if (!control) return;
+
+        if (aUniqueIdIsFilled) {
+          if (control.enabled) control.disable({ emitEvent: false });
+        } else if (control.disabled) {
+          control.enable({ emitEvent: false });
+        }
+      });
+      
+      // 3. Kural: Benzersiz ID alanı doluysa, DİĞER benzersiz ID'leri kilitle
+      // (Bu, 1. kuraldan bağımsız olarak tekrar çalışmalı)
+      if (aUniqueIdIsFilled) {
+        const filledUniqueField = this.uniqueIdFields.find(field => value[field]);
+        
+        this.uniqueIdFields.forEach(field => {
+          if (field === filledUniqueField) return; // Dolu olanı atla
+          
+          const control = this.searchForm.get(field);
+          if (control && control.enabled) {
+            control.disable({ emitEvent: false });
+          }
+        });
+      }
+    });
+  }
+
   onSearch(): void {
-    this.hasSearched.set(true); // Arama yapıldı olarak işaretle
-    const filters = this.searchForm.value;
+    this.hasSearched.set(true); 
+    // getRawValue() kullan, çünkü arama yapılacak alan (örn: nationalId)
+    // diğer alanları (örn: firstName) disable edeceği için form.value'da gelmez.
+    const filters = this.searchForm.getRawValue(); 
     
-    // Şimdilik sayfalama değerlerini sabit girelim
     const page = 0;
     const size = 10;
 
@@ -56,12 +118,15 @@ export class CustomerSearch implements OnInit {
       });
   }
 
-  /**
-   * Temizle butonu tetiklendiğinde.
-   */
   onClear(): void {
-    this.searchForm.reset(); // Formu sıfırla
-    this.searchResults.set([]) ; // Sonuçları temizle
-    this.hasSearched.set(false); // Arama durumunu sıfırla
+    // reset(), valueChanges'i tetikler ve tüm alanlar boş olacağı için
+    // subscribeToFormChanges() içindeki mantık her şeyin kilidini açar.
+    this.searchForm.reset(); 
+    this.searchResults.set([]);
+    this.hasSearched.set(false);
+  }
+
+  goToCreateCustomer(): void {
+    this.router.navigate(['/create-customer']);
   }
 }

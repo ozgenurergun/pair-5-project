@@ -13,38 +13,54 @@
           </legend>
 
           <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="space-y-4">
+            
             <div>
               <label for="id-number" class="block text-sm font-medium text-gray-400 mb-1">Nat ID</label>
-              <input type="text" id="id-number" formControlName="nationalId" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input type="text" id="id-number" formControlName="nationalId" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                                       disabled:bg-gray-500 disabled:text-gray-400 disabled:cursor-not-allowed">
             </div>
             <div>
               <label for="customer-number" class="block text-sm font-medium text-gray-400 mb-1">Customer ID</label>
-              <input type="text" id="customer-number" formControlName="id" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input type="text" id="customer-number" formControlName="id" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                                       disabled:bg-gray-500 disabled:text-gray-400 disabled:cursor-not-allowed">
             </div>
             <div>
               <label for="account-number" class="block text-sm font-medium text-gray-400 mb-1">Account Number</label>
-              <input type="text" id="account-number" formControlName="customerNumber" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input type="text" id="account-number" formControlName="customerNumber" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                                       disabled:bg-gray-500 disabled:text-gray-400 disabled:cursor-not-allowed">
             </div>
             <div>
               <label for="gsm-number" class="block text-sm font-medium text-gray-400 mb-1">GSM Number</label>
-              <input type="text" id="gsm-number" formControlName="value" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input type="text" id="gsm-number" formControlName="value" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                                       disabled:bg-gray-500 disabled:text-gray-400 disabled:cursor-not-allowed">
             </div>
+            
             <div>
               <label for="first-name" class="block text-sm font-medium text-gray-400 mb-1">First Name</label>
-              <input type="text" id="first-name" formControlName="firstName" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input type="text" id="first-name" formControlName="firstName" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                                       disabled:bg-gray-500 disabled:text-gray-400 disabled:cursor-not-allowed">
             </div>
             <div>
               <label for="last-name" class="block text-sm font-medium text-gray-400 mb-1">Last Name</label>
-              <input type="text" id="last-name" formControlName="lastName" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input type="text" id="last-name" formControlName="lastName" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                                       disabled:bg-gray-500 disabled:text-gray-400 disabled:cursor-not-allowed">
             </div>
+            
             <div>
               <label for="order-number" class="block text-sm font-medium text-gray-400 mb-1">Order Number</label>
-              <input type="text" id="order-number" formControlName="orderNumber" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input type="text" id="order-number" formControlName="orderNumber" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+                                       disabled:bg-gray-500 disabled:text-gray-400 disabled:cursor-not-allowed">
             </div>
             
             <div class="flex space-x-4 pt-4">
               <button type="button" (click)="onClear()" class="px-8 py-2.5 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition-colors cursor-pointer">Clear</button>
-              <button type="submit" class="px-8 py-2.5 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition-colors cursor-pointer">Search</button>
+              
+              <button type="submit" 
+                      [disabled]="isSearchDisabled()"
+                      class="px-8 py-2.5 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition-colors cursor-pointer
+                             disabled:bg-gray-500 disabled:text-gray-400 disabled:cursor-not-allowed">
+                Search
+              </button>
             </div>
           </form>
         </fieldset>
@@ -57,11 +73,10 @@
           </legend>
 
           <div class="h-full">
-
+            
             @if (hasSearched() && searchResults().length > 0) {
               <div class="overflow-x-auto max-h-[600px] rounded-lg border border-gray-700">
                 <table class="w-full min-w-max text-left text-sm text-gray-300">
-                  
                   <thead class="bg-[#4A476B] text-xs uppercase text-gray-300">
                     <tr>
                       <th scope="col" class="px-4 py-3">Customer ID</th>
@@ -72,31 +87,21 @@
                       <th scope="col" class="px-4 py-3">National ID</th>
                     </tr>
                   </thead>
-                  
                   <tbody>
                     @for (customer of searchResults(); track customer.id) {
                       <tr class="border-b border-gray-700 hover:bg-[#403E61] transition-colors">
                         
                         <td class="px-4 py-3 font-medium text-blue-400 hover:underline">
-                          <a >
-                            {{ customer.id.substring(0, 8) }}... </a>
+                          <a [routerLink]="['/customer-info', customer.id]" class="cursor-pointer">
+                            {{ customer.id.substring(0, 8) }}...
+                          </a>
                         </td>
                         
-                        <td class="px-4 py-3">
-                          {{ customer.customerNumber || 'N/A' }}
-                        </td>
-                        <td class="px-4 py-3">
-                          {{ customer.firstName || 'N/A' }}
-                        </td>
-                        <td class="px-4 py-3">
-                          {{ customer.middleName || 'N/A' }}
-                        </td>
-                        <td class="px-4 py-3">
-                          {{ customer.lastName || 'N/A' }}
-                        </td>
-                        <td class="px-4 py-3">
-                          {{ customer.nationalId || 'N/A' }}
-                        </td>
+                        <td class="px-4 py-3">{{ customer.customerNumber || 'N/A' }}</td>
+                        <td class="px-4 py-3">{{ customer.firstName || 'N/A' }}</td>
+                        <td class="px-4 py-3">{{ customer.middleName || 'N/A' }}</td>
+                        <td class="px-4 py-3">{{ customer.lastName || 'N/A' }}</td>
+                        <td class="px-4 py-3">{{ customer.nationalId || 'N/A' }}</td>
                       </tr>
                     }
                   </tbody>
@@ -105,8 +110,12 @@
             } 
             
             @else if (hasSearched() && searchResults().length === 0) {
-              <div class="flex items-center justify-center h-full">
-                <p class="text-gray-500 text-lg">No customers found matching your criteria.</p>
+              <div class="flex flex-col items-center justify-center h-full text-center">
+                <p class="text-gray-400 text-lg">No customer found! Would you like to create a new customer?</p>
+                <button (click)="goToCreateCustomer()" 
+                        class="mt-4 px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors cursor-pointer">
+                  Create Customer
+                </button>
               </div>
             } 
             
@@ -115,7 +124,7 @@
                 <p class="text-gray-500 text-lg">Please use the form to search for customers.</p>
               </div>
             }
-            </div>
+          </div>
         </fieldset>
       </div>
 
