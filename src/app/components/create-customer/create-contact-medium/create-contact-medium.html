@@ -4,7 +4,24 @@
   <form (submit)="onSubmit()" [formGroup]="contactMediumForm">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
       <div>
-        <label for="email" class="block text-sm font-medium text-gray-400 mb-1">Email *</label>
+        <!-- YENİ: Etiketi ve radyo butonu sarmalayan div -->
+        <div class="flex items-center mb-1">
+          <input
+            type="radio"
+            formControlName="primaryContact"
+            value="email"
+            id="primary-email"
+            class="h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 cursor-pointer"
+          />
+          <label for="primary-email" class="block text-sm font-medium text-gray-400 ml-2 cursor-pointer"
+            >Email *</label
+          >
+          <!-- YENİ: Birincil ise etiketi göster -->
+          @if (contactMediumForm.get('primaryContact')?.value === 'email') {
+          <span class="text-orange-500 font-bold ml-2 text-xs">[Primary]</span>
+          }
+        </div>
+
         <input
           type="email"
           formControlName="email"
@@ -43,23 +60,38 @@
             id="home-phone"
             class="w-full bg-gray-200 text-gray-900 px-4 py-3 border-none focus:outline-none"
           />
-       
         </div>
-           @if (isFieldInvalid(contactMediumForm, 'homePhone')) {
-          <div class="text-red-500 text-sm mt-1 ml-4">
-            @if (contactMediumForm.get('homePhone')?.hasError('pattern')) {
-            <small>Please enter a valid homephone.</small>
-            }@else if ((contactMediumForm.get('homePhone')?.hasError('minlength')) ||
+        @if (isFieldInvalid(contactMediumForm, 'homePhone')) {
+        <div class="text-red-500 text-sm mt-1 ml-4">
+          @if (contactMediumForm.get('homePhone')?.hasError('pattern')) {
+          <small>Please enter a valid homephone.</small>
+          } @else if ((contactMediumForm.get('homePhone')?.hasError('minlength')) ||
           (contactMediumForm.get('homePhone')?.hasError('maxlength'))) {
-          <small>Home Phone must be 10 charachers.</small>}
-          </div>
+          <small>Home Phone must be 10 charachers.</small>
           }
+        </div>
+        }
       </div>
 
       <div>
-        <label for="mobile-phone" class="block text-sm font-medium text-gray-400 mb-1"
-          >Mobile Phone *</label
-        >
+        <!-- YENİ: Etiketi ve radyo butonu sarmalayan div -->
+        <div class="flex items-center mb-1">
+          <input
+            type="radio"
+            formControlName="primaryContact"
+            value="mobilePhone"
+            id="primary-mobile"
+            class="h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 cursor-pointer"
+          />
+          <label for="primary-mobile" class="block text-sm font-medium text-gray-400 ml-2 cursor-pointer"
+            >Mobile Phone *</label
+          >
+          <!-- YENİ: Birincil ise etiketi göster -->
+          @if (contactMediumForm.get('primaryContact')?.value === 'mobilePhone') {
+          <span class="text-orange-500 font-bold ml-2 text-xs">[Primary]</span>
+          }
+        </div>
+
         <div
           class="flex items-center w-full bg-gray-200 rounded-full border border-gray-400 focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden"
         >
@@ -77,19 +109,19 @@
             id="mobile-phone"
             class="w-full bg-gray-200 text-gray-900 px-4 py-3 border-none focus:outline-none"
           />
-         
         </div>
-         @if (isFieldInvalid(contactMediumForm, 'mobilePhone')) {
-          <div class="text-red-500 text-sm mt-1 ml-4">
-            @if (contactMediumForm.get('mobilePhone')?.hasError('required')) {
-            <small>Mobile phone is required.</small>
-            } @else if (contactMediumForm.get('mobilePhone')?.hasError('pattern')) {
-            <small>Please enter a valid mobile phone.</small>
-            }@else if ((contactMediumForm.get('mobilePhone')?.hasError('minlength')) ||
+        @if (isFieldInvalid(contactMediumForm, 'mobilePhone')) {
+        <div class="text-red-500 text-sm mt-1 ml-4">
+          @if (contactMediumForm.get('mobilePhone')?.hasError('required')) {
+          <small>Mobile phone is required.</small>
+          } @else if (contactMediumForm.get('mobilePhone')?.hasError('pattern')) {
+          <small>Please enter a valid mobile phone.</small>
+          } @else if ((contactMediumForm.get('mobilePhone')?.hasError('minlength')) ||
           (contactMediumForm.get('mobilePhone')?.hasError('maxlength'))) {
-          <small>Mobile Phone must be 10 charachers.</small>}
-          </div>
+          <small>Mobile Phone must be 10 charachers.</small>
           }
+        </div>
+        }
       </div>
 
       <div>
@@ -111,18 +143,17 @@
             id="fax"
             class="w-full bg-gray-200 text-gray-900 px-4 py-3 border-none focus:outline-none"
           />
-         
         </div>
-         @if (isFieldInvalid(contactMediumForm, 'fax')) {
-          <div class="text-red-500 text-sm mt-1 ml-4">
-            @if (contactMediumForm.get('fax')?.hasError('pattern')) {
-            <small>Please enter a valid fax.</small>
-            } @else if ((contactMediumForm.get('fax')?.hasError('minlength')) ||
+        @if (isFieldInvalid(contactMediumForm, 'fax')) {
+        <div class="text-red-500 text-sm mt-1 ml-4">
+          @if (contactMediumForm.get('fax')?.hasError('pattern')) {
+          <small>Please enter a valid fax.</small>
+          } @else if ((contactMediumForm.get('fax')?.hasError('minlength')) ||
           (contactMediumForm.get('fax')?.hasError('maxlength'))) {
-          <small>Fax Number must be 10 charachers.</small>}
-          
-          </div>
+          <small>Fax Number must be 10 charachers.</small>
           }
+        </div>
+        }
       </div>
     </div>
 

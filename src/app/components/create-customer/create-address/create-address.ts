@@ -232,13 +232,23 @@ export class AddressFormComponent implements OnInit, OnDestroy {
   }
 
   // YENİ: "Remove" butonu artık silme onay popup'ını açar
-  openDeleteConfirm(index: number) {
-    this.addressToDeleteIndex = index;
-    this.isDeleteModalVisible = true;
+ openDeleteConfirm(index: number) {
+    const addressGroup = this.addresses.at(index);
+
+    if (addressGroup.get('isDefault')?.value === true) {
+      // Bu adres birincil adres. Silinmesine izin verme.
+      // Zaten var olan hata popup'ını tetikle.
+      this.errorModalMessage = "You can't delete primary address.";
+      this.isErrorModalVisible = true;
+    } else {
+      // Bu birincil adres değil. Normal silme onay sürecini başlat.
+      this.addressToDeleteIndex = index;
+      this.isDeleteModalVisible = true;
+    }
   }
 
   // YENİ: Silme popup'ı "Yes" derse bu metod çalışır
-  confirmDelete() {
+confirmDelete() {
     if (this.addressToDeleteIndex !== null) {
       this.removeAddress(this.addressToDeleteIndex); // Esas silme işlemi
     }

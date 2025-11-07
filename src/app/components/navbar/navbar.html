@@ -1,4 +1,24 @@
-<nav class="w-24 bg-gray-200 p-3 flex flex-col items-center space-y-4 shadow-lg">
+<nav
+  class="w-24 bg-gray-200 p-3 flex flex-col items-center space-y-4 shadow-lg"
+>
+  <button
+    class="flex flex-col items-center justify-center w-20 h-20 rounded-lg bg-white shadow-md text-gray-900 ring-2 ring-blue-500/50 transition-all cursor-pointer"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="currentColor"
+      class="w-8 h-8"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M20.25 14.15v4.07a2.25 2.25 0 0 1-2.25 2.25h-13.5a2.25 2.25 0 0 1-2.25-2.25v-4.07m18-4.22-3.182 3.182m0 0a2.25 2.25 0 0 1-3.182 0M17.068 9.928l-3.182 3.182m0 0a2.25 2.25 0 0 0-3.182 0m3.182-3.182-3.182-3.182m0 0a2.25 2.25 0 0 1 3.182 0M6.932 9.928l3.182 3.182"
+      /></svg><span class="text-sm font-medium mt-1">B2C</span>
+  </button>
+
   <button
     class="flex flex-col items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all cursor-pointer"
   >
@@ -13,27 +33,11 @@
       <path
         stroke-linecap="round"
         stroke-linejoin="round"
-        d="M20.25 14.15v4.07a2.25 2.25 0 0 1-2.25 2.25h-13.5a2.25 2.25 0 0 1-2.25-2.25v-4.07m18-4.22-3.182 3.182m0 0a2.25 2.25 0 0 1-3.182 0M17.068 9.928l-3.182 3.182m0 0a2.25 2.25 0 0 0-3.182 0m3.182-3.182-3.182-3.182m0 0a2.25 2.25 0 0 1 3.182 0M6.932 9.928l3.182 3.182"
-      /></svg>
-      <span class="text-sm font-medium mt-1">B2C</span></button
-  ><button
-    class="flex flex-col items-center justify-center w-20 h-20 rounded-lg bg-white shadow-md text-gray-900 ring-2 ring-blue-500/50 transition-all cursor-pointer"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke-width="1.5"
-      stroke="currentColor"
-      class="w-8 h-8"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
         d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.75M9 10.5h6.75M9 14.25h6.75M9 18h6.75"
-      /></svg>
-      <span class="text-sm font-medium mt-1">B2B</span></button
-  ><button
+      /></svg><span class="text-sm font-medium mt-1">B2B</span>
+  </button>
+
+  <button
     class="flex items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all cursor-pointer"
   >
     <svg
@@ -49,8 +53,9 @@
         stroke-linejoin="round"
         d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
       />
-    </svg></button
-  ><button
+    </svg>
+  </button>
+  <button
     class="flex items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all cursor-pointer"
   >
     <svg
@@ -66,9 +71,11 @@
         stroke-linejoin="round"
         d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5h-2.25m-7.5 0H4.5m1.504 6.072l-1.591-1.591M12 19.5v-2.25m-5.834-.166l1.591-1.591M4.5 10.5H2.25"
       />
-    </svg></button
-  ><button
-  (click)="logout()" 
+    </svg>
+  </button>
+
+  <button
+    (click)="logout()"
     class="flex items-center justify-center w-20 h-20 rounded-lg text-gray-700 hover:bg-white hover:shadow-md transition-all mt-auto mb-4 cursor-pointer"
   >
     <svg
