@@ -7,7 +7,10 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root',
 })
 export class CustomerCreation {
-  public state = signal<CreateCustomerModel>({});
+
+  private readonly initialState:CreateCustomerModel = {};
+
+  public state = signal<CreateCustomerModel>(this.initialState);
 
   private instanceId = Math.random();
   constructor(private http: HttpClient) {
@@ -45,8 +48,24 @@ export class CustomerCreation {
 
   private apiUrlCustomer = 'http://localhost:8091/customerservice/api/individual-customers/'
 
+  public resetState():void{
+    this.state.set(this.initialState);
+  }
+
   postCustomer(customerData:CreateCustomerModel):Observable<any>{
     console.log("Dbye gidiyor")
-    return this.http.post(this.apiUrlCustomer, customerData);
+    return this.http.post(this.apiUrlCustomer, customerData).pipe(
+      // YENİ: HTTP isteği başarılı olduğunda (component'in 'next' bloğundan önce)
+      // 'tap' operatörü ile state'i sıfırla.
+      tap((response) => {
+        console.log(
+          'POST başarılı, servis global state\'i sıfırlıyor.',
+          response
+        );
+        this.resetState();
+      })
+      // Not: catchError'u burada component'te ele aldığımız için
+      // buraya eklemiyoruz.
+    );
   }
 }

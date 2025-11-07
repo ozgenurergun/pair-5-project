@@ -149,6 +149,7 @@ export class CreateContactMedium implements OnInit {
     this.customerCreationService.postCustomer(completeCustomerData).subscribe({
       next: (response) => {
         console.log('Customer created successfully!', response);
+        this.contactMediumForm.reset();
       },
       error: (err) => {
         console.error('Customer creation failed', err);
