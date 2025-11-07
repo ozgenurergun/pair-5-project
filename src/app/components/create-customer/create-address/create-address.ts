@@ -233,18 +233,10 @@ export class AddressFormComponent implements OnInit, OnDestroy {
 
   // YENİ: "Remove" butonu artık silme onay popup'ını açar
  openDeleteConfirm(index: number) {
-    const addressGroup = this.addresses.at(index);
 
-    if (addressGroup.get('isDefault')?.value === true) {
-      // Bu adres birincil adres. Silinmesine izin verme.
-      // Zaten var olan hata popup'ını tetikle.
-      this.errorModalMessage = "You can't delete primary address.";
-      this.isErrorModalVisible = true;
-    } else {
-      // Bu birincil adres değil. Normal silme onay sürecini başlat.
       this.addressToDeleteIndex = index;
       this.isDeleteModalVisible = true;
-    }
+   
   }
 
   // YENİ: Silme popup'ı "Yes" derse bu metod çalışır
@@ -329,44 +321,31 @@ confirmDelete() {
     this.submitted = true;
 
     if (this.addressForm.invalid) {
-      console.log('LOG-1 (Form Value):', this.addressForm.value.addresses);
       this.markFormGroupTouched(this.addressForm);
-      console.error('Address form is invalid.');
+      console.error('Form invalid:', this.addressForm.value);
       return;
     }
 
-    // Tıpkı ContactInfo örneğindeki gibi
-    if (this.addressForm.valid) {
-      console.log('merhaba');
-      // Formdaki 'city' alanını state'e kaydetmemek için ayıklıyoruz
-      // (Orijinal create-address.ts'teki mantık)
-      const addressesToSave: Address[] = this.addressForm.value.addresses.map((addr: any) => {
-        const { city, ...restOfAddress } = addr;
-        // Geriye kalanlar (districtId, street, houseNumber vb.) state'deki Address modeline uyar
-        return restOfAddress as Address;
-      });
+    // Tüm adresleri formdan oku (city hariç)
+    const addressesToSave: Address[] = this.addressForm.value.addresses.map((addr: any) => {
+      const { city, ...pureAddr } = addr;
+      return pureAddr as Address;
+    });
 
-      console.log('LOG-2 (addressesToSave):', addressesToSave);
-
-      this.errorModalMessage =
-        'Lütfen tüm adreslerinizi kontrol edin. Eksik veya hatalı alanlar var.';
-      this.isErrorModalVisible = true;
-
-      // Global state'i güncelle
-      const currentState = this.customerCreationService.state();
-      const newState = {
-        ...currentState,
-        addresses: addressesToSave, // Adres dizisini formdakiyle değiştir
-      };
-
-      this.customerCreationService.state.set(newState);
-      console.log('State güncellendi:', newState);
-
-      console.log('LOG-3 (Final State):', newState);
-      // Ana sayfaya (create-customer-page) bir sonraki adıma geçmesini söyle
+    // Eğer hiç default adres yoksa ilk adresi default yap
+    if (!addressesToSave.some((a) => a.isDefault)) {
+      addressesToSave[0].isDefault = true;
     }
-  }
 
+    // State güncelle
+    const newState = {
+      ...this.customerCreationService.state(),
+      addresses: addressesToSave,
+    };
+
+    this.customerCreationService.state.set(newState);
+    console.log('✅ State güncellendi:', newState);
+  }
   onNext(): void {
     this.submit();
     this.nextStep.emit('contact-mediums');

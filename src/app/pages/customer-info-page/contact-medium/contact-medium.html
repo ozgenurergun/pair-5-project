@@ -1,0 +1,87 @@
+<div class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
+  <!-- 1. Başlık Alanı (Resimdeki gibi Edit ikonu ile) -->
+  <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-600">
+    <h2 class="text-xl font-semibold text-gray-200">Contact Medium</h2>
+    <button (click)="onEdit()" class="text-gray-400 hover:text-white transition-colors">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-5 h-5"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+        />
+      </svg>
+    </button>
+  </div>
+
+  <!-- 2. Bilgi Alanı -->
+
+  <!-- Yükleniyor... (signal 'undefined' ise) -->
+  @if (contacts() === undefined) {
+  <p class="text-gray-400">Loading contact information...</p>
+  }
+
+  <!-- Veri Geldi (veya boş) (signal 'undefined' değilse) -->
+  @if (contacts()) {
+  <!-- 2 sütunlu grid yapı -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+    <!-- Sol Sütun -->
+    <div class="space-y-6">
+      <!-- Email -->
+      <div>
+        <label class="text-sm text-gray-400 flex items-center">
+          Email *
+          <!-- Primary etiketi (Resimdeki gibi kırmızı) -->
+          @if (email()?.isPrimary) {
+          <span class="ml-2 text-sm font-bold text-red-500">[Primary]</span>
+          }
+        </label>
+        <p class="text-base font-medium text-gray-200 mt-1">
+          {{ email()?.value || 'N/A' }}
+        </p>
+      </div>
+
+      <!-- Mobile Phone -->
+      <div>
+        <label class="text-sm text-gray-400 flex items-center">
+          Mobile Phone * @if (mobilePhone()?.isPrimary) {
+          <span class="ml-2 text-sm font-bold text-red-500">[Primary]</span>
+          }
+        </label>
+        <p class="text-base font-medium text-gray-200 mt-1">
+          {{ mobilePhone()?.value || 'N/A' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Sağ Sütun -->
+    <div class="space-y-6">
+      <!-- Home Phone -->
+      <div>
+        <label class="text-sm text-gray-400">Home Phone</label>
+        <p class="text-base font-medium text-gray-200 mt-1">
+          {{ homePhone()?.value || 'N/A' }}
+        </p>
+      </div>
+
+      <!-- Fax -->
+      <div>
+        <label class="text-sm text-gray-400">Fax</label>
+        <p class="text-base font-medium text-gray-200 mt-1">
+          {{ fax()?.value || 'N/A' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hiç veri yoksa -->
+  @if (contacts()!.length === 0) {
+  <p class="text-gray-400 text-center py-4">No contact mediums found for this customer.</p>
+  } }
+</div>

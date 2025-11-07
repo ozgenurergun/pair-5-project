@@ -92,7 +92,7 @@
                       <tr class="border-b border-gray-700 hover:bg-[#403E61] transition-colors">
                         
                         <td class="px-4 py-3 font-medium text-blue-400 hover:underline">
-                          <a [routerLink]="['/customer-info', customer.id]" class="cursor-pointer">
+                          <a [routerLink]="[`/customer-info/${customer.id}/customer-detail`]" class="cursor-pointer">
                             {{ customer.id.substring(0, 8) }}...
                           </a>
                         </td>

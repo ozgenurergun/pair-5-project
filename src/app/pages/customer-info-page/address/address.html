@@ -1,0 +1,81 @@
+<div class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
+  <!-- 1. Başlık Alanı -->
+  <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-600">
+    <h2 class="text-xl font-semibold text-gray-200">Address Info</h2>
+  </div>
+
+  <!-- 2. Adres Listesi Alanı -->
+  <!-- Yükleniyor... (signal 'undefined' ise) -->
+  @if (addresses() === undefined) {
+  <p class="text-gray-400">Loading addresses...</p>
+  }
+
+  <!-- Veri Geldi (veya boş) (signal 'undefined' değilse) -->
+  @if (addresses()) {
+  <!-- Adres Kartları için Alan -->
+  <div class="space-y-6">
+    <!-- @for döngüsü -->
+    @for (addr of addresses(); track addr.id; let i = $index) {
+    <!-- Adres Kartı (Resimdeki iç çerçeve) -->
+    <div class="border border-gray-600 rounded-lg p-5">
+      <!-- Adres Başlığı (Adress 1 [Primary]) -->
+      <div class="flex items-center pb-3 mb-3 border-b border-gray-700">
+        <h3 class="text-lg font-semibold text-gray-200">Adress {{ i + 1 }}</h3>
+        <!-- Modele göre 'default' alanını kontrol ediyoruz -->
+        @if (addr.isDefault) {
+        <span class="ml-2 text-sm font-bold text-red-500">[Primary]</span>
+        }
+      </div>
+
+      <!-- Adres Detayları (Modele göre 'cityName' ve 'districtName') -->
+      <div class="text-gray-300">
+        <p class="text-base font-medium text-gray-200">
+          {{ getCityName(addr.districtId!) }}, {{ getDistrictName(addr.districtId!) }}
+        </p>
+        <p class="text-base">{{ addr.street }}, No: {{ addr.houseNumber }}</p>
+        <p class="text-sm text-gray-400 mt-1">{{ addr.description }}</p>
+      </div>
+
+      <!-- Link/Butonlar (Resimdeki renklere göre) -->
+      <div class="flex items-center space-x-4 mt-4 text-sm font-medium">
+        @if (!addr.isDefault) {
+        <button
+          (click)="onMakePrimary(addr.id!)"
+          class="text-red-500 hover:underline cursor-pointer"
+        >
+          Make Primary
+        </button>
+        }
+        <button
+          (click)="onEditAddress(addr.id!)"
+          class="text-blue-400 hover:underline cursor-pointer"
+        >
+          Edit
+        </button>
+        <button
+          (click)="onDeleteAddress(addr.id!)"
+          class="text-red-500 hover:underline cursor-pointer"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+    }
+
+    <!-- Hiç adres bulunamadıysa -->
+    @if (addresses()!.length === 0) {
+    <p class="text-gray-400 text-center py-4">No addresses found for this customer.</p>
+    }
+  </div>
+
+  <!-- "Add Another Address" Butonu -->
+  <div class="flex justify-center mt-8 pt-6 border-t border-gray-600">
+    <button
+      (click)="onAddAddress()"
+      class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+    >
+      Add Another Address
+    </button>
+  </div>
+  }
+</div>

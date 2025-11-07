@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CreatedAddressResponse } from '../models/response/customer/created-address-response';
 import { CustomerSearchResponse } from '../models/response/customer/customer-search-response';
+import { CustomerAddressResponse } from '../models/response/customer/customer-address-response';
 
 @Injectable({
   providedIn: 'root'
@@ -28,5 +29,9 @@ export class AddressService {
   setPrimaryAddress(addressId:number) :Observable<any>{
     return this.httpClient.put(`http://localhost:8091/searchservice/api/customer-search/api/addresses/${addressId}/set-primary`,{});
   }
+
+  getByCustomerId(customerId: String): Observable<CustomerAddressResponse[]> {
+      return this.httpClient.get<CustomerAddressResponse[]>(`http://localhost:8091/customerservice/api/addresses/getByCustomerId/${customerId}`);
+    }
   
 }

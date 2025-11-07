@@ -1,0 +1,13 @@
+<section class="flex h-screen bg-[#2C2A4A]">
+  <!-- Sol sidebar -->
+  <app-navbar class="flex-shrink-0"></app-navbar>
+
+  <!-- Ana içerik -->
+  <main class="flex-1 flex flex-col items-center overflow-visible">
+    <app-customer-info-navbar></app-customer-info-navbar>
+
+    <div class="mt-5">
+    <router-outlet></router-outlet>
+    </div>
+  </main>
+</section>
