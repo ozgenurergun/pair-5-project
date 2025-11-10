@@ -4,5 +4,5 @@ export interface ContactMediumResponse {
   id: number;
   type: string;
   value: string;
-  isPrimary: boolean;
+  primary: boolean;
 }

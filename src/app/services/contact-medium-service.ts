@@ -7,24 +7,18 @@ import { ContactMediumList } from '../models/response/contact-medium-response';
   providedIn: 'root'
 })
 export class ContactMediumService {
-    private http = inject(HttpClient);
- 
-  // NOT: Bu URL'i backend'cine göre düzeltmen gerekebilir.
+  private http = inject(HttpClient);
 
-  // Diğer servislerine bakarak ('searchservice') mantıklı bir tahminde bulunuyorum:
-
-  private apiUrl = 'http://localhost:8091/customerservice/api/contactmediums/';
+  private apiUrl = 'http://localhost:8091/customerservice/api/contactmediums';
  
   constructor() { }
- 
-  // Müşterinin iletişim bilgilerini ID'ye göre çeken metot
 
   getContactMediumsByCustomerId(customerId: string): Observable<ContactMediumList> {
+    return this.http.get<ContactMediumList>(`${this.apiUrl}/getByCustomerId/${customerId}`);
+  }
 
-    // Endpoint'in /searchservice/api/customer-search/contact-mediums/{customerId} olduğunu varsayıyorum
-
-    return this.http.get<ContactMediumList>(`${this.apiUrl}getByCustomerId/${customerId}`);
-
+  updateContactMedium(mediumData: any): Observable<any> { 
+    return this.http.put(this.apiUrl, mediumData);
   }
  
 }

@@ -1,4 +1,5 @@
 <fieldset class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
+  @if (!isEditMode()) {
   <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A] flex items-center space-x-3">
     <span>Contact Medium</span>
     <button (click)="onEdit()" class="text-gray-400 hover:text-white transition-colors">
@@ -22,49 +23,188 @@
   @if (contacts() === undefined) {
   <p class="text-gray-400 mt-6">Loading contact information...</p>
   } @if (contacts()) {
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 mt-6">
     <div class="space-y-6">
       <div>
         <label class="text-sm text-gray-400 flex items-center">
-          Email * @if (email()?.isPrimary) {
+          Email * @if (email()?.primary) {
           <span class="ml-2 text-sm font-bold text-red-500">[Primary]</span>
           }
         </label>
-        <p class="text-base font-medium text-gray-200 mt-1">
-          {{ email()?.value || 'N/A' }}
-        </p>
+        <p class="text-base font-medium text-gray-200 mt-1">{{ email()?.value || 'N/A' }}</p>
       </div>
-
       <div>
         <label class="text-sm text-gray-400 flex items-center">
-          Mobile Phone * @if (mobilePhone()?.isPrimary) {
+          Mobile Phone * @if (mobilePhone()?.primary) {
           <span class="ml-2 text-sm font-bold text-red-500">[Primary]</span>
           }
         </label>
-        <p class="text-base font-medium text-gray-200 mt-1">
-          {{ mobilePhone()?.value || 'N/A' }}
-        </p>
+        <p class="text-base font-medium text-gray-200 mt-1">{{ mobilePhone()?.value || 'N/A' }}</p>
       </div>
     </div>
-
     <div class="space-y-6">
       <div>
         <label class="text-sm text-gray-400">Home Phone</label>
-        <p class="text-base font-medium text-gray-200 mt-1">
-          {{ homePhone()?.value || 'N/A' }}
-        </p>
+        <p class="text-base font-medium text-gray-200 mt-1">{{ homePhone()?.value || 'N/A' }}</p>
       </div>
-
       <div>
         <label class="text-sm text-gray-400">Fax</label>
-        <p class="text-base font-medium text-gray-200 mt-1">
-          {{ fax()?.value || 'N/A' }}
-        </p>
+        <p class="text-base font-medium text-gray-200 mt-1">{{ fax()?.value || 'N/A' }}</p>
       </div>
     </div>
   </div>
-
   @if (contacts()!.length === 0) {
   <p class="text-gray-400 text-center py-4 mt-6">No contact mediums found for this customer.</p>
-  } }
+  } } } @else {
+  <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A] flex items-center space-x-3">
+    <span>Edit Contact Medium</span>
+    <button
+      (click)="onCancelEdit()"
+      class="text-gray-400 hover:text-white transition-colors cursor-pointer"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-5 h-5"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </legend>
+
+  <form (submit)="onSaveUpdate()" [formGroup]="contactMediumForm" class="mt-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+      <div>
+        <div class="flex items-center mb-1">
+          <input
+            type="radio"
+            formControlName="primaryContact"
+            value="email"
+            id="primary-email"
+            class="h-4 w-4 cursor-pointer"
+          />
+          <label
+            for="primary-email"
+            class="block text-sm font-medium text-gray-400 ml-2 cursor-pointer"
+            >Email *</label
+          >
+          @if (contactMediumForm.get('primaryContact')?.value === 'email') {
+          <span class="text-orange-500 font-bold ml-2 text-xs">[Primary]</span>
+          }
+        </div>
+        <input
+          type="email"
+          formControlName="email"
+          id="email"
+          class="w-full bg-gray-200 text-gray-900 rounded-full px-5 py-3 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          [class.border-red-500]="isFieldInvalid(contactMediumForm, 'email')"
+        />
+        @if (isFieldInvalid(contactMediumForm, 'email')) {
+        <div class="text-red-500 text-sm mt-1 ml-4">Please enter a valid email.</div>
+        }
+      </div>
+
+      <div>
+        <label for="home-phone" class="block text-sm font-medium text-gray-400 mb-1"
+          >Home Phone</label
+        >
+        <div
+          class="flex items-center w-full bg-gray-200 rounded-full border border-gray-400 overflow-hidden"
+        >
+          <span class="pl-4 text-gray-700">+90</span>
+          <span class="text-gray-500 ml-2">|</span>
+          <input
+            type="tel"
+            formControlName="homePhone"
+            id="home-phone"
+            class="w-full bg-gray-200 text-gray-900 px-4 py-3 border-none focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center mb-1">
+          <input
+            type="radio"
+            formControlName="primaryContact"
+            value="mobilePhone"
+            id="primary-mobile"
+            class="h-4 w-4 cursor-pointer"
+          />
+          <label
+            for="primary-mobile"
+            class="block text-sm font-medium text-gray-400 ml-2 cursor-pointer"
+            >Mobile Phone *</label
+          >
+          @if (contactMediumForm.get('primaryContact')?.value === 'mobilePhone') {
+          <span class="text-orange-500 font-bold ml-2 text-xs">[Primary]</span>
+          }
+        </div>
+        <div
+          class="flex items-center w-full bg-gray-200 rounded-full border border-gray-400 overflow-hidden"
+        >
+          <span class="pl-4 text-gray-700">+90</span>
+          <span class="text-gray-500 ml-2">|</span>
+          <input
+            type="tel"
+            formControlName="mobilePhone"
+            id="mobile-phone"
+            class="w-full bg-gray-200 text-gray-900 px-4 py-3 border-none focus:outline-none"
+            [class.border-red-500]="isFieldInvalid(contactMediumForm, 'mobilePhone')"
+          />
+        </div>
+        @if (isFieldInvalid(contactMediumForm, 'mobilePhone')) {
+        <div class="text-red-500 text-sm mt-1 ml-4">Please enter a valid mobile phone.</div>
+        }
+      </div>
+
+      <div>
+        <label for="fax" class="block text-sm font-medium text-gray-400 mb-1">Fax</label>
+        <div
+          class="flex items-center w-full bg-gray-200 rounded-full border border-gray-400 overflow-hidden"
+        >
+          <span class="pl-4 text-gray-700">+90</span>
+          <span class="text-gray-500 ml-2">|</span>
+          <input
+            type="tel"
+            formControlName="fax"
+            id="fax"
+            class="w-full bg-gray-200 text-gray-900 px-4 py-3 border-none focus:outline-none"
+          />
+        </div>
+        
+      </div>
+    </div>
+
+    <div class="flex items-center justify-center space-x-6 mt-12">
+      <button
+        type="button"
+        (click)="onCancelEdit()"
+        class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="contactMediumForm.invalid"
+      >
+        Save
+      </button>
+    </div>
+  </form>
+  }
 </fieldset>
+
+@if (isErrorModalVisible()) {
+<app-popup
+  title="Error"
+  [message]="errorModalMessage()"
+  confirmText="OK"
+  cancelText=""
+  (onConfirm)="closeErrorModal()"
+></app-popup>
+}
