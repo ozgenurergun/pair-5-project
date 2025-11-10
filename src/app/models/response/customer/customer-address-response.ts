@@ -5,6 +5,6 @@ export interface CustomerAddressResponse {
   street?: string;
   houseNumber?: string;
   description?: string;
-  isDefault?: boolean;
+  default?: boolean;
   districtId?: number;
 }
