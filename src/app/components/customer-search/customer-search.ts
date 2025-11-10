@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SearchCustomerService } from '../../services/customersearch-service'; // Kendi yolunu doğrula
 import { CustomerSearchList } from '../../models/response/customer/customer-search-response'; // Kendi yolunu doğrula
 import { Router, RouterModule } from '@angular/router';
@@ -33,7 +33,16 @@ export class CustomerSearch implements OnInit {
 
   ngOnInit(): void {
     this.searchForm = this.fb.group({
-      nationalId: [''],
+      nationalId: [
+      '', // 1. İlk değer
+      [ // 2. Eşzamanlı Doğrulayıcılar (DİZİ içinde)
+        Validators.required,
+        Validators.minLength(11),
+        Validators.maxLength(11),
+        Validators.pattern('^[0-9]+$')
+      ]
+      // 3. Eşzamansız Doğrulayıcılar (Eğer olsaydı buraya gelirdi)
+    ],
       id: [''],           
       customerNumber: [''], 
       value: [''],        
@@ -43,6 +52,20 @@ export class CustomerSearch implements OnInit {
     });
 
     this.subscribeToFormChanges();
+  }
+
+  // Alan geçersiz mi kontrolü
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.searchForm.get(fieldName);
+
+    
+    const hasValidationError = !!(
+      field &&
+      field.invalid &&
+      (field.dirty || field.touched)
+    );
+
+    return hasValidationError;
   }
 
   /**

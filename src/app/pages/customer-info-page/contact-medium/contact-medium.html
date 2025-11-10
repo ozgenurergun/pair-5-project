@@ -1,7 +1,6 @@
-<div class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
-  <!-- 1. Başlık Alanı (Resimdeki gibi Edit ikonu ile) -->
-  <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-600">
-    <h2 class="text-xl font-semibold text-gray-200">Contact Medium</h2>
+<fieldset class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
+  <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A] flex items-center space-x-3">
+    <span>Contact Medium</span>
     <button (click)="onEdit()" class="text-gray-400 hover:text-white transition-colors">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -18,27 +17,16 @@
         />
       </svg>
     </button>
-  </div>
+  </legend>
 
-  <!-- 2. Bilgi Alanı -->
-
-  <!-- Yükleniyor... (signal 'undefined' ise) -->
   @if (contacts() === undefined) {
-  <p class="text-gray-400">Loading contact information...</p>
-  }
-
-  <!-- Veri Geldi (veya boş) (signal 'undefined' değilse) -->
-  @if (contacts()) {
-  <!-- 2 sütunlu grid yapı -->
+  <p class="text-gray-400 mt-6">Loading contact information...</p>
+  } @if (contacts()) {
   <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-    <!-- Sol Sütun -->
     <div class="space-y-6">
-      <!-- Email -->
       <div>
         <label class="text-sm text-gray-400 flex items-center">
-          Email *
-          <!-- Primary etiketi (Resimdeki gibi kırmızı) -->
-          @if (email()?.isPrimary) {
+          Email * @if (email()?.isPrimary) {
           <span class="ml-2 text-sm font-bold text-red-500">[Primary]</span>
           }
         </label>
@@ -47,7 +35,6 @@
         </p>
       </div>
 
-      <!-- Mobile Phone -->
       <div>
         <label class="text-sm text-gray-400 flex items-center">
           Mobile Phone * @if (mobilePhone()?.isPrimary) {
@@ -60,9 +47,7 @@
       </div>
     </div>
 
-    <!-- Sağ Sütun -->
     <div class="space-y-6">
-      <!-- Home Phone -->
       <div>
         <label class="text-sm text-gray-400">Home Phone</label>
         <p class="text-base font-medium text-gray-200 mt-1">
@@ -70,7 +55,6 @@
         </p>
       </div>
 
-      <!-- Fax -->
       <div>
         <label class="text-sm text-gray-400">Fax</label>
         <p class="text-base font-medium text-gray-200 mt-1">
@@ -80,8 +64,7 @@
     </div>
   </div>
 
-  <!-- Hiç veri yoksa -->
   @if (contacts()!.length === 0) {
-  <p class="text-gray-400 text-center py-4">No contact mediums found for this customer.</p>
+  <p class="text-gray-400 text-center py-4 mt-6">No contact mediums found for this customer.</p>
   } }
-</div>
+</fieldset>

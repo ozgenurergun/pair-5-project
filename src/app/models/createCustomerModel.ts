@@ -8,19 +8,19 @@ export interface CreateCustomerModel {
   fatherName?: string;
   gender?: string;
   addresses?: Address[];
-  contactMediums?: ContactMedium[]
+  contactMediums?: ContactMedium[];
 }
 
 export interface Address {
   street: string;
   houseNumber: string;
   description: string;
-  isDefault: boolean;
+  default: boolean;
   districtId: number;
 }
 
 export interface ContactMedium {
   type: string;
   value: string;
-  isPrimary: boolean;
+  primary: boolean;
 }

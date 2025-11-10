@@ -6,7 +6,7 @@
         
         <legend class="px-3 text-lg font-semibold text-gray-300 bg-[#2C2A4A] -mt-10 mb-4 w-auto">
           Address {{ i + 1 }}
-          @if (addressGroup.get('isDefault')?.value) {
+          @if (addressGroup.get('default')?.value) {
             <span class="text-orange-500 font-bold ml-1">[Primary]</span>
           }
         </legend>
@@ -76,7 +76,7 @@
               }
             </div>
             <div class="md:col-span-2 flex items-center">
-              <input type="checkbox" [id]="'default-' + i" formControlName="isDefault" 
+              <input type="checkbox" [id]="'default-' + i" formControlName="default" 
                      (change)="handlePrimaryCheck(i, $event)" 
                      class="h-4 w-4 rounded">
               <label [for]="'default-' + i" class="ml-2 text-sm font-medium text-gray-300">Set as primary address</label>
@@ -111,7 +111,7 @@
             </p>
             
             <div class="flex items-center space-x-4 mt-4">
-              @if (!addressGroup.get('isDefault')?.value) {
+              @if (!addressGroup.get('default')?.value) {
                 <button type="button" (click)="setPrimary(i)"
                   class="text-orange-400 hover:text-orange-300 text-sm font-medium cursor-pointer">
                   Make Primary

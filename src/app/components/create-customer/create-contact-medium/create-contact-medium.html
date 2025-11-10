@@ -13,7 +13,9 @@
             id="primary-email"
             class="h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 cursor-pointer"
           />
-          <label for="primary-email" class="block text-sm font-medium text-gray-400 ml-2 cursor-pointer"
+          <label
+            for="primary-email"
+            class="block text-sm font-medium text-gray-400 ml-2 cursor-pointer"
             >Email *</label
           >
           <!-- YENİ: Birincil ise etiketi göster -->
@@ -83,7 +85,9 @@
             id="primary-mobile"
             class="h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 cursor-pointer"
           />
-          <label for="primary-mobile" class="block text-sm font-medium text-gray-400 ml-2 cursor-pointer"
+          <label
+            for="primary-mobile"
+            class="block text-sm font-medium text-gray-400 ml-2 cursor-pointer"
             >Mobile Phone *</label
           >
           <!-- YENİ: Birincil ise etiketi göster -->
@@ -161,16 +165,28 @@
       <button
         type="button"
         (click)="onPrevious()"
-        class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer"
+        class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="isLoading()"
       >
         Previous
       </button>
       <button
         type="submit"
         class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="isLoading() || contactMediumForm.invalid"
       >
-        Create
+        @if (isLoading()) {
+        <span>Creating...</span>
+        } @else {
+        <span>Create</span>
+        }
       </button>
     </div>
   </form>
+
+  @if (successMessage()) {
+  <div class="text-center text-green-400 font-semibold mt-6">
+    {{ successMessage() }}
+  </div>
+  }
 </fieldset>

@@ -18,6 +18,20 @@
               <label for="id-number" class="block text-sm font-medium text-gray-400 mb-1">Nat ID</label>
               <input type="text" id="id-number" formControlName="nationalId" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
                                        disabled:bg-gray-500 disabled:text-gray-400 disabled:cursor-not-allowed">
+
+              @if (isFieldInvalid('nationalId')) {
+        <div class="text-red-400 mt-1 text-sm">
+          @if (searchForm.get('nationalId')?.hasError('required')) {
+          <small>National ID is required.</small>
+          } @if ((searchForm.get('nationalId')?.hasError('minlength')) ||
+          (searchForm.get('nationalId')?.hasError('maxlength'))) {
+          <small>National ID must be 11 charachers.</small>
+          }@else if (searchForm.get('nationalId')?.hasError('pattern')) {
+          <small>Please enter valid National ID.</small>
+          } 
+        </div>
+        }                         
+
             </div>
             <div>
               <label for="customer-number" class="block text-sm font-medium text-gray-400 mb-1">Customer ID</label>

@@ -16,4 +16,10 @@ export class CustomerService {
   getByCustomerId(customerId: String): Observable<CustomerResponse> {
     return this.httpClient.get(`http://localhost:8091/customerservice/api/individual-customers/getById/${customerId}`);
   }
+
+  updateCustomer(customerId: string, customerData: CustomerResponse): Observable<CustomerResponse> {
+    // Backend endpoint'inizin /api/individual-customers/{id} olduğunu varsayıyorum.
+    // Eğer farklıysa (örn: /api/individual-customers/update), URL'i ona göre düzenleyin.
+    return this.httpClient.put<CustomerResponse>(`http://localhost:8091/customerservice/api/individual-customers/${customerId}`, customerData);
+  }
 }

@@ -155,7 +155,7 @@ export class AddressFormComponent implements OnInit, OnDestroy {
         Validators.required,
         Validators.minLength(10),
       ]),
-      isDefault: new FormControl(address?.isDefault ?? isFirstAddress),
+      default: new FormControl(address?.default ?? isFirstAddress),
     });
 
     // Bu form grubunun 'city' alanı değiştikçe ilçe listesini dinamik olarak günceller
@@ -257,7 +257,7 @@ confirmDelete() {
   // Sadece bir adresin "default" olmasını sağlar
   setPrimary(indexToSet: number) {
     this.addresses.controls.forEach((control, i) => {
-      control.get('isDefault')?.setValue(i === indexToSet);
+      control.get('default')?.setValue(i === indexToSet);
     });
 
     // YENİ: Checkbox'tan tetiklenirse diye
@@ -333,8 +333,8 @@ confirmDelete() {
     });
 
     // Eğer hiç default adres yoksa ilk adresi default yap
-    if (!addressesToSave.some((a) => a.isDefault)) {
-      addressesToSave[0].isDefault = true;
+    if (!addressesToSave.some((a) => a.default)) {
+      addressesToSave[0].default = true;
     }
 
     // State güncelle

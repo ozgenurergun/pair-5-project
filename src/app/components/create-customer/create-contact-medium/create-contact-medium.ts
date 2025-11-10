@@ -1,9 +1,9 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CustomerCreation } from '../../../services/customer-creation';
 import { ContactMedium } from '../../../models/createCustomerModel';
-import { RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-create-contact-medium',
@@ -14,14 +14,18 @@ import { RouterLink } from "@angular/router";
 })
 export class CreateContactMedium implements OnInit {
   @Output() previousStep = new EventEmitter<string>();
-  @Output() create = new EventEmitter<void>(); // "Create" butonu için
+  //@Output() create = new EventEmitter<void>(); // "Create" butonu için
+
+  successMessage = signal<string | null>(null);
+  isLoading = signal(false);
 
   contactMediumForm!: FormGroup;
   submitted = false;
 
   constructor(
     private formBuilder: FormBuilder,
-    private customerCreationService: CustomerCreation
+    private customerCreationService: CustomerCreation,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -52,8 +56,8 @@ export class CreateContactMedium implements OnInit {
 
     // GÜNCELLENDİ: State'den hangisinin birincil olduğunu belirle
     let primary = 'email'; // Varsayılan
-    const primaryEmail = stateMediums?.find((m) => m.type === 'EMAIL' && m.isPrimary);
-    const primaryPhone = stateMediums?.find((m) => m.type === 'PHONE' && m.isPrimary);
+    const primaryEmail = stateMediums?.find((m) => m.type === 'EMAIL' && m.primary);
+    const primaryPhone = stateMediums?.find((m) => m.type === 'PHONE' && m.primary);
 
     if (primaryPhone) {
       primary = 'mobilePhone';
@@ -81,28 +85,28 @@ export class CreateContactMedium implements OnInit {
       mediums.push({
         type: 'EMAIL',
         value: formValue.email,
-        isPrimary: primaryType === 'email', // Dinamik olarak ayarla
+        primary: primaryType === 'email', // Dinamik olarak ayarla
       });
     }
     if (formValue.mobilePhone) {
       mediums.push({
         type: 'PHONE',
         value: formValue.mobilePhone,
-        isPrimary: primaryType === 'mobilePhone', // Dinamik olarak ayarla
+        primary: primaryType === 'mobilePhone', // Dinamik olarak ayarla
       });
     }
     if (formValue.homePhone) {
       mediums.push({
         type: 'HOMEPHONE',
         value: formValue.homePhone,
-        isPrimary: false, // Her zaman false
+        primary: false, // Her zaman false
       });
     }
     if (formValue.fax) {
       mediums.push({
         type: 'FAX',
         value: formValue.fax,
-        isPrimary: false, // Her zaman false
+        primary: false, // Her zaman false
       });
     }
 
@@ -134,25 +138,44 @@ export class CreateContactMedium implements OnInit {
     this.previousStep.emit('address');
   }
 
-  onSubmit() {
+onSubmit() {
     this.submitted = true;
     if (this.contactMediumForm.invalid) {
       this.markFormGroupTouched(this.contactMediumForm);
       console.error('Contact Medium form is invalid.');
       return;
     }
-
+ 
+    this.isLoading.set(true); // Yüklemeyi başlat
+    this.successMessage.set(null); // Eski başarı mesajını temizle
+ 
     console.log('Form submitted:', this.contactMediumForm.value);
     this.saveContactMediumsToState();
-
+ 
     const completeCustomerData = this.customerCreationService.state();
+    // Backend'den { id: '...' } şeklinde bir yanıt bekliyoruz
     this.customerCreationService.postCustomer(completeCustomerData).subscribe({
-      next: (response) => {
+      next: (response: { id: string }) => {
         console.log('Customer created successfully!', response);
-        this.contactMediumForm.reset();
+        // 1. Başarı mesajını ayarla
+        this.successMessage.set('CUSTOMER CREATED SUCCESSFULLY ✅');
+        this.isLoading.set(false); // Yüklemeyi bitir (mesaj görünsün)
+ 
+        // 2. Gecikme ve yönlendirme
+        setTimeout(() => {
+          // 3. Yeni müşterinin detay sayfasına yönlendir
+          this.router.navigate(['/customer-info', response.id, 'customer-detail']);
+          // 4. Formu ve state'i temizle
+          this.contactMediumForm.reset();
+          this.customerCreationService.resetState();
+          this.successMessage.set(null);
+        }, 2000); // 2 saniye gecikme
       },
       error: (err) => {
         console.error('Customer creation failed', err);
+        this.isLoading.set(false); // Hata durumunda yüklemeyi bitir
+        // Burada bir hata mesajı da gösterebilirsiniz
+        // this.successMessage.set('Error creating customer! ❌');
       }
     });
   }
