@@ -1,33 +1,43 @@
 import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { CustomerResponse } from '../../../models/response/customer/customer-response';
 import { CustomerService } from '../../../services/customer-service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Popup } from '../../../components/popup/popup';
 
 @Component({
   selector: 'app-customer-detail',
   standalone: true,
-  imports: [CommonModule],
+  // --- YENİ IMPORTLARI EKLE ---
+  imports: [CommonModule, ReactiveFormsModule, Popup],
   templateUrl: './customer-detail.html',
   styleUrl: './customer-detail.scss',
 })
 export class CustomerDetail implements OnInit {
   customer = signal<CustomerResponse | null>(null);
+  
   // --- YENİ SİNYALLER VE DEĞİŞKENLER ---
   isEditMode = signal(false);
   updateCustomerForm!: FormGroup;
   isErrorModalVisible = signal(false);
   errorModalMessage = signal('');
   // ------------------------------------
- 
+
   private customerService = inject(CustomerService);
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder); // FormBuilder'ı inject et
- 
+  private router = inject(Router); // Router'ı inject edin
+
+  
+  // --- YENİ SİNYAL (Silme Onayı için) ---
+  isDeleteConfirmVisible = signal(false);
+  // ------------------------------------
+
+
   ngOnInit() {
     const customerId = this.route.parent?.snapshot.paramMap.get('customerId');
- 
+
     if (customerId) {
       this.customerService.getByCustomerId(customerId).subscribe({
         next: (data) => {
@@ -42,10 +52,11 @@ export class CustomerDetail implements OnInit {
       });
     }
   }
- 
+
   // --- YENİ METOD: Formu oluşturur ve doldurur ---
   buildUpdateForm(customer: CustomerResponse) {
     this.updateCustomerForm = this.fb.group({
+      id: new FormControl(customer.id ?? ''),
       firstName: new FormControl(customer.firstName ?? '', [
         Validators.required,
         Validators.minLength(2),
@@ -65,7 +76,7 @@ export class CustomerDetail implements OnInit {
       gender: new FormControl(customer.gender ?? '', [Validators.required]),
     });
   }
- 
+
   // --- GÜNCELLENMİŞ METOD: Edit modunu açar ---
   onEdit() {
     // Formu, customer sinyalindeki en güncel veriyle doldur
@@ -74,12 +85,12 @@ export class CustomerDetail implements OnInit {
     }
     this.isEditMode.set(true);
   }
- 
+
   // --- YENİ METOD: Edit modunu iptal eder ---
   onCancelEdit() {
     this.isEditMode.set(false);
   }
- 
+
   // --- YENİ METOD: Güncellemeyi kaydeder ---
   onSaveUpdate() {
     if (this.updateCustomerForm.invalid) {
@@ -89,16 +100,10 @@ export class CustomerDetail implements OnInit {
       this.isErrorModalVisible.set(true);
       return;
     }
- 
-    const customerId = this.customer()?.id;
-    if (!customerId) {
-      console.error('Customer ID not found for update.');
-      return;
-    }
- 
+
     const updatedData = this.updateCustomerForm.value;
- 
-    this.customerService.updateCustomer(customerId, updatedData).subscribe({
+
+    this.customerService.updateCustomer(updatedData).subscribe({
       next: (response) => {
         // Backend'den dönen güncel veriyi (veya form verisini) sinyale set et
         this.customer.set(response); 
@@ -113,26 +118,59 @@ export class CustomerDetail implements OnInit {
       }
     });
   }
- 
-  // --- YENİ METOD: Silme (Mevcut fonksiyonu güncelledim) ---
+
+  // --- GÜNCELLENMİŞ METOD: Silme onayını açar ---
   onDelete() {
-    console.log('Deleting customer:', this.customer()?.id);
-    // TODO: Silme onayı ve servisi çağıran logiği buraya ekleyin
-    // Örnek: this.isDeleteConfirmVisible.set(true);
+    // console.log yapmak yerine popup'ı tetikliyoruz
+    this.isDeleteConfirmVisible.set(true);
   }
- 
-  // --- YENİ YARDIMCI METODLAR ---
+
+  // --- YENİ METOD: Silme işlemini iptal eder ---
+  onCancelDelete() {
+    this.isDeleteConfirmVisible.set(false);
+  }
+
+  // --- YENİ METOD: Silme işlemini onaylar ve servisi çağırır ---
+  confirmDelete() {
+    const customerId = this.customer()?.id;
+    if (!customerId) {
+      console.error('Customer ID not found for deletion.');
+      this.isDeleteConfirmVisible.set(false);
+      return;
+    }
+
+    this.customerService.deleteCustomer(customerId).subscribe({
+      next: () => {
+        console.log('Customer deleted successfully');
+        this.isDeleteConfirmVisible.set(false);
+        
+        // Silme başarılı, kullanıcıyı arama sayfasına yönlendir
+        this.router.navigate(['/search-customer']); 
+      },
+      error: (err) => {
+        console.error('Failed to delete customer:', err);
+        this.isDeleteConfirmVisible.set(false);
+        
+        // Hata popup'ını göster
+        this.errorModalMessage.set('An error occurred while deleting the customer.');
+        this.isErrorModalVisible.set(true);
+      }
+    });
+  }
+
+  // --- YARDIMCI METODLAR (Bunlar zaten vardı) ---
   closeErrorModal() {
     this.isErrorModalVisible.set(false);
   }
- 
+
   isFieldInvalid(fieldName: string): boolean {
+    // ... (mevcut kod)
     const field = this.updateCustomerForm.get(fieldName);
-    // 'submitted' bayrağı yerine formu kontrol ediyoruz
     return !!(field && field.invalid && (field.dirty || field.touched));
   }
- 
+
   private markFormGroupTouched(formGroup: FormGroup) {
+    // ... (mevcut kod)
     Object.values(formGroup.controls).forEach((control) => {
       control.markAsTouched();
       if (control instanceof FormGroup) {
