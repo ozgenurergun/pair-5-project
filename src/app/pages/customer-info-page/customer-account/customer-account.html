@@ -1,1 +1,73 @@
-<p>customer-account works!</p>
+<fieldset class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
+<legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">
+    Customer Account
+</legend>
+ 
+  <div class="flex justify-start mb-6">
+<button 
+      (click)="onCreateNewAccount()"
+      class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer">
+      Create New Account
+</button>
+</div>
+ 
+  <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-[#4A476B] rounded-t-lg font-semibold text-gray-300">
+<div class="col-span-1"></div> <div class="col-span-2">Account Status</div>
+<div class="col-span-2">Account Number</div>
+<div class="col-span-3">Account Name</div>
+<div class="col-span-2">Account Type</div>
+<div class="col-span-2 text-center">Action</div>
+</div>
+ 
+  <div class="space-y-2 mt-1">
+    @for (account of paginatedAccounts(); track account.id) {
+<div class="border border-gray-600 rounded-lg overflow-hidden">
+<div 
+          (click)="toggleAccordion(account.id)"
+          class="grid grid-cols-12 gap-4 items-center px-4 py-4 bg-[#3a375a] hover:bg-[#4a476b] cursor-pointer transition-colors">
+<div class="col-span-1">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                 class="w-5 h-5">
+<path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+</svg>
+</div>
+<div class="col-span-2 text-green-400 font-medium">{{ account.status }}</div>
+<div class="col-span-2">{{ account.accountNumber }}</div>
+<div class="col-span-3">{{ account.accountName }}</div>
+<div class="col-span-2">{{ account.type }}</div>
+<div class="col-span-2 flex items-center justify-center space-x-3">
+<button (click)="onEditAccount(account.id); $event.stopPropagation()" class="text-gray-400 hover:text-white">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+</svg>
+</button>
+<button (click)="onDeleteAccount(account.id); $event.stopPropagation()" class="text-gray-400 hover:text-red-500">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+</svg>
+</button>
+</div>
+</div>
+ 
+        </div>
+    }
+</div>
+ 
+  <nav class="flex justify-center items-center space-x-2 mt-8">
+    @for (page of paginationPages(); track $index) {
+      @if (page === '...') {
+<span class="px-4 py-2 text-gray-400">...</span>
+      } @else {
+<button 
+          (click)="goToPage(page)"
+          class="px-4 py-2 rounded-lg transition-colors"
+          [class.bg-blue-600]="currentPage() === page"
+          [class.text-white]="currentPage() === page"
+          [class.text-gray-400]="currentPage() !== page"
+          [class.hover:bg-gray-700]="currentPage() !== page">
+          {{ page }}
+</button>
+      }
+    }
+</nav>
+</fieldset>

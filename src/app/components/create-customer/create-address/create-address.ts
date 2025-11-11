@@ -332,8 +332,7 @@ confirmDelete() {
       return pureAddr as Address;
     });
 
-    // Eğer hiç default adres yoksa ilk adresi default yap
-    if (!addressesToSave.some((a) => a.default)) {
+    if (addressesToSave.length > 0 && !addressesToSave.some((a) => a.default)) {
       addressesToSave[0].default = true;
     }
 
