@@ -1,0 +1,63 @@
+<fieldset class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
+  
+  <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">
+    Create Billing Account
+  </legend>
+
+  <form [formGroup]="billingAccountForm" (ngSubmit)="onSave()" class="max-w-4xl mx-auto">
+    
+    <div class="flex items-center space-x-4 mb-8">
+      <label for="accountName" class="text-lg font-medium text-gray-300 whitespace-nowrap">Account Name * :</label>
+      <input 
+        type="text" 
+        id="accountName" 
+        formControlName="accountName"
+        class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        [class.border-red-500]="isFieldInvalid('accountName')">
+    </div>
+
+    @if (isFieldInvalid('accountName')) {
+      <div class="text-red-400 -mt-6 mb-6 ml-40 text-sm">
+        @if (billingAccountForm.get('accountName')?.hasError('required')) {
+          <small>Account name is required.</small>
+        }
+        @if (billingAccountForm.get('accountName')?.hasError('minlength') || billingAccountForm.get('accountName')?.hasError('maxlength')) {
+          <small>Account name must be between 3 and 100 characters.</small>
+        }
+        @if (billingAccountForm.get('accountName')?.hasError('pattern')) {
+          <small>Account name contains invalid characters.</small>
+        }
+      </div>
+    }
+
+    <app-address></app-address>
+
+    <div class="flex justify-between items-center mt-8">
+      
+      <button 
+        type="button" 
+        [routerLink]="['../customer-account']"
+        class="bg-gray-200 text-gray-900 font-bold py-2 px-8 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer">
+        Previous
+      </button>
+
+      <button 
+        type="submit"
+        [disabled]="billingAccountForm.invalid"
+        class="bg-blue-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+        Save
+      </button>
+    </div>
+
+  </form>
+</fieldset>
+
+@if (isPopupVisible()) {
+  <app-popup
+      [title]="popupTitle()"
+      [message]="popupMessage()"
+      confirmText="OK"
+      cancelText=""
+      (onConfirm)="closePopup()"
+  ></app-popup>
+}

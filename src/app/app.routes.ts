@@ -10,6 +10,7 @@ import { CustomerDetail } from './pages/customer-info-page/customer-detail/custo
 import { CustomerAccount } from './pages/customer-info-page/customer-account/customer-account';
 import { Address } from './pages/customer-info-page/address/address';
 import { ContactMedium } from './pages/customer-info-page/contact-medium/contact-medium';
+import { CreateCustomerAccount } from './pages/customer-info-page/customer-account/create-customer-account/create-customer-account';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [loginGuard] }, // 👈 eklendi
@@ -26,7 +27,17 @@ export const routes: Routes = [
           path: 'customer-info/:customerId', component:CustomerInfoPage,
           children: [
             {path: 'customer-detail', component: CustomerDetail},
-            {path: 'customer-account', component: CustomerAccount},
+          // --- GÜNCELLENEN BÖLÜM ---
+            {
+              path: 'customer-account', 
+              component: CustomerAccount,
+              children: [
+                // Artık bir alt rota
+                {path: 'create-billing-account', component: CreateCustomerAccount},
+              ]
+            },
+            // --- GÜNCELLENEN BÖLÜM BİTTİ ---
+            
             {path: 'address', component: Address},
             {path: 'contact-medium', component: ContactMedium},
           ] 

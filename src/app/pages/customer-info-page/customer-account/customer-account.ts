@@ -1,9 +1,11 @@
 import { Component, computed, signal } from '@angular/core';
 import { BillingAccount } from '../../../models/billingAccount';
+import { RouterLink, RouterOutlet } from "@angular/router";
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-customer-account',
-  imports: [],
+  imports: [CommonModule, RouterLink, RouterOutlet],
   templateUrl: './customer-account.html',
   styleUrl: './customer-account.scss',
 })
@@ -66,6 +68,7 @@ export class CustomerAccount {
   /** Yeni hesap oluşturma (şimdilik boş) */
   onCreateNewAccount() {
     console.log('Create new account clicked (boş fonksiyon)');
+    
   }
   /** Sayfayı değiştirir */
   goToPage(page: number | string) {
