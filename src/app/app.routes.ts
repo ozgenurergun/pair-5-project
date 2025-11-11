@@ -10,6 +10,7 @@ import { CustomerDetail } from './pages/customer-info-page/customer-detail/custo
 import { CustomerAccount } from './pages/customer-info-page/customer-account/customer-account';
 import { Address } from './pages/customer-info-page/address/address';
 import { ContactMedium } from './pages/customer-info-page/contact-medium/contact-medium';
+import { CustomerAccountDetail } from './pages/customer-info-page/customer-account/customer-account-detail/customer-account-detail';
 import { CreateCustomerAccount } from './pages/customer-info-page/customer-account/create-customer-account/create-customer-account';
 
 export const routes: Routes = [
@@ -33,6 +34,8 @@ export const routes: Routes = [
               component: CustomerAccount,
               children: [
                 // Artık bir alt rota
+                { path: '', redirectTo: 'customer-account-detail', pathMatch: 'full' },
+                {path: 'customer-account-detail', component: CustomerAccountDetail},
                 {path: 'create-billing-account', component: CreateCustomerAccount},
               ]
             },
