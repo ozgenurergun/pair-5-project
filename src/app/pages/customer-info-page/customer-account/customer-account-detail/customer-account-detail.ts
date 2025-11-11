@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core'; 
 import { BillingAccount } from '../../../../models/billingAccount';
 import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
 import { BillingAccountService } from '../../../../services/billing-account-service';
@@ -10,7 +10,7 @@ import { Popup } from "../../../../components/popup/popup";
   templateUrl: './customer-account-detail.html',
   styleUrl: './customer-account-detail.scss',
 })
-export class CustomerAccountDetail {
+export class CustomerAccountDetail implements OnInit {
   private billingAccountService = inject(BillingAccountService);
   private route = inject(ActivatedRoute);
 
@@ -19,13 +19,15 @@ export class CustomerAccountDetail {
   // --- Akordiyon State ---
   expandedAccountId = signal<number | null>(null);
  
-  // --- YENİ Sinyaller (Detay verisi ve Hata yönetimi için) ---
+  // --- Detay verisi ve Hata yönetimi ---
   selectedAccountDetails = signal<BillingAccount | null>(null);
   isErrorModalVisible = signal(false);
   errorModalMessage = signal('');
 
+  // --- Ana Hesap Listesi Sinyali ---
   allAccounts = signal<BillingAccount[]>([]);
 
+  // ... (Sayfalama computed sinyalleri - paginatedAccounts, totalPages vb. - aynı kalır) ...
   // Sayfalama State
   currentPage = signal(1);
   itemsPerPage = 4;
@@ -55,24 +57,40 @@ export class CustomerAccountDetail {
     return [1, '...', page - 1, page, page + 1, '...', total];
   });
 
+
   ngOnInit() {
-    // customerId'yi parent rotadan al (customer-info/:customerId)
     const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || this.route.parent?.parent?.snapshot.paramMap.get('customerId');
     if (idFromRoute) {
       this.customerId = idFromRoute;
-      //this.loadBillingAccounts();
+      this.loadBillingAccounts();
     } else {
       console.error('Customer ID not found in route parent snapshot!');
     }
   }
 
-// --- YENİ: Hata popup'ı için ---
+  // Müşterinin tüm hesaplarını yükler
+  loadBillingAccounts() {
+    if (!this.customerId) return;
+
+    this.billingAccountService.  getBillingAccountByCustomerId(this.customerId).subscribe({
+      next: (data) => {
+        this.allAccounts.set(data); // Ana listeyi (allAccounts) doldur
+      },
+      error: (err) => {
+        console.error('Failed to load billing accounts:', err);
+        this.errorModalMessage.set('Failed to load customer accounts.');
+        this.isErrorModalVisible.set(true);
+      }
+    });
+  }
+
+  // --- Hata popup'ı için ---
   closeErrorModal() {
     this.isErrorModalVisible.set(false);
   }
   
-// --- GÜNCELLENMİŞ Akordiyon Metodu ---
-  /** Akordiyonu açar, veriyi çeker veya kapatır */
+  // --- YENİ VE VERİMLİ Akordiyon Metodu (API Çağrısı Yok) ---
+  /** Akordiyonu açar, veriyi 'allAccounts' listesinden bulur veya kapatır */
   toggleAccordion(accountId: number) {
     this.errorModalMessage.set(''); // Önceki hatayı temizle
 
@@ -83,21 +101,19 @@ export class CustomerAccountDetail {
       this.expandedAccountId.set(null);
       this.selectedAccountDetails.set(null);
     } else {
-      // Kapalıysa, aç ve veri çek
-      this.expandedAccountId.set(accountId);
-      this.selectedAccountDetails.set(null); // Yükleniyor... (spinner için)
-
-      this.billingAccountService.getBillingAccountById(accountId).subscribe({
-        next: (data) => {
-          this.selectedAccountDetails.set(data);
-        },
-        error: (err) => {
-          console.error('Failed to load account details:', err);
-          this.errorModalMessage.set('Failed to load account details. Please try again.');
-          this.isErrorModalVisible.set(true);
-          this.expandedAccountId.set(null); // Hata olursa akordiyonu kapat
-        }
-      });
+      // Kapalıysa, aç ve veriyi API'dan değil, mevcut listeden bul
+      const account = this.allAccounts().find(acc => acc.id === accountId);
+      
+      if (account) {
+        this.selectedAccountDetails.set(account); // Bulunan hesabı detaya ata
+        this.expandedAccountId.set(accountId);  // Akordiyonu aç
+      } else {
+        // Bu bir hata durumudur (listede olmayan ID'ye tıklandı)
+        console.error('Account not found in the local list:', accountId);
+        this.errorModalMessage.set('Failed to find account details locally.');
+        this.isErrorModalVisible.set(true);
+        this.expandedAccountId.set(null); 
+      }
     }
   }
   

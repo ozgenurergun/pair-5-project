@@ -24,7 +24,7 @@ export class BillingAccountService {
     return this.http.post<any>(this.apiUrl, request);
   }
 
-  getBillingAccountById(id: number): Observable<BillingAccount> {
-    return this.http.get<BillingAccount>(`${this.apiUrl}/getByCustomerId/${id}`);
+  getBillingAccountByCustomerId(id: String): Observable<BillingAccount[]> {
+    return this.http.get<BillingAccount[]>(`${this.apiUrl}/getByCustomerId/${id}`);
   }
 }
