@@ -6,6 +6,7 @@ import { Address } from '../../address/address';
 import { Popup } from '../../../../components/popup/popup';
 import { AddressService } from '../../../../services/address-service';
 import { CreateBillingAccountRequest } from '../../../../models/request/customer/create-billing-account-request';
+import { BillingAccountService } from '../../../../services/billing-account-service';
 
 
 @Component({
@@ -30,7 +31,9 @@ export class CreateCustomerAccount implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  //private billingAccountService = inject(BillingAccountService);
+  
+  // YENİ: billingAccountService'i aktif hale getiriyoruz
+  private billingAccountService = inject(BillingAccountService);
   private addressService = inject(AddressService); // Birincil adresi bulmak için
 
   // Popup yönetimi
@@ -42,7 +45,7 @@ export class CreateCustomerAccount implements OnInit {
 
   ngOnInit() {
     // Customer ID'yi parent rotadan (customer-info/:customerId) al
-    const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId');
+const idFromRoute = this.route.parent?.parent?.snapshot.paramMap.get('customerId');
     if (idFromRoute) {
       this.customerId = idFromRoute;
     } else {
@@ -91,11 +94,11 @@ export class CreateCustomerAccount implements OnInit {
         // 3. Adım: Request DTO'sunu oluştur
         const request: CreateBillingAccountRequest = {
           accountName: this.billingAccountForm.value.accountName,
-          type: 'Billing Account', // İsteğin üzerine 'string' olarak hardcode edildi
+          type: 'INDIVIDUAL', // İsteğin üzerine 'string' olarak hardcode edildi
           customerId: this.customerId,
           addressId: primaryAddress.id
         };
-/*
+
         // 4. Adım: Backend'e gönder
         this.billingAccountService.postBillingAccount(request).subscribe({
           next: (response) => {
@@ -107,7 +110,7 @@ export class CreateCustomerAccount implements OnInit {
             console.error('Failed to create billing account:', err);
             this.showPopup('Save Error', 'An error occurred while saving the account.');
           }
-        });*/
+        });
       },
       error: (err) => {
         console.error('Failed to get addresses:', err);
@@ -120,7 +123,7 @@ export class CreateCustomerAccount implements OnInit {
   goBackToList() {
     // customer-account listesine geri dön
     // (../ create-billing-account'tan -> ../ customer-account'a)
-    this.router.navigate(['../customer-account'], { relativeTo: this.route });
+    this.router.navigate(['..'], { relativeTo: this.route });
   }
 
   // --- Popup Yardımcı Metodları ---

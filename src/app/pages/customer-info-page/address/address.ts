@@ -45,7 +45,7 @@ export class Address implements OnInit {
   ngOnInit() {
     this.loadAllCities(); // Form için şehir listesini yükle
     
-    const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId');
+const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || this.route.parent?.parent?.snapshot.paramMap.get('customerId');
     if (idFromRoute) {
       this.customerId = idFromRoute; // Müşteri ID'sini component state'ine sakla
       this.loadAddresses(); // Adresleri yükle
