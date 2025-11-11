@@ -129,3 +129,82 @@
   (onConfirm)="closeErrorModal()"
 ></app-popup>
 }
+
+@if (isEditModalVisible()) {
+<div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+  <form [formGroup]="editForm" (ngSubmit)="onSaveUpdate()" class="w-full max-w-lg">
+    <fieldset class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
+      <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">
+        Edit Billing Account
+      </legend>
+
+      <div class="mt-6">
+        <label for="accountName" class="block text-sm font-medium text-gray-400 mb-1"
+          >Account Name *</label
+        >
+        <input
+          type="text"
+          id="accountName"
+          formControlName="accountName"
+          class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          [class.border-red-500]="isFieldInvalid('accountName')"
+        />
+
+        @if (isFieldInvalid('accountName')) {
+        <div class="text-red-400 mt-1 text-sm">
+          @if (editForm.get('accountName')?.hasError('required')) {
+          <small>Account name is required.</small>
+          } @if (editForm.get('accountName')?.hasError('minlength') ||
+          editForm.get('accountName')?.hasError('maxlength')) {
+          <small>Account name must be between 3 and 100 characters.</small>
+          } @if (editForm.get('accountName')?.hasError('pattern')) {
+          <small>Account name contains invalid characters.</small>
+          }
+        </div>
+        }
+      </div>
+
+      <div class="mt-4">
+        <label for="addressId" class="block text-sm font-medium text-gray-400 mb-1"
+          >Billing Address *</label
+        >
+        <select
+          id="addressId"
+          formControlName="addressId"
+          class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+          [class.border-red-500]="isFieldInvalid('addressId')"
+        >
+          <option [ngValue]="null" disabled>Select an address...</option>
+          @for (addr of customerAddresses(); track addr.id) {
+            <option [ngValue]="addr.id">
+              {{ formatAddressForDropdown(addr) }}
+            </option>
+          }
+        </select>
+        @if (isFieldInvalid('addressId')) {
+        <div class="text-red-400 mt-1 text-sm">
+          <small>A billing address is required.</small>
+        </div>
+        }
+      </div>
+      
+      <div class="flex justify-end items-center space-x-4 mt-8">
+        <button
+          type="button"
+          (click)="onCancelEdit()"
+          class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="editForm.invalid"
+          class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Save Changes
+        </button>
+      </div>
+    </fieldset>
+  </form>
+</div>
+}

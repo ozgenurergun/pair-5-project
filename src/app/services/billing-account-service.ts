@@ -27,4 +27,10 @@ export class BillingAccountService {
   getBillingAccountByCustomerId(id: String): Observable<BillingAccount[]> {
     return this.http.get<BillingAccount[]>(`${this.apiUrl}/getByCustomerId/${id}`);
   }
+
+  updateBillingAccount(account: BillingAccount): Observable<BillingAccount> {
+    // Adres ve Müşteri servislerindeki desene uyarak, ID'yi URL'e eklemiyoruz,
+    // body'nin içinde gönderiyoruz.
+    return this.http.put<BillingAccount>(this.apiUrl, account);
+  }
 }
