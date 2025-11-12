@@ -33,4 +33,8 @@ export class BillingAccountService {
     // body'nin içinde gönderiyoruz.
     return this.http.put<BillingAccount>(this.apiUrl, account);
   }
+
+  deleteBillingAccount(accountId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${accountId}/soft`);
+  }
 }

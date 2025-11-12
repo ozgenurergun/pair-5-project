@@ -17,6 +17,9 @@ export class CustomerAccountDetail implements OnInit {
   private billingAccountService = inject(BillingAccountService);
   private route = inject(ActivatedRoute);
 
+  isDeleteConfirmVisible = signal(false);
+  accountToDeleteId = signal<number | null>(null);
+
   // customerId'yi Input olarak geçirmek için saklıyoruz
   customerId!: string;
 
@@ -122,7 +125,55 @@ export class CustomerAccountDetail implements OnInit {
   // --- onSaveUpdate() METODU KALDIRILDI ---
 
   onDeleteAccount(accountId: number) {
-    console.log('Delete account (boş fonksiyon):', accountId);
+    // 1. Hesabı listeden bul
+    const account = this.allAccounts().find(acc => acc.id === accountId);
+    if (!account) {
+      console.error('Silinecek hesap bulunamadı!');
+      return;
+    }
+ 
+    // 2. Durumu kontrol et (Büyük/küçük harf duyarsız)
+    if (account.status.toUpperCase() === 'ACTIVE') {
+      // 3. Durum "ACTIVE" ise hata popup'ı göster
+      this.errorModalMessage.set("You can't delete active billing account");
+      this.isErrorModalVisible.set(true);
+    } else {
+      // 4. Durum "ACTIVE" değilse, onay popup'ı için ID'yi ayarla
+      this.accountToDeleteId.set(accountId);
+      this.isDeleteConfirmVisible.set(true);
+    }
+  }
+ 
+  // --- YENİ METOD ---
+  onCancelDelete() {
+    this.isDeleteConfirmVisible.set(false);
+    this.accountToDeleteId.set(null);
+  }
+ 
+  // --- YENİ METOD ---
+  confirmDelete() {
+    const id = this.accountToDeleteId();
+    if (id === null) return;
+ 
+    // 5. Servisi çağır
+    this.billingAccountService.deleteBillingAccount(id).subscribe({
+      next: () => {
+        console.log('Account deleted successfully');
+        // Listeyi yenile (silineni listeden çıkar)
+        this.allAccounts.update(accounts => 
+          accounts.filter(acc => acc.id !== id)
+        );
+        // Popup'ı kapat
+        this.onCancelDelete();
+      },
+      error: (err) => {
+        console.error('Failed to delete account:', err);
+        this.onCancelDelete(); // Onay popup'ını kapat
+        // Hata popup'ını göster
+        this.errorModalMessage.set('An error occurred while deleting the account.');
+        this.isErrorModalVisible.set(true);
+      }
+    });
   }
 
   // --- isFieldInvalid() METODU KALDIRILDI ---

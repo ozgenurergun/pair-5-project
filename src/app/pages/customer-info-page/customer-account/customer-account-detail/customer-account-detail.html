@@ -1,17 +1,18 @@
 <fieldset class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
-  <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">
-    Customer Account
-  </legend>
- 
+  <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">Customer Account</legend>
+
   <div class="flex justify-start mb-6">
-    <button 
-        routerLink="../create-billing-account"
-        class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer">
-        Create New Account
+    <button
+      routerLink="../create-billing-account"
+      class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+    >
+      Create New Account
     </button>
   </div>
-  
-  <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-[#4A476B] rounded-t-lg font-semibold text-gray-300">
+
+  <div
+    class="grid grid-cols-12 gap-4 px-4 py-3 bg-[#4A476B] rounded-t-lg font-semibold text-gray-300"
+  >
     <div class="col-span-1"></div>
     <div class="col-span-2">Account Status</div>
     <div class="col-span-2">Account Number</div>
@@ -40,29 +41,59 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
           </svg>
         </div>
-        <div class="col-span-2 text-green-400 font-medium">{{ account.status }}</div>
+        <div class="col-span-2" 
+        [class.text-green-400]="account?.status === 'ACTIVE'" 
+        [class.text-orange-400]="account?.status === 'SUSPENDED'"
+        [class.text-red-400]="account?.status === 'CLOSED'">
+          {{ account.status }}
+        </div>
         <div class="col-span-2">{{ account.accountNumber }}</div>
         <div class="col-span-3">{{ account.accountName }}</div>
         <div class="col-span-2">{{ account.type }}</div>
         <div class="col-span-2 flex items-center justify-center space-x-3">
-          
-          <a [routerLink]="['../update-billing-account', account.id]" (click)="$event.stopPropagation()" class="text-gray-400 hover:text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
+          <a
+            [routerLink]="['../update-billing-account', account.id]"
+            (click)="$event.stopPropagation()"
+            class="text-gray-400 hover:text-white"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+              />
+            </svg>
           </a>
-          <button (click)="onDeleteAccount(account.id); $event.stopPropagation()" class="text-gray-400 hover:text-red-500">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+          <button
+            (click)="onDeleteAccount(account.id); $event.stopPropagation()"
+            class="text-gray-400 hover:text-red-500 cursor-pointer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
       </div>
 
       @if (expandedAccountId() === account.id) {
       <div class="bg-gray-800 p-4 border-t border-gray-700">
-        
         @if (selectedAccountDetails() === null && !errorModalMessage()) {
         <p class="text-gray-400 text-center py-4">Loading details...</p>
-        }
-        
-        @if (selectedAccountDetails()) {
+        } @if (selectedAccountDetails()) {
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div class="font-semibold text-gray-400">Customer ID:</div>
           <div class="text-gray-200">{{ selectedAccountDetails()?.customerId }}</div>
@@ -76,27 +107,29 @@
           <div class="font-semibold text-gray-400">Account Number:</div>
           <div class="text-gray-200">{{ selectedAccountDetails()?.accountNumber }}</div>
         </div>
-        
+
         <div class="mt-6 border-t border-gray-700 pt-4"></div>
         <div class="flex items-center justify-center space-x-4">
-          <button 
+          <button
             type="button"
-            class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer">
+            class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+          >
             Start New Sale
           </button>
-          <button 
+          <button
             type="button"
-            class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer">
+            class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+          >
             Transfer
           </button>
-          <button 
+          <button
             type="button"
-            class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer">
+            class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+          >
             Service address change
           </button>
         </div>
         }
-
       </div>
       }
     </div>
@@ -104,8 +137,7 @@
   </div>
 
   <nav class="flex justify-center items-center space-x-2 mt-8">
-    @for (page of paginationPages(); track $index) {
-    @if (page === '...') {
+    @for (page of paginationPages(); track $index) { @if (page === '...') {
     <span class="px-4 py-2 text-gray-400">...</span>
     } @else {
     <button
@@ -129,5 +161,16 @@
   confirmText="OK"
   cancelText=""
   (onConfirm)="closeErrorModal()"
+></app-popup>
+}
+
+@if (isDeleteConfirmVisible()) {
+<app-popup
+  title="Confirm Deletion"
+  message="Are you sure to delete this account?"
+  confirmText="Yes, Delete"
+  cancelText="Cancel"
+  (onConfirm)="confirmDelete()"
+  (onCancel)="onCancelDelete()"
 ></app-popup>
 }
