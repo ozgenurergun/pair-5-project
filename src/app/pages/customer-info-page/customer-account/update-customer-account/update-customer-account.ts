@@ -138,10 +138,9 @@ export class UpdateCustomerAccount {
     });
   }
 
-  // Geri dönme
-  goBackToList() {
-    // ../update-billing-account/:id' den ../customer-account-detail'e döner
-    this.router.navigate(['../../customer-account-detail'], { relativeTo: this.route });
+goBackToList() {
+    // Bu kod, router'ı kullanarak yönlendirme yapıyor
+    this.router.navigate(['../..', 'customer-account-detail'], { relativeTo: this.route });
   }
 
   // --- Popup Yardımcı Metodları ---

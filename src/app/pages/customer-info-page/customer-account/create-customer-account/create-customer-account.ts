@@ -24,7 +24,7 @@ import { BillingAccountService } from '../../../../services/billing-account-serv
 export class CreateCustomerAccount implements OnInit {
   
   billingAccountForm!: FormGroup;
-  private customerId!: string;
+  public customerId!: string;
 
   private fb = inject(FormBuilder);
   private router = inject(Router);

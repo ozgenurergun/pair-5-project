@@ -38,7 +38,7 @@ export const routes: Routes = [
                 { path: '', redirectTo: 'customer-account-detail', pathMatch: 'full' },
                 {path: 'customer-account-detail', component: CustomerAccountDetail},
                 {path: 'create-billing-account', component: CreateCustomerAccount},
-                {path: 'update-billing-account', component: UpdateCustomerAccount},
+                {path: 'update-billing-account/:accountId', component: UpdateCustomerAccount},
               ]
             },
             // --- GÜNCELLENEN BÖLÜM BİTTİ ---

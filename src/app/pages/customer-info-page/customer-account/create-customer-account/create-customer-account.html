@@ -33,6 +33,7 @@
     <label class="block text-lg font-medium text-gray-300 mb-4">Select Billing Address *</label>
     <div class="modal-address-list-container border border-gray-600 rounded-lg p-4">
       <app-address 
+        [customerIdInput]="customerId"
         [isSelectableMode]="true"
         [selectedAddressId]="selectedAddressId()"
         (addressSelected)="onAddressSelected($event)">
