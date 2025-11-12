@@ -1,10 +1,10 @@
 <fieldset class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
   
   <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">
-    Create Billing Account
+    Update Billing Account
   </legend>
 
-  <form [formGroup]="billingAccountForm" (ngSubmit)="onSave()" class="max-w-4xl mx-auto">
+  <form [formGroup]="updateForm" (ngSubmit)="onSave()" class="max-w-4xl mx-auto">
     
     <div class="flex items-center space-x-4 mb-8">
       <label for="accountName" class="text-lg font-medium text-gray-300 whitespace-nowrap">Account Name * :</label>
@@ -18,13 +18,13 @@
 
     @if (isFieldInvalid('accountName')) {
       <div class="text-red-400 -mt-6 mb-6 ml-40 text-sm">
-        @if (billingAccountForm.get('accountName')?.hasError('required')) {
+        @if (updateForm.get('accountName')?.hasError('required')) {
           <small>Account name is required.</small>
         }
-        @if (billingAccountForm.get('accountName')?.hasError('minlength') || billingAccountForm.get('accountName')?.hasError('maxlength')) {
+        @if (updateForm.get('accountName')?.hasError('minlength') || updateForm.get('accountName')?.hasError('maxlength')) {
           <small>Account name must be between 3 and 100 characters.</small>
         }
-        @if (billingAccountForm.get('accountName')?.hasError('pattern')) {
+        @if (updateForm.get('accountName')?.hasError('pattern')) {
           <small>Account name contains invalid characters.</small>
         }
       </div>
@@ -33,16 +33,16 @@
     <label class="block text-lg font-medium text-gray-300 mb-4">Select Billing Address *</label>
     <div class="modal-address-list-container border border-gray-600 rounded-lg p-4">
       <app-address 
+        [customerIdInput]="customerId" 
         [isSelectableMode]="true"
         [selectedAddressId]="selectedAddressId()"
         (addressSelected)="onAddressSelected($event)">
       </app-address>
     </div>
     
-    @if (!selectedAddressId() && billingAccountForm.dirty) {
+    @if (!selectedAddressId() && updateForm.dirty) {
        <div class="text-red-400 mt-2 text-sm"><small>Please select an address.</small></div>
     }
-
 
     <div class="flex justify-between items-center mt-8">
       
@@ -50,14 +50,14 @@
         type="button" 
         (click)="goBackToList()"
         class="bg-gray-200 text-gray-900 font-bold py-2 px-8 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer">
-        Previous
+        Cancel
       </button>
 
       <button 
         type="submit"
-        [disabled]="billingAccountForm.invalid || !selectedAddressId()"
+        [disabled]="updateForm.invalid || !selectedAddressId()"
         class="bg-blue-600 text-white font-bold py-2 px-8 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-        Save
+        Save Changes
       </button>
     </div>
 

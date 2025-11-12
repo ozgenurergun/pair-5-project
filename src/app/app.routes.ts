@@ -12,6 +12,7 @@ import { Address } from './pages/customer-info-page/address/address';
 import { ContactMedium } from './pages/customer-info-page/contact-medium/contact-medium';
 import { CustomerAccountDetail } from './pages/customer-info-page/customer-account/customer-account-detail/customer-account-detail';
 import { CreateCustomerAccount } from './pages/customer-info-page/customer-account/create-customer-account/create-customer-account';
+import { UpdateCustomerAccount } from './pages/customer-info-page/customer-account/update-customer-account/update-customer-account';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [loginGuard] }, // 👈 eklendi
@@ -37,6 +38,7 @@ export const routes: Routes = [
                 { path: '', redirectTo: 'customer-account-detail', pathMatch: 'full' },
                 {path: 'customer-account-detail', component: CustomerAccountDetail},
                 {path: 'create-billing-account', component: CreateCustomerAccount},
+                {path: 'update-billing-account', component: UpdateCustomerAccount},
               ]
             },
             // --- GÜNCELLENEN BÖLÜM BİTTİ ---

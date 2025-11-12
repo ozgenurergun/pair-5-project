@@ -15,7 +15,6 @@ import { BillingAccountService } from '../../../../services/billing-account-serv
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink, // RouterLink eklendi
     Address,   // Yeniden kullanılan adres bileşeni
     Popup      // Hata/Başarı popup'ları için
   ],
@@ -27,16 +26,15 @@ export class CreateCustomerAccount implements OnInit {
   billingAccountForm!: FormGroup;
   private customerId!: string;
 
-  // Servisleri inject et
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  
-  // YENİ: billingAccountService'i aktif hale getiriyoruz
   private billingAccountService = inject(BillingAccountService);
-  private addressService = inject(AddressService); // Birincil adresi bulmak için
+  // private addressService = inject(AddressService); // <-- KALDIRILDI
 
-  // Popup yönetimi
+  // YENİ: Seçilen adresin ID'sini tutmak için sinyal
+  selectedAddressId = signal<number | null>(null);
+
   isPopupVisible = signal(false);
   popupMessage = signal('');
   popupTitle = signal('');
@@ -44,18 +42,15 @@ export class CreateCustomerAccount implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    // Customer ID'yi parent rotadan (customer-info/:customerId) al
-const idFromRoute = this.route.parent?.parent?.snapshot.paramMap.get('customerId');
+    const idFromRoute = this.route.parent?.parent?.snapshot.paramMap.get('customerId');
     if (idFromRoute) {
       this.customerId = idFromRoute;
     } else {
       console.error('Customer ID not found in route parent snapshot!');
       this.showPopup('Error', 'Customer ID not found. Cannot create account.');
-      // Customer ID yoksa listeye geri dön
       this.goBackToList();
     }
 
-    // Formu Java DTO'daki validasyonlara göre kur
     this.billingAccountForm = this.fb.group({
       accountName: ['', [
         Validators.required, 
@@ -66,67 +61,58 @@ const idFromRoute = this.route.parent?.parent?.snapshot.paramMap.get('customerId
     });
   }
 
-  // Form validasyon kontrolü
+  // YENİ: app-address bileşeninden gelen seçimi yakalayan metod
+  onAddressSelected(addressId: number) {
+    this.selectedAddressId.set(addressId);
+    console.log('Address selected:', addressId);
+  }
+
   isFieldInvalid(fieldName: string): boolean {
     const field = this.billingAccountForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
   }
 
+  // GÜNCELLENDİ: onSave metodu
   onSave() {
-    // Form geçerli değilse dur
     if (this.billingAccountForm.invalid) {
       this.markFormGroupTouched(this.billingAccountForm);
       this.showPopup('Validation Error', 'Please correct the errors on the form.');
       return;
     }
 
-    // 1. Adım: Birincil adresi bul
-    this.addressService.getByCustomerId(this.customerId).subscribe({
-      next: (addresses) => {
-        const primaryAddress = addresses.find(addr => addr.default === true);
+    // YENİ: Adres seçilip seçilmediğini kontrol et
+    if (!this.selectedAddressId()) {
+      this.showPopup('Validation Error', 'Please select a billing address.');
+      return;
+    }
 
-        // 2. Adım: Birincil adres yoksa hata ver
-        if (!primaryAddress || !primaryAddress.id) {
-          this.showPopup('Error', 'No primary address found. Please set a primary address first.');
-          return;
-        }
+    // 1. Adım: Request DTO'sunu oluştur
+    const request: CreateBillingAccountRequest = {
+      accountName: this.billingAccountForm.value.accountName,
+      type: 'INDIVIDUAL',
+      customerId: this.customerId,
+      addressId: this.selectedAddressId()! // <-- Değişti: Artık sinyalden alınıyor
+    };
 
-        // 3. Adım: Request DTO'sunu oluştur
-        const request: CreateBillingAccountRequest = {
-          accountName: this.billingAccountForm.value.accountName,
-          type: 'INDIVIDUAL', // İsteğin üzerine 'string' olarak hardcode edildi
-          customerId: this.customerId,
-          addressId: primaryAddress.id
-        };
-
-        // 4. Adım: Backend'e gönder
-        this.billingAccountService.postBillingAccount(request).subscribe({
-          next: (response) => {
-            console.log('Billing Account Created!', response);
-            // Başarı durumunda listeye geri dön
-            this.goBackToList(); 
-          },
-          error: (err) => {
-            console.error('Failed to create billing account:', err);
-            this.showPopup('Save Error', 'An error occurred while saving the account.');
-          }
-        });
+    // 2. Adım: Backend'e gönder
+    this.billingAccountService.postBillingAccount(request).subscribe({
+      next: (response) => {
+        console.log('Billing Account Created!', response);
+        this.goBackToList(); 
       },
       error: (err) => {
-        console.error('Failed to get addresses:', err);
-        this.showPopup('Error', 'Could not retrieve address information to save.');
+        console.error('Failed to create billing account:', err);
+        this.showPopup('Save Error', 'An error occurred while saving the account.');
       }
     });
+    
+    // --- ESKİ addressService.getByCustomerId bloğu SİLİNDİ ---
   }
 
-  // "Previous" butonu (veya başarılı save sonrası)
   goBackToList() {
-    // customer-account listesine geri dön
-    // (../ create-billing-account'tan -> ../ customer-account'a)
     this.router.navigate(['..'], { relativeTo: this.route });
   }
 
-  // --- Popup Yardımcı Metodları ---
   showPopup(title: string, message: string) {
     this.popupTitle.set(title);
     this.popupMessage.set(message);

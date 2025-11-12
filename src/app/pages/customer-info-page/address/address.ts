@@ -1,7 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { CustomerService } from '../../../services/customer-service';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CustomerResponse } from '../../../models/response/customer/customer-response';
 import { AddressService } from '../../../services/address-service';
 import { CustomerAddressResponse } from '../../../models/response/customer/customer-address-response';
 import { City } from '../../../models/response/customer/city-response';
@@ -18,60 +16,97 @@ import { Popup } from '../../../components/popup/popup';
   styleUrl: './address.scss',
 })
 export class Address implements OnInit {
+  // --- YENİ GİRDİ VE ÇIKTILAR ---
+  /**
+   * Bileşenin "seçim modu"nda olup olmadığını belirler.
+   * true ise, adreslerin yanında radyo butonları gösterir ve Ekle/Sil/Düzenle butonlarını gizler.
+   */
+  @Input() isSelectableMode: boolean = false;
+
+  /**
+   * Seçim modundayken hangi adresin seçili olduğunu belirler.
+   * Parent component tarafından .bind() ile bağlanır.
+   */
+  @Input() selectedAddressId: number | null = null;
+
+  /**
+   * Kullanıcı bir adres seçtiğinde, seçilen adresin ID'sini dışarıya emit eder.
+   */
+  @Output() addressSelected = new EventEmitter<number>();
+  
+  /**
+   * customerId'yi dışarıdan alabilme özelliği (Modal içinde rotadan okuyamayabilir).
+   */
+  @Input() customerIdInput?: string; 
+  // ------------------------------------
+
   cities = signal<City[]>([]);
   addresses = signal<CustomerAddressResponse[] | undefined>(undefined);
 
-  // --- YENİ SİNYALLER VE DEĞİŞKENLER ---
-  private customerId!: string; // Müşteri ID'sini saklamak için
+  private customerId!: string;
   addressForm!: FormGroup;
   isModalVisible = signal(false);
   modalMode = signal<'add' | 'edit'>('add');
   
-  // Popup sinyalleri
   isDeleteConfirmVisible = signal(false);
   addressToDeleteId = signal<number | null>(null);
   isErrorModalVisible = signal(false);
   errorModalMessage = signal('');
   
-  // Dinamik ilçe listesi
   districts = signal<any[]>([]); 
-  // ------------------------------------
   
   private addressService = inject(AddressService);
   private route = inject(ActivatedRoute);
   private cityService = inject(CityService);
-  private fb = inject(FormBuilder); // FormBuilder inject
+  private fb = inject(FormBuilder);
 
-  ngOnInit() {
+ngOnInit() {
     this.loadAllCities(); // Form için şehir listesini yükle
-    
-const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || this.route.parent?.parent?.snapshot.paramMap.get('customerId');
-    if (idFromRoute) {
-      this.customerId = idFromRoute; // Müşteri ID'sini component state'ine sakla
-      this.loadAddresses(); // Adresleri yükle
+    // 1. Potansiyel ID'leri al
+    const idFromInput = this.customerIdInput;
+    const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || this.route.parent?.parent?.snapshot.paramMap.get('customerId');
+    // 2. İlk geçerli (null/undefined olmayan) ID'yi bul
+    const potentialCustomerId = idFromInput || idFromRoute;
+ 
+    // 3. ID'nin geçerli bir string olup olmadığını kontrol et
+    if (potentialCustomerId) {
+      // 4. Sadece geçerliyse `this.customerId`'ye ata
+      this.customerId = potentialCustomerId;
+      this.loadAddresses(); // Ve adresleri yükle
     } else {
-      console.error('Customer ID not found in route parent snapshot!');
+      // 5. Geçerli ID yoksa, hata ver.
+      console.error('Customer ID not found in route or input!');
+      // `this.customerId` hiç atanmadığı için `loadAddresses` ve `onSave` çalışmayacak.
+      this.showErrorPopup('Critical Error: Customer ID not found. Cannot manage addresses.', null);
     }
-
+ 
     this.buildForm(); // Boş bir formla başlat
+  }
+
+  // --- YENİ METOD ---
+  /**
+   * Sadece seçim modundayken tetiklenir.
+   * Bir adres seçildiğinde (radyo buton veya div tıklaması) parent component'e haber verir.
+   */
+  onSelectAddress(addressId: number) {
+    if (this.isSelectableMode) {
+      this.addressSelected.emit(addressId);
+    }
   }
 
   // --- FORM OLUŞTURMA VE YÖNETİMİ ---
 
   buildForm(address: CustomerAddressResponse | null = null) {
     this.addressForm = this.fb.group({
-      id: [address?.id ?? null], // 'edit' modu için
-      city: [null, [Validators.required]], // Sadece 'district'i doldurmak için
+      id: [address?.id ?? null],
+      city: [null, [Validators.required]],
       districtId: [address?.districtId ?? null, [Validators.required]],
       street: [address?.street ?? '', [Validators.required, Validators.minLength(2)]],
       houseNumber: [address?.houseNumber ?? '', [Validators.required, Validators.minLength(1)]],
       description: [address?.description ?? '', [Validators.required, Validators.minLength(10)]],
-      // NOT: Form 'default' kullanır (backend POST/PUT için bunu bekler)
-      // Gelen veri (CustomerAddressResponse) 'isDefault' kullanır
       default: [address?.default ?? false, [Validators.required]] 
     });
 
-    // Şehir seçimi değiştiğinde ilçeleri yükle
     this.addressForm.get('city')?.valueChanges.subscribe(cityId => {
       this.onCityChange(cityId);
     });
@@ -86,7 +121,6 @@ const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || th
     const selectedCity = this.cities().find(c => c.id === cityId);
     this.districts.set(selectedCity?.districts || []);
     
-    // 'edit' modunda değilsek (yani 'add' modundaysak) ilçe seçimini sıfırla
     if (this.modalMode() === 'add') {
       this.addressForm.get('districtId')?.setValue(null);
     }
@@ -109,7 +143,6 @@ const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || th
       return;
     }
 
-    // Formdan 'city' (kullanmadığımız) ve 'id' (sadece edit'te lazım) alanlarını ayır
     const { city, id, ...formData } = this.addressForm.value;
 
     if (this.modalMode() === 'add') {
@@ -120,7 +153,7 @@ const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || th
       
       this.addressService.postAddress(createRequest).subscribe({
         next: () => {
-          this.loadAddresses(); // Listeyi yenile
+          this.loadAddresses();
           this.closeModal();
         },
         error: (err) => this.showErrorPopup('Error adding address.', err)
@@ -129,12 +162,12 @@ const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || th
     } else { // 'edit' modu
       const updateRequest: CustomerAddressResponse = {
         ...formData,
-        id: id // 'id'yi buraya ekle
+        id: id
       };
 
       this.addressService.updateAddress(updateRequest).subscribe({
         next: () => {
-          this.loadAddresses(); // Listeyi yenile
+          this.loadAddresses();
           this.closeModal();
         },
         error: (err) => this.showErrorPopup('Error updating address.', err)
@@ -148,11 +181,11 @@ const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || th
 
     this.addressService.deleteAddress(id).subscribe({
       next: () => {
-        this.loadAddresses(); // Listeyi yenile
-        this.onCancelDelete(); // Popup'ı kapat
+        this.loadAddresses();
+        this.onCancelDelete();
       },
       error: (err) => {
-        this.onCancelDelete(); // Popup'ı kapat
+        this.onCancelDelete();
         this.showErrorPopup('Error deleting address.', err);
       }
     });
@@ -162,7 +195,7 @@ const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || th
     this.addressService.setPrimaryAddress(addressId).subscribe({
       next: () => {
         console.log('Primary address set');
-        this.loadAddresses(); // Listeyi yenile (isDefault/default bayrakları değişti)
+        this.loadAddresses();
       },
       error: (err) => this.showErrorPopup('Error setting primary address.', err)
     });
@@ -171,16 +204,15 @@ const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || th
   // --- MODAL VE POPUP YÖNETİMİ ---
 
   onAddAddress() {
-    this.buildForm(); // Formu sıfırla
+    this.buildForm();
     this.modalMode.set('add');
     this.isModalVisible.set(true);
   }
 
   onEditAddress(address: CustomerAddressResponse) {
-    this.buildForm(address); // Formu seçili adresle doldur
+    this.buildForm(address);
     this.modalMode.set('edit');
     
-    // 'city' ve 'district' dropdown'larını önceden doldur
     const city = this.cities().find(c => c.districts.some(d => d.id === address.districtId));
     if (city) {
       this.addressForm.get('city')?.setValue(city.id, { emitEvent: false });
@@ -191,12 +223,10 @@ const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || th
     this.isModalVisible.set(true);
   }
 
-  onDeleteAddress(address: CustomerAddressResponse) { // Artık ID değil, tüm objeyi alıyor
+  onDeleteAddress(address: CustomerAddressResponse) {
     if (address.default) {
-      // 3. İSTEK: Birincil adresi silmeyi engelle
-      this.showErrorPopup("You cant delete primary address", null);
+      this.showErrorPopup("You can't delete a primary address.", null);
     } else {
-      // Birincil değilse, silme onayını göster
       this.addressToDeleteId.set(address.id!);
       this.isDeleteConfirmVisible.set(true);
     }
@@ -221,7 +251,7 @@ const idFromRoute = this.route.parent?.snapshot.paramMap.get('customerId') || th
     this.isErrorModalVisible.set(true);
   }
 
-  // --- YARDIMCI METODLAR (Mevcut kodunuz) ---
+  // --- YARDIMCI METODLAR ---
 
   loadAllCities() {
     this.cityService.getCities().subscribe({

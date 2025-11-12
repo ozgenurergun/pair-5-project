@@ -1,16 +1,17 @@
 <fieldset class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
-<legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">
+  <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">
     Customer Account
-</legend>
+  </legend>
  
   <div class="flex justify-start mb-6">
-<button 
-    routerLink="../create-billing-account"
-      class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer">
-      Create New Account
-</button>
-</div>
- <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-[#4A476B] rounded-t-lg font-semibold text-gray-300">
+    <button 
+        routerLink="../create-billing-account"
+        class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer">
+        Create New Account
+    </button>
+  </div>
+  
+  <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-[#4A476B] rounded-t-lg font-semibold text-gray-300">
     <div class="col-span-1"></div>
     <div class="col-span-2">Account Status</div>
     <div class="col-span-2">Account Number</div>
@@ -97,7 +98,7 @@
 
       </div>
       }
-      </div>
+    </div>
     }
   </div>
 
@@ -149,7 +150,6 @@
           class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           [class.border-red-500]="isFieldInvalid('accountName')"
         />
-
         @if (isFieldInvalid('accountName')) {
         <div class="text-red-400 mt-1 text-sm">
           @if (editForm.get('accountName')?.hasError('required')) {
@@ -165,22 +165,18 @@
       </div>
 
       <div class="mt-4">
-        <label for="addressId" class="block text-sm font-medium text-gray-400 mb-1"
+        <label for="addressId" class="block text-sm font-medium text-gray-400 mb-2"
           >Billing Address *</label
         >
-        <select
-          id="addressId"
-          formControlName="addressId"
-          class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-          [class.border-red-500]="isFieldInvalid('addressId')"
-        >
-          <option [ngValue]="null" disabled>Select an address...</option>
-          @for (addr of customerAddresses(); track addr.id) {
-            <option [ngValue]="addr.id">
-              {{ formatAddressForDropdown(addr) }}
-            </option>
-          }
-        </select>
+        <div class="modal-address-list-container border border-gray-600 rounded-lg p-4 max-h-60 overflow-y-auto">
+          <app-address
+            [customerIdInput]="customerId" 
+            [isSelectableMode]="true"
+            [selectedAddressId]="editForm.get('addressId')?.value"
+            (addressSelected)="onModalAddressSelected($event)">
+          </app-address>
+        </div>
+        
         @if (isFieldInvalid('addressId')) {
         <div class="text-red-400 mt-1 text-sm">
           <small>A billing address is required.</small>
