@@ -13,9 +13,10 @@ import { ContactMedium } from './pages/customer-info-page/contact-medium/contact
 import { CustomerAccountDetail } from './pages/customer-info-page/customer-account/customer-account-detail/customer-account-detail';
 import { CreateCustomerAccount } from './pages/customer-info-page/customer-account/create-customer-account/create-customer-account';
 import { UpdateCustomerAccount } from './pages/customer-info-page/customer-account/update-customer-account/update-customer-account';
+import { OfferSelectionPage } from './pages/offer-selection-page/offer-selection-page';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent, canActivate: [loginGuard] }, // 👈 eklendi
+  { path: 'login', component: LoginComponent, canActivate: [loginGuard] }, 
  
   {
     path: '',
@@ -29,7 +30,6 @@ export const routes: Routes = [
           path: 'customer-info/:customerId', component:CustomerInfoPage,
           children: [
             {path: 'customer-detail', component: CustomerDetail},
-          // --- GÜNCELLENEN BÖLÜM ---
             {
               path: 'customer-account', 
               component: CustomerAccount,
@@ -41,10 +41,10 @@ export const routes: Routes = [
                 {path: 'update-billing-account/:accountId', component: UpdateCustomerAccount},
               ]
             },
-            // --- GÜNCELLENEN BÖLÜM BİTTİ ---
             
             {path: 'address', component: Address},
             {path: 'contact-medium', component: ContactMedium},
+            {path: 'offer-selection', component: OfferSelectionPage},
           ] 
         },
     ],

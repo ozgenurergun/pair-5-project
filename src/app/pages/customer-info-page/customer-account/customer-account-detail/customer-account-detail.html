@@ -41,10 +41,12 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
           </svg>
         </div>
-        <div class="col-span-2" 
-        [class.text-green-400]="account?.status === 'ACTIVE'" 
-        [class.text-orange-400]="account?.status === 'SUSPENDED'"
-        [class.text-red-400]="account?.status === 'CLOSED'">
+        <div
+          class="col-span-2"
+          [class.text-green-400]="account?.status === 'ACTIVE'"
+          [class.text-orange-400]="account?.status === 'SUSPENDED'"
+          [class.text-red-400]="account?.status === 'CLOSED'"
+        >
           {{ account.status }}
         </div>
         <div class="col-span-2">{{ account.accountNumber }}</div>
@@ -112,6 +114,7 @@
         <div class="flex items-center justify-center space-x-4">
           <button
             type="button"
+            [routerLink]="['/customer-info', customerId, 'offer-selection']"
             class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
           >
             Start New Sale
@@ -162,9 +165,7 @@
   cancelText=""
   (onConfirm)="closeErrorModal()"
 ></app-popup>
-}
-
-@if (isDeleteConfirmVisible()) {
+} @if (isDeleteConfirmVisible()) {
 <app-popup
   title="Confirm Deletion"
   message="Are you sure to delete this account?"
