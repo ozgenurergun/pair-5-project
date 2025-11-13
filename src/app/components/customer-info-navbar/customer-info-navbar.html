@@ -2,8 +2,7 @@
  
   @for (link of navLinks; track link.path) {
   <a [routerLink]="link.path"
-     [routerLinkActiveOptions]="{ exact: true }"
-     routerLinkActive="!bg-gray-300 !text-gray-900"
+     [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="!bg-gray-300 !text-gray-900"
      class="bg-[#2C2A4A] text-white py-3 px-5 font-semibold transition-colors duration-150
             hover:bg-slate-700
             border-l border-gray-600 first:border-l-0">

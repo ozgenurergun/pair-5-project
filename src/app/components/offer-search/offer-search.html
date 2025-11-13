@@ -1,141 +1,175 @@
 <fieldset class="border border-gray-500 rounded-lg p-6 h-full">
-<legend class="px-3 text-2xl font-semibold text-gray-300 bg-[#2C2A4A]">
-    Offer Selection
-</legend>
- 
+  <legend class="px-3 text-2xl font-semibold text-gray-300 bg-[#2C2A4A]">Offer Selection</legend>
+
   <div class="flex border-b border-gray-600 mb-6">
-<button
+    <button
       (click)="setTab('catalog')"
       [class.text-white]="activeTab() === 'catalog'"
       [class.border-white]="activeTab() === 'catalog'"
       [class.text-gray-500]="activeTab() !== 'catalog'"
       [class.border-transparent]="activeTab() !== 'catalog'"
       class="py-2 px-6 font-semibold border-b-2"
->
+    >
       Catalog
-</button>
-<button
+    </button>
+    <button
       (click)="setTab('campaign')"
       [class.text-white]="activeTab() === 'campaign'"
       [class.border-white]="activeTab() === 'campaign'"
       [class.text-gray-500]="activeTab() !== 'campaign'"
       [class.border-transparent]="activeTab() !== 'campaign'"
       class="py-2 px-6 font-semibold border-b-2"
->
+    >
       Campaign
-</button>
-</div>
- 
+    </button>
+  </div>
+
   <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
     @if (activeTab() === 'catalog') {
-<div class="space-y-4">
-<div class="grid grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-medium text-gray-400 mb-1">Catalog Selection</label>
-<select formControlName="catalogSelection" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5">
-<option value="">Select</option>
-<option value="1">Genel Fiber</option>
-<option value="2">DSL Kampanyaları</option>
-</select>
-</div>
-</div>
-<div class="grid grid-cols-3 gap-4 items-end">
-<div>
-<label class="block text-sm font-medium text-gray-400 mb-1">Prod Offer ID</label>
-<input type="text" formControlName="catalogOfferId" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5" />
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-400 mb-1">Prod Offer Name</label>
-<input type="text" formControlName="catalogOfferName" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5" />
-</div>
-<button
+    <div class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-1">Catalog Selection</label>
+          <select
+            formControlName="catalogSelection"
+            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5"
+          >
+            <option value="">Select</option>
+            @for (catalog of catalogs(); track catalog.id) {
+            <option [value]="catalog.id">{{ catalog.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-4 items-end">
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-1">Prod Offer ID</label>
+          <input
+            type="text"
+            formControlName="catalogOfferId"
+            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-1">Prod Offer Name</label>
+          <input
+            type="text"
+            formControlName="catalogOfferName"
+            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5"
+          />
+        </div>
+        <button
           type="submit"
           [disabled]="isSearchDisabled()"
           class="bg-gray-200 text-gray-900 font-bold py-2.5 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
->
+        >
           Search
-</button>
-</div>
-</div>
-    }
- 
-    @if (activeTab() === 'campaign') {
-<div class="space-y-4">
-<div class="grid grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-medium text-gray-400 mb-1">Campaign Selection</label>
-<select formControlName="campaignSelection" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5">
-<option value="">Select</option>
-<option value="1">Yaz Kampanyası</option>
-<option value="2">Okula Dönüş</option>
-</select>
-</div>
-</div>
-<div class="grid grid-cols-3 gap-4 items-end">
-<div>
-<label class="block text-sm font-medium text-gray-400 mb-1">Campaign ID</label>
-<input type="text" formControlName="campaignId" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5" />
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-400 mb-1">Campaign Name</label>
-<input type="text" formControlName="campaignName" class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5" />
-</div>
-<button
+        </button>
+      </div>
+    </div>
+    } @if (activeTab() === 'campaign') {
+    <div class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-1">Campaign Selection</label>
+          <select
+            formControlName="campaignSelection"
+            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5"
+          >
+            <option value="">Select</option>
+            @for (campaign of campaigns(); track campaign.id) {
+            <option [value]="campaign.id">{{ campaign.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-4 items-end">
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-1">Campaign ID</label>
+          <input
+            type="text"
+            formControlName="campaignId"
+            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-1">Campaign Name</label>
+          <input
+            type="text"
+            formControlName="campaignName"
+            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5"
+          />
+        </div>
+        <button
           type="submit"
           [disabled]="isSearchDisabled()"
           class="bg-gray-200 text-gray-900 font-bold py-2.5 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
->
+        >
           Search
-</button>
-</div>
-</div>
+        </button>
+      </div>
+    </div>
     }
-</form>
- 
+  </form>
+
   <div class="mt-8">
-<div class="overflow-x-auto max-h-[400px] rounded-lg border border-gray-700">
-<table class="w-full min-w-max text-left text-sm text-gray-300">
-<thead class="bg-[#4A476B] text-xs uppercase text-gray-300">
-<tr>
-<th scope="col" class="px-4 py-3">
-              @if (activeTab() === 'catalog') {
-<span>Product Offer ID</span>
-              } @else {
-<span>Campaign ID</span>
-              }
-</th>
-<th scope="col" class="px-4 py-3">
-              @if (activeTab() === 'catalog') {
-<span>Product Offer Name</span>
-              } @else {
-<span>Campaign Name</span>
-              }
-</th>
-<th scope="col" class="px-4 py-3 text-center">Add</th>
-</tr>
-</thead>
-<tbody>
+    <div class="overflow-x-auto max-h-[400px] rounded-lg border border-gray-700">
+      <table class="w-full min-w-max text-left text-sm text-gray-300">
+        <thead class="bg-[#4A476B] text-xs uppercase text-gray-300">
+          <tr>
+            @if (activeTab() === 'catalog') {
+              <th scope="col" class="px-4 py-3">Product Offer ID</th>
+              <th scope="col" class="px-4 py-3">Product Offer Name</th>
+            } @else {
+              <th scope="col" class="px-4 py-3">Campaign ID</th>
+              <th scope="col" class="px-4 py-3">Product Offer ID</th>
+              <th scope="col" class="px-4 py-3">Product Offer Name</th>
+            }
+            <th scope="col" class="px-4 py-3 text-center">Add</th>
+          </tr>
+        </thead>
+        <tbody>
           @for (offer of searchResults(); track offer.id) {
-<tr class="border-b border-gray-700 hover:bg-[#403E61] transition-colors">
-<td class="px-4 py-3">{{ offer.id }}</td>
-<td class="px-4 py-3">{{ offer.name }}</td>
-<td class="px-4 py-3 text-center">
-<button (click)="addToBasket(offer)" class="text-gray-400 hover:text-white">
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c.121 0 .239.04.331.112l1.737 1.295c.246.183.38.458.38.746v2.25a.75.75 0 0 1-.75.75H5.69c-.445 0-.84-.3-1.01-0.74l-2.11-6.328a.75.75 0 0 1 .58-1.022l1.738-0.613a48.75 48.75 0 0 0 18.026 0l1.738.613a.75.75 0 0 1 .58 1.022l-2.11 6.328a1.875 1.875 0 0 1-1.01.74H9.691a3 3 0 0 0-3 3Z" />
-</svg>
-</button>
-</td>
-</tr>
+          <tr class="border-b border-gray-700 hover:bg-[#403E61] transition-colors">
+            
+            @if (activeTab() === 'campaign') {
+              <td class="px-4 py-3">
+                <span>{{ currentCampaignId }}</span>
+              </td>
+            }
+
+            <td class="px-4 py-3">{{ offer.id }}</td>
+            <td class="px-4 py-3">{{ offer.name }}</td>
+            <td class="px-4 py-3 text-center">
+              <button (click)="addToBasket(offer)" class="text-gray-400 hover:text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-6 h-6"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c.121 0 .239.04.331.112l1.737 1.295c.246.183.38.458.38.746v2.25a.75.75 0 0 1-.75.75H5.69c-.445 0-.84-.3-1.01-0.74l-2.11-6.328a.75.75 0 0 1 .58-1.022l1.738-0.613a48.75 48.75 0 0 0 18.026 0l1.738.613a.75.75 0 0 1 .58 1.022l-2.11 6.328a1.875 1.875 0 0 1-1.01.74H9.691a3 3 0 0 0-3 3Z"
+                  />
+                </svg>
+              </button>
+            </td>
+          </tr>
           } @empty {
-<tr class="border-b border-gray-700">
-<td colspan="3" class="text-center py-4 text-gray-500">
-              No results found.
-</td>
-</tr>
+            <tr class="border-b border-gray-700">
+              <td 
+                [attr.colspan]="activeTab() === 'catalog' ? 3 : 4" 
+                class="text-center py-4 text-gray-500">
+                No results found.
+              </td>
+            </tr>
           }
-</tbody>
-</table>
-</div>
-</div>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </fieldset>

@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { OfferSearch } from '../../components/offer-search/offer-search';
 import { Basket } from '../../components/basket/basket';
 
 @Component({
   selector: 'app-offer-selection-page',
-  imports: [CommonModule, OfferSearch, Basket],
+  imports: [CommonModule, OfferSearch, Basket, RouterLink],
   templateUrl: './offer-selection-page.html',
   styleUrl: './offer-selection-page.scss',
 })
@@ -21,9 +21,8 @@ export class OfferSelectionPage {
   onPrevious() {
     // FR_15.14: "Customer Account" ekranına geri dön
     // Bir önceki sayfaya (customer-account-detail) geri dön
-    this.router.navigate(['../customer-account/customer-account-detail'], {
-      relativeTo: this.route.parent,
-    });
+        this.router.navigate(['../customer-account/customer-account-detail'], { relativeTo: this.route });
+
   }
  
   onNext() {
