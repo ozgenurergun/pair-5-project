@@ -150,10 +150,9 @@ export class CustomerAccountDetail implements OnInit {
   // ****** İŞTE "DUYURU" METODU BURASI ******
   onStartNewSale(account: BillingAccount) {
     // 1. "Duyuruyu" yap: Global state'e seçilen hesabı ata
-    this.customerStateService.setSelectedBillingAccount(account);
+    //this.customerStateService.setSelectedBillingAccount(account);
     // 2. "offer-selection" sayfasına yönlendir
-    this.router.navigate(['/customer-info', this.customerId, 'offer-selection']);
-    // 3. (Önlem) Accordion'u kapat
+this.router.navigate(['/customer-info', this.customerId, 'offer-selection', account.id]);    // 3. (Önlem) Accordion'u kapat
     this.expandedAccountId.set(null);
     this.selectedAccountDetails.set(null);
   }

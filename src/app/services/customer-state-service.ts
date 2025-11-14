@@ -1,31 +1,139 @@
-import { computed, Injectable, signal } from '@angular/core';
-import { CustomerSearchResponse } from '../models/response/customer/customer-search-response';
-import { BillingAccount } from '../models/billingAccount';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { BillingAccount } from '../models/billingAccount'; // Model yolunu kontrol et
+import { take } from 'rxjs';
+import { BasketService } from './basket-service';
+import { Cart } from '../models/cart';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomerStateService {
+  
+  // --- Enjekte Edilen Servisler ---
+  private basketService = inject(BasketService);
+
+  // === Private Sinyaller ===
   // Müşterinin seçilen fatura hesabını global olarak tutar
   public selectedBillingAccount = signal<BillingAccount | null>(null);
-  // Sinyalin public 'computed' versiyonu (dışarıdan değiştirilemez)
+  
+  // YENİ: Redis'teki sepetin Angular'daki yansımasını tutar
+  private cart = signal<Cart | null>(null);
+
+  
+  // === Public Computed Sinyaller (Component'ler bunları okuyacak) ===
+  
   // offer-search component'i bunu okuyacak.
   public readonly selectedBillingAccountId = computed(() => this.selectedBillingAccount()?.id ?? null);
- 
-  constructor() { }
- 
+  
+  // YENİ: basket component'i bunları okuyacak
+  public readonly cartItems = computed(() => this.cart()?.cartItems ?? []);
+  public readonly totalPrice = computed(() => this.cart()?.totalPrice ?? 0);
+  
+  // YENİ: offer-selection-page bunu okuyacak
+ public readonly isBasketEmpty = computed(() => this.cartItems().length === 0);
+
+  
+  constructor() {
+    // YENİ: Müşteri (billingAccountId) değiştiğinde, sepeti otomatik olarak backend'den (Redis) çek.
+    effect(() => {
+      const billingId = this.selectedBillingAccountId(); // Kendi sinyalini dinle
+      if (billingId) {
+        // Müşteri seçildi, sepetini getir
+        this.fetchCart(billingId);
+      } else {
+        // Müşteri yoksa (logout vb.) sepeti temizle
+        this.cart.set(null); 
+      }
+    });
+  }
+
+  
+
   /**
    * Global state'e yeni bir fatura hesabı atar.
    * "Start New Sale" butonuna basınca BU ÇAĞRILACAK.
    */
-  setSelectedBillingAccount(account: BillingAccount | null) {
-    this.selectedBillingAccount.set(account);
+setSelectedBillingAccountId(id: number) {
+    // Eğer mevcut state zaten bu ID'ye sahip değilse güncelle
+    if (this.selectedBillingAccountId() !== id) {
+      // Tam bir BillingAccount objemiz yok, ama 'computed' sinyali
+      // ve 'effect'i tetiklemek için ID'yi içeren kısmi bir obje set edebiliriz.
+      // 'selectedBillingAccountId' computed'u sadece 'id'ye baktığı için bu çalışır.
+      this.selectedBillingAccount.set({ id: id } as BillingAccount);
+    }
   }
- 
+
   /**
-   * State'i temizler
+   * State'i temizler (Hem müşteri hem sepet)
    */
   clearState() {
     this.selectedBillingAccount.set(null);
+    this.cart.set(null); // Sepeti de temizle
+  }
+
+  // ****** YENİ METOTLAR (Sepet Yönetimi) ******
+
+  /**
+   * Backend'den (Redis) sepeti çeker ve 'cart' sinyalini günceller.
+   */
+  fetchCart(billingId: number) {
+    this.basketService.getByBillingAccountId(billingId).pipe(take(1)).subscribe({
+      next: (cartMap) => {
+        // Backend Map<String, Cart> dönüyor, biz ilk (ve tek) sepeti alıyoruz.
+        const cart = Object.keys(cartMap).length > 0 ? Object.values(cartMap)[0] : null;
+        
+        // Java'daki 'cartItemList' ismini 'cartItems' olarak düzeltiyoruz
+        if (cart && (cart as any).cartItemList) {
+          cart.cartItems = (cart as any).cartItemList;
+          delete (cart as any).cartItemList;
+        }
+        
+        this.cart.set(cart);
+      },
+      error: (err) => {
+        console.error('Sepet getirilirken hata oluştu:', err);
+        this.cart.set(null);
+      }
+    });
+  }
+
+  /**
+   * Sepete yeni ürün ekler ve başarılı olursa state'i (sepeti) yeniler.
+   */
+  addItemToCart(
+    quantity: number,
+    productOfferId: number,
+    campaignProductOfferId: number
+  ) {
+    const billingId = this.selectedBillingAccountId(); // computed sinyali () ile oku
+    if (!billingId) {
+      alert('Sepete eklemek için önce bir fatura hesabı seçilmelidir.');
+      return;
+    }
+
+    this.basketService.add(billingId, quantity, productOfferId, campaignProductOfferId).pipe(take(1)).subscribe({
+      next: () => {
+        this.fetchCart(billingId); // Başarılı eklemeden sonra sepeti yenile
+      },
+      error: (err) => {
+        console.error('Sepete ekleme hatası:', err);
+        alert('Sepete eklerken bir hata oluştu.');
+      }
+    });
+  }
+
+  /**
+   * Sepetten ürün siler ve başarılı olursa state'i (sepeti) yeniler.
+   */
+  deleteItemFromCart(cartItemId: string) {
+    const billingId = this.selectedBillingAccountId();
+    if (!billingId) return; // Billing ID yoksa silme
+
+    this.basketService.deleteItemFromCart(billingId, cartItemId).pipe(take(1)).subscribe({
+      next: () => {
+        this.fetchCart(billingId); // Başarılı silmeden sonra sepeti yenile
+      },
+      error: (err) => console.error('Sepetten silme hatası:', err)
+    });
   }
 }

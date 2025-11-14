@@ -44,7 +44,7 @@ export const routes: Routes = [
             
             {path: 'address', component: Address},
             {path: 'contact-medium', component: ContactMedium},
-            {path: 'offer-selection', component: OfferSelectionPage},
+            {path: 'offer-selection/:billingAccountId', component: OfferSelectionPage},
           ] 
         },
     ],
