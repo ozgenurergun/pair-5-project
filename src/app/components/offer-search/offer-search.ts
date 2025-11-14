@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 // --- IMPORTED SERVICES AND MODELS (from your provided files) ---
@@ -14,17 +14,19 @@ import {
 import { 
   ProductOfferFromCampaign 
 } from '../../models/response/productOffer/product-offers-from-campaign';
+import { BasketService } from '../../services/basket-service';
+import { Subscription } from 'rxjs';
+import { CustomerStateService } from '../../services/customer-state-service';
 // ---------------------------------------------------------------
 
-/**
- * A unified type to display in the search results table,
- * whether it's from a catalog or a campaign.
- */
+
 type ProductOfferDisplay = {
-  id: number; // This is the main ProductOffer ID
+  id: number; // ProductOffer ID
   name: string;
   price: number;
-  originalId: number; // This will be catalogProductOfferId or campaignProductOfferId
+  productSpecificationId: number; // Konfigürasyon için
+  catalogProductOfferId: number;  // Kaynak: Katalog
+  campaignProductOfferId: number; // Kaynak: Kampanya
 };
 
 export interface BasketItem {
@@ -40,140 +42,150 @@ export interface BasketItem {
   styleUrl: './offer-search.scss',
 })
 export class OfferSearch implements OnInit {
-  activeTab = signal<'catalog' | 'campaign'>('catalog'); // FR_15.3
+  activeTab = signal<'catalog' | 'campaign'>('catalog');
   searchForm!: FormGroup;
-
+ 
   // --- INJECTED SERVICES ---
   private fb = inject(FormBuilder);
   private catalogService = inject(CatalogService);
   private campaignService = inject(CampaignService);
   private productOfferService = inject(ProductOfferService);
-  //private offerStateService = inject(OfferStateService);
-  
+  private basketService = inject(BasketService); // YENİ
+  private customerStateService = inject(CustomerStateService); // YENİ
   // --- STATE SIGNALS ---
   catalogs = signal<Catalog[]>([]);
   campaigns = signal<Campaign[]>([]);
-  searchResults = signal<ProductOfferDisplay[]>([]); // Use the new unified type
-
+  searchResults = signal<ProductOfferDisplay[]>([]);
+ 
+  // --- Müşteri ve Sepet Durumu ---
+  // Global state'ten seçili billing ID'yi SİNYAL olarak alıyoruz.
+  selectedBillingAccountId = this.customerStateService.selectedBillingAccountId;
   currentCampaignId: number | undefined;
-
-  // FR_15.6: Arama butonu inaktif/aktif
+ 
   isSearchDisabled = computed(() => {
-    if (this.activeTab() === 'catalog') {
-      const id = this.searchForm.get('catalogOfferId')?.value;
-      const name = this.searchForm.get('catalogOfferName')?.value;
-      return !id && !name;
-    } else {
-      const id = this.searchForm.get('campaignId')?.value;
-      const name = this.searchForm.get('campaignName')?.value;
-      return !id && !name;
-    }
+    // ... (Bu kod aynı kalabilir)
+    return false; // Şimdilik hep aktif olsun
   });
-
+ 
   ngOnInit(): void {
     this.searchForm = this.fb.group({
-      // Catalog (FR_15.4)
       catalogSelection: [''], 
       catalogOfferId: [''],
       catalogOfferName: [''],
-      // Campaign (FR_15.4)
       campaignSelection: [''],
       campaignId: [''],
       campaignName: [''],
     });
-
-    // --- LOAD INITIAL DATA ---
+ 
     this.loadCatalogs();
     this.loadCampaigns();
     this.listenToDropdownChanges();
   }
-
-  /**
-   * Fetches the list of catalogs for the dropdown.
-   */
+ 
   loadCatalogs(): void {
     this.catalogService.getCatalogList().subscribe(data => {
       this.catalogs.set(data);
     });
   }
-
-  /**
-   * Fetches the list of campaigns for the dropdown.
-   */
+ 
   loadCampaigns(): void {
     this.campaignService.getCampaignList().subscribe(data => {
       this.campaigns.set(data);
     });
   }
-
-  /**
-   * Listens to value changes on the 'catalogSelection' and 'campaignSelection'
-   * form controls to automatically fetch product offers.
-   */
+ 
   listenToDropdownChanges(): void {
-    // Catalog dropdown listener
+    // Katalog dropdown dinleyicisi
     this.searchForm.get('catalogSelection')?.valueChanges.subscribe(catalogId => {
       if (catalogId) {
         this.productOfferService.getProdOffersFromCatalogId(catalogId).subscribe(offers => {
-          // Map backend model to display model
           const displayOffers: ProductOfferDisplay[] = offers.map((offer: ProductOfferFromCatalog) => ({
             id: offer.id,
             name: offer.name,
             price: offer.price,
-            originalId: offer.catalogProductOfferId 
+            productSpecificationId: offer.productSpecificationId, // API'den gelmeli
+            catalogProductOfferId: offer.catalogProductOfferId,
+            campaignProductOfferId: 0, // Kaynak katalog olduğu için 0
+            discountRate: offer.discountRate
           }));
           this.searchResults.set(displayOffers);
         });
       } else {
-        this.searchResults.set([]); // Clear results if "Select" is chosen
+        this.searchResults.set([]);
       }
     });
-
-    // Campaign dropdown listener
+ 
+    // Kampanya dropdown dinleyicisi
     this.searchForm.get('campaignSelection')?.valueChanges.subscribe(campaignId => {
       if (campaignId) {
         this.currentCampaignId = campaignId;
         this.productOfferService.getProdOffersFromCampaignId(campaignId).subscribe(offers => {
-          // Map backend model to display model
           const displayOffers: ProductOfferDisplay[] = offers.map((offer: ProductOfferFromCampaign) => ({
             id: offer.id,
             name: offer.name,
             price: offer.price,
-            originalId: offer.campaignProductOfferId
+            productSpecificationId: offer.productSpecificationId, // API'den gelmeli
+            catalogProductOfferId: 0, // Kaynak kampanya olduğu için 0
+            campaignProductOfferId: offer.campaignProductOfferId,
+            discountRate: offer.discountRate
           }));
           this.searchResults.set(displayOffers);
         });
       } else {
-        this.searchResults.set([]); // Clear results if "Select" is chosen
+        this.searchResults.set([]);
       }
     });
   }
-
+ 
   setTab(tab: 'catalog' | 'campaign') {
     this.activeTab.set(tab);
-    this.searchResults.set([]); // Clear results when switching tabs
-    
-    // Clear dropdown selections to avoid confusion
+    this.searchResults.set([]); 
     this.searchForm.get('catalogSelection')?.setValue('');
     this.searchForm.get('campaignSelection')?.setValue('');
   }
-
+ 
   onSearch() {
-    // This search is for the text fields, as per the 'isSearchDisabled' logic
-    console.log('Text search initiated:', this.searchForm.value);
-    // You would implement the text-based search logic here
-    // For now, it clears the dropdown-based results
+    console.log('Manuel arama:', this.searchForm.value);
+    // TODO: Manuel arama servisi
     this.searchResults.set([]);
   }
-
+ 
+  /**
+   * SEPETE EKLEME FONKSİYONU
+   * @param offer Tabloda tıklanan ProductOfferDisplay nesnesi
+   */
   addToBasket(offer: ProductOfferDisplay) {
-    // FR_15.8
-    const item: BasketItem = {
-      id: offer.id.toString(), // Convert number ID to string for BasketItem
-      name: offer.name,
-      price: offer.price,
-    };
-    //this.offerStateService.addItem(item);
-    console.log('Added to basket:', item); // Placeholder for adding to basket
+    // 1. Global state'ten (sinyalden) billingAccountId'yi al
+    const currentBillingId = this.selectedBillingAccountId(); // Sinyali () ile oku
+ 
+    if (!currentBillingId) {
+      alert("Lütfen önce bir müşteri seçin ve fatura hesabı belirleyin.");
+      return;
+    }
+ 
+    // 2. Gerekli tüm parametreleri 'offer' nesnesinden al
+    const billingAccountId = currentBillingId;
+    const quantity = 1;
+    const productOfferId = offer.id;
+    const campaignProductOfferId = offer.campaignProductOfferId;
+    // const productSpecificationId = offer.productSpecificationId; // BU ARTIK GEREKLİ DEĞİL
+ 
+    // 3. BasketService'i backend'e uygun şekilde (4 parametre ile) çağır
+    this.basketService.add(
+      billingAccountId,
+      quantity,
+      productOfferId,
+      campaignProductOfferId
+    ).subscribe({
+      next: () => {
+        alert(`"${offer.name}" sepete eklendi.`);
+        // TODO: Sepet ikonunu güncellemek için bir event yayınla
+        // örn: this.basketStateService.notifyCartChanged();
+      },
+      error: (err) => {
+        console.error("Sepete ekleme sırasında hata oluştu:", err);
+        alert("Ürün sepete eklenirken bir hata oluştu.");
+      }
+    });
   }
 }

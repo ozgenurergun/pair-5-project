@@ -6,7 +6,7 @@ import { Basket } from '../../components/basket/basket';
 
 @Component({
   selector: 'app-offer-selection-page',
-  imports: [CommonModule, OfferSearch, Basket, RouterLink],
+  imports: [CommonModule, OfferSearch, Basket],
   templateUrl: './offer-selection-page.html',
   styleUrl: './offer-selection-page.scss',
 })
