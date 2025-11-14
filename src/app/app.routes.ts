@@ -13,6 +13,7 @@ import { ContactMedium } from './pages/customer-info-page/contact-medium/contact
 import { CustomerAccountDetail } from './pages/customer-info-page/customer-account/customer-account-detail/customer-account-detail';
 import { CreateCustomerAccount } from './pages/customer-info-page/customer-account/create-customer-account/create-customer-account';
 import { UpdateCustomerAccount } from './pages/customer-info-page/customer-account/update-customer-account/update-customer-account';
+import { ConfigurationProductPage } from './pages/configuration-product-page/configuration-product-page';
 import { OfferSelectionPage } from './pages/offer-selection-page/offer-selection-page';
 
 export const routes: Routes = [
@@ -44,7 +45,12 @@ export const routes: Routes = [
             
             {path: 'address', component: Address},
             {path: 'contact-medium', component: ContactMedium},
-            {path: 'offer-selection/:billingAccountId', component: OfferSelectionPage},
+            {
+              path: 'offer-selection/:billingAccountId', component: OfferSelectionPage,
+            children: [
+              {path: 'configuration-product', component: ConfigurationProductPage}
+            ]
+            },
           ] 
         },
     ],

@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core'; 
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { BasketComponent } from '../../components/basket/basket';
-import { OfferSearch } from '../../components/offer-search/offer-search';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
+
 import { CustomerStateService } from '../../services/customer-state-service';
+import { OfferSearch } from '../../components/offer-search/offer-search';
+import { BasketComponent } from '../../components/basket/basket';
 
 
 @Component({
   selector: 'app-offer-selection-page',
   standalone: true, 
-  imports: [CommonModule, OfferSearch, BasketComponent, RouterLink], 
+  imports: [CommonModule, OfferSearch, BasketComponent, RouterOutlet], 
   templateUrl: './offer-selection-page.html',
   styleUrl: './offer-selection-page.scss',
 })
@@ -21,6 +22,20 @@ export class OfferSelectionPage {
   
   // "Next" butonu ve sepetin görünürlüğü için bu sinyali kullanıyoruz
   isBasketEmpty = this.customerStateService.isBasketEmpty;
+
+  
+  // Bu bayrak, router'ın durumunu yansıtacak.
+  isChildRouteActive = false;
+
+  // Router-outlet'e bir component yüklendiğinde tetiklenir.
+  onChildRouteActivate(): void {
+    this.isChildRouteActive = true;
+  }
+
+  // Router-outlet'ten bir component kaldırıldığında (geri tuşu vb.) tetiklenir.
+  onChildRouteDeactivate(): void {
+    this.isChildRouteActive = false;
+  }
 
 ngOnInit(): void {
     // Sayfa her yüklendiğinde (refresh dahil) URL'deki parametreyi oku
@@ -50,9 +65,7 @@ ngOnInit(): void {
 
   onNext() {
     // Sinyali () ile okuyarak kontrol et
-    if (this.isBasketEmpty()) return; 
+        this.router.navigate(['configuration-product'], { relativeTo: this.route });
 
-    alert('Product Configuration ekranına yönlendirme (henüz yapılmadı).');
-    // this.router.navigate(['../product-configuration'], { relativeTo: this.route });
   }
 }
