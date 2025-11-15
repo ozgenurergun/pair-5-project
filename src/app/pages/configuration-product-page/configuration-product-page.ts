@@ -3,7 +3,7 @@ import { CustomerStateService } from '../../services/customer-state-service';
 import { CommonModule } from '@angular/common';
 import { ProductToConfigure } from '../../components/product-to-configure/product-to-configure';
 import { Address } from "../customer-info-page/address/address";
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-configuration-product-page',
@@ -16,6 +16,8 @@ export class ConfigurationProductPage implements OnInit{
   private customerStateService = inject(CustomerStateService);
 public customerId = signal<string | undefined>(undefined);
   selectedAddressId = signal<number | null>(null);
+    private router = inject(Router);
+
 
 
   // 3. State servisimizden sepetteki ürünleri (CartItem[]) bir sinyal olarak alıyoruz.
@@ -36,7 +38,7 @@ public customerId = signal<string | undefined>(undefined);
 
   
   onPrevious() {
-    // ...
+     this.router.navigate(['../'], { relativeTo: this.route });
   }
 
   onNext() {
