@@ -1,1 +1,87 @@
-<p>product-to-configure works!</p>
+<fieldset class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 mb-8 text-white w-full">
+
+  <!-- Başlık Alanı (Değişiklik yok) -->
+  <div class="mb-6 pb-4 border-b border-white/10">
+    <div>
+      <label class="block text-sm font-medium text-gray-300">Prod Offer ID</label>
+      <p class="mt-1 text-base text-gray-100">{{ cartItem.productOfferId }}</p>
+    </div>
+    <div class="mt-4">
+      <label class="block text-sm font-medium text-gray-300">Prod Offer Name</label>
+      <p class="mt-1 text-lg font-semibold text-white">{{ cartItem.productOfferName }}</p>
+    </div>
+  </div>
+
+  <!-- 
+    Form alanı 
+    Not: 'char' değişkeni artık 'Characteristic' tipindedir.
+  -->
+  <form [formGroup]="configForm">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+      
+      @for (char of characteristics(); track char.id) {
+        
+        <div class="flex flex-col">
+          
+          <!-- 1. Etiket Alanı (GÜNCELLENDİ) -->
+          <label [for]="'char-' + char.id" class="block text-sm font-medium leading-6 text-gray-300">
+            <!-- 'description' alanı Characteristic modelinden geliyor -->
+            {{ char.description }}
+            
+            <!-- 
+              'required' alanı Characteristic modelinden geliyor 
+              (TypeScript dosyasındaki 'char.required' ile eşleşiyor)
+            -->
+            @if (char.required) {
+              <span class="text-red-500 ml-1">*</span>
+            }
+            
+            <!-- 'unitOfMeasure' alanı Characteristic modelinden geliyor -->
+            @if (char.unitOfMeasure && char.unitOfMeasure !== 'Metin') {
+              <span class="text-gray-400 font-normal"> ({{ char.unitOfMeasure }})</span>
+            }
+          </label>
+          
+          <div class="mt-1">
+            
+            <!-- 2. Dropdown Alanı (GÜNCELLENDİ) -->
+            <!-- 'charValues' alanı Characteristic modelinden geliyor -->
+            @if (char.charValues && char.charValues.length > 0) {
+              <select [formControlName]="'char-' + char.id" 
+                      [id]="'char-' + char.id"
+                      class="block w-full rounded-md border border-white/20 bg-[#3b3861] py-1.5 text-white shadow-sm placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-white focus:border-white sm:text-sm sm:leading-6 h-9 px-3"> <!-- px-3 eklendi -->
+                
+                <option [value]="null" disabled class="text-gray-400">-- Seçim Yapınız --</option>
+                
+                @for (val of char.charValues; track val.id) {
+                  <option [value]="val.id" class="text-white bg-[#3b3861]">{{ val.value }}</option>
+                }
+              </select>
+            }
+            
+            <!-- 3. Input Alanı (Değişiklik yok) -->
+            @else {
+              <input type="text" 
+                     [formControlName]="'char-' + char.id" 
+                     [id]="'char-' + char.id"
+                     class="block w-full rounded-md border border-white/20 bg-[#3b3861] py-1.5 text-white shadow-sm placeholder:text-gray-500 focus:ring-1 focus:ring-inset focus:ring-white focus:border-white sm:text-sm sm:leading-6 h-9 px-3" />
+            }
+          </div>
+
+          <!-- 4. Hata Mesajı Alanı (GÜNCELLENDİ) -->
+          <!-- .ts dosyasındaki getControl() metodunu kullanır -->
+          @if (getControl(char.id); as control) {
+            @if (control.invalid && (control.touched || control.dirty)) {
+              <small class="text-red-500 mt-1.5">
+                <!-- Hata mesajı için 'char.description' kullanıyoruz -->
+                {{ char.description }} alanı zorunludur.
+              </small>
+            }
+          }
+
+        </div>
+      }
+
+    </div>
+  </form>
+</fieldset>

@@ -18,23 +18,35 @@ add(
     billingAccountId: number,
     quantity: number,
     productOfferId: number,
-    campaignProductOfferId: number
+    campaignProductOfferId: number,
+    
+    // --- YENİ EKLENEN ALANLAR ---
+    productOfferName: string,
+    price: number,
+    productSpecificationId: number
+    // --- BİTTİ ---
   ): Observable<void> {
 
+    // MEVCUT HttpParams YAPINI KORUYORUZ:
     let params = new HttpParams()
       .set('billingAccountId', billingAccountId.toString())
       .set('quantity', quantity.toString())
       .set('productOfferId', productOfferId.toString())
-      .set('campaignProductOfferId', campaignProductOfferId.toString());
+      .set('campaignProductOfferId', campaignProductOfferId.toString())
+      
+      // --- YENİ ALANLARI HttpParams'a EKLİYORUZ ---
+      .set('productOfferName', productOfferName)
+      .set('price', price.toString())
+      .set('productSpecificationId', productSpecificationId);
 
+    // SENİN GÖNDERİM YAPIN (null body + params) AYNEN KORUNDU:
     return this.http.post<void>(this.apiUrl, null, { params: params });
   }
-
   /**
    * Müşterinin sepetini billingAccountId'ye göre getirir
    */
   getByBillingAccountId(billingAccountId: number): Observable<Map<string, Cart>> {
-    let params = new HttpParams().set('billingAccountId', billingAccountId.toString());
+    let params = new HttpParams().set('billingAccountId', billingAccountId);
     // Controller'daki "billingAccount/" path'ini ekledim
     return this.http.get<Map<string, Cart>>(`${this.apiUrl}billingAccount/`, { params: params });
   }

@@ -1,1 +1,31 @@
-<p>configuration-product-page works!</p>
+<div class="container mx-auto p-4">
+  <h2 class="text-2xl font-bold mb-6">Product Configuration</h2>
+
+  @for (item of cartItems(); track item.id) {
+  <app-product-to-configure [cartItem]="item"></app-product-to-configure>
+  } @empty {
+  <p class="text-gray-600">Can't find</p>
+  }
+
+  <div class="modal-address-list-container border border-gray-600 rounded-lg p-4">
+    <app-address
+      [customerIdInput]="customerId()"
+      [isSelectableMode]="true"
+      [selectedAddressId]="selectedAddressId()"
+      (addressSelected)="onAddressSelected($event)"
+    >
+    </app-address>
+  </div>
+
+  <div class="flex justify-between mt-8">
+    <button
+      (click)="onPrevious()"
+      class="bg-gray-300 text-gray-800 px-6 py-2 rounded hover:bg-gray-400"
+    >
+      Geri
+    </button>
+    <button (click)="onNext()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+      İleri
+    </button>
+  </div>
+</div>

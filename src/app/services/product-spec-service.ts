@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ProductSpecChar } from '../models/ProductSpecChar';
+import { Characteristic } from '../models/characteristic';
 
 @Injectable({
   providedIn: 'root'
@@ -9,15 +9,14 @@ import { ProductSpecChar } from '../models/ProductSpecChar';
 export class ProductSpecService {
   private http = inject(HttpClient);
 
-    private apiUrl = 'http://localhost:8091/catalogservice/api/....';
+    private apiUrl = 'http://localhost:8091/catalogservice/api/characteristics';
 
     constructor() { }
 
  
-  getFullConfigurationForSpec(specId: number): Observable<ProductSpecChar[]> {
-    // Bu endpoint'i backend'de (CatalogService) oluşturmamız gerekiyor.
-    return this.http.get<ProductSpecChar[]>(
-      `${this.apiUrl}/product-specifications/${specId}/full-configuration` //backendde yazılacak
+  getCharacteristicsByProdSpecId(specId: number): Observable<Characteristic[]> {
+    return this.http.get<Characteristic[]>(
+      `${this.apiUrl}/getCharacteristicsByProdSpecId/${specId}`
     );
   }
 

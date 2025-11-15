@@ -79,10 +79,13 @@ setSelectedBillingAccountId(id: number) {
   fetchCart(billingId: number) {
     this.basketService.getByBillingAccountId(billingId).pipe(take(1)).subscribe({
       next: (cartMap) => {
-        // Backend Map<String, Cart> dönüyor, biz ilk (ve tek) sepeti alıyoruz.
+        
+        // --- BU LOG'U EKLE ---
+        console.log("REDIS'TEN GELEN HAM SEPET VERİSİ:", JSON.stringify(cartMap, null, 2));
+        // --- BİTTİ ---
+
         const cart = Object.keys(cartMap).length > 0 ? Object.values(cartMap)[0] : null;
         
-        // Java'daki 'cartItemList' ismini 'cartItems' olarak düzeltiyoruz
         if (cart && (cart as any).cartItemList) {
           cart.cartItems = (cart as any).cartItemList;
           delete (cart as any).cartItemList;
@@ -91,8 +94,7 @@ setSelectedBillingAccountId(id: number) {
         this.cart.set(cart);
       },
       error: (err) => {
-        console.error('Sepet getirilirken hata oluştu:', err);
-        this.cart.set(null);
+        // ...
       }
     });
   }
@@ -103,17 +105,40 @@ setSelectedBillingAccountId(id: number) {
   addItemToCart(
     quantity: number,
     productOfferId: number,
-    campaignProductOfferId: number
+    campaignProductOfferId: number,
+    
+    // --- YENİ GELEN PARAMETRELER ---
+    productOfferName: string, 
+    price: number,
+    productSpecificationId: number 
+    // --- BİTTİ ---
   ) {
-    const billingId = this.selectedBillingAccountId(); // computed sinyali () ile oku
+    const billingId = this.selectedBillingAccountId(); 
     if (!billingId) {
       alert('Sepete eklemek için önce bir fatura hesabı seçilmelidir.');
       return;
     }
 
-    this.basketService.add(billingId, quantity, productOfferId, campaignProductOfferId).pipe(take(1)).subscribe({
+    // MEVCUT YAPINIZI BOZMUYORUZ:
+    // Sadece 'basketService.add' çağrısını yeni parametrelerle güncelliyoruz.
+    this.basketService.add(
+      billingId, 
+      quantity, 
+      productOfferId, 
+      campaignProductOfferId,
+      
+      // --- YENİ İLETİLEN PARAMETRELER ---
+      productOfferName,
+      price,
+      productSpecificationId
+      // --- BİTTİ ---
+
+    ).pipe(take(1)).subscribe({
       next: () => {
-        this.fetchCart(billingId); // Başarılı eklemeden sonra sepeti yenile
+        // BU KISIM ZATEN MÜKEMMEL ÇALIŞIYOR:
+        // Ekleme başarılı olduğu için, Redis'ten güncel sepeti çek.
+        // Bu sepet artık 'productSpecificationId'yi içerecek.
+        this.fetchCart(billingId); 
       },
       error: (err) => {
         console.error('Sepete ekleme hatası:', err);

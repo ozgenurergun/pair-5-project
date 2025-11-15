@@ -97,54 +97,28 @@ export class OfferSearch implements OnInit {
   addToBasket(offer: ProductOfferDisplay) {
     // 1. Global state'ten (sinyalden) billingAccountId'yi al
     const currentBillingId = this.selectedBillingAccountId(); // Sinyali () ile oku
- 
+
     if (!currentBillingId) {
-      alert("Lütfen önce bir müşteri seçin ve fatura hesabı belirleyin.");
+      alert('Lütfen önce bir müşteri seçin ve fatura hesabı belirleyin.');
       return;
     }
- 
-    // 2. Gerekli tüm parametreleri 'offer' nesnesinden al
-    // Not: CustomerStateService zaten billingAccountId'yi içeriden alıyor
-    // ama biz quantity, productOfferId ve campaignProductOfferId'yi vermeliyiz.
-    const quantity = 1; 
-    const productOfferId = offer.id;
-    const campaignProductOfferId = offer.campaignProductOfferId;
-
-    // 3. BasketService'i backend'e uygun şekilde (4 parametre ile) çağır
     
-    // ============ ESKİ HATALI KOD ============
-    // this.basketService.add(
-    //   billingAccountId,
-    //   quantity,
-    //   productOfferId,
-    //   campaignProductOfferId
-    // ).subscribe({
-    //   next: () => {
-    //     alert("${offer.name}" sepete eklendi.);
-    //     // TODO: Sepet ikonunu güncellemek için bir event yayınla
-    //     // örn: this.basketStateService.notifyCartChanged();
-    //   },
-    //   error: (err) => {
-    //     console.error("Sepete ekleme sırasında hata oluştu:", err);
-    //     alert("Ürün sepete eklenirken bir hata oluştu.");
-    //   }
-    // });
-    // ==========================================
+    const quantity = 1; 
 
-
-    // ============ YENİ DOĞRU KOD ============
-    // State servisi üzerinden ekleme yap.
-    // State servisi, backend'i çağırıp BAŞARILI olursa
-    // 'fetchCart' metodunu çağırarak sinyali GÜNCELLEYECEK.
+    // 2. Servis metodumuzu YENİ VE EKSİKSİZ parametrelerle çağırıyoruz
     this.customerStateService.addItemToCart(
       quantity,
-      productOfferId,
-      campaignProductOfferId
+      offer.id, // productOfferId
+      offer.campaignProductOfferId,
+      
+      // --- YENİ EKLENEN ALANLAR ---
+      offer.name,                   
+      offer.price,                  
+      offer.productSpecificationId  // En önemlisi
+      // --- BİTTİ ---
     );
-    // Not: CustomerStateService.addItemToCart zaten hata durumunda alert veriyor.
-    // İstersen oradaki alert'i kaldırıp buradan subscribe olabilirsin,
-    // ama şu anki yapına göre bu tek satır yeterli.
   }
+
   listenToDropdownChanges(): void {
     // Katalog dropdown dinleyicisi
     this.searchForm.get('catalogSelection')?.valueChanges.subscribe(catalogId => {
