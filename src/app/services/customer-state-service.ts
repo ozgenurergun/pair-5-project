@@ -3,6 +3,7 @@ import { BillingAccount } from '../models/billingAccount'; // Model yolunu kontr
 import { take } from 'rxjs';
 import { BasketService } from './basket-service';
 import { Cart } from '../models/cart';
+import { ProdCharVal } from '../models/request/ProdCharVal';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,7 @@ export class CustomerStateService {
   // YENİ: Redis'teki sepetin Angular'daki yansımasını tutar
   private cart = signal<Cart | null>(null);
 
-  
+  public readonly productConfigurations = signal<ProdCharVal[]>([]); // Sizin model adınızı kullandım
   // === Public Computed Sinyaller (Component'ler bunları okuyacak) ===
   
   // offer-search component'i bunu okuyacak.
