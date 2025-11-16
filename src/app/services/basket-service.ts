@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Cart } from '../models/cart';
+import { ProdOfferCharacteristic } from '../models/cartItem';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,8 @@ add(
     // --- YENİ EKLENEN ALANLAR ---
     productOfferName: string,
     price: number,
-    productSpecificationId: number
+    productSpecificationId: number,
+    prodOfferCharacteristics: ProdOfferCharacteristic[]
     // --- BİTTİ ---
   ): Observable<void> {
 

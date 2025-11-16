@@ -17,6 +17,7 @@ import {
 import { BasketService } from '../../services/basket-service';
 import { Subscription } from 'rxjs';
 import { CustomerStateService } from '../../services/customer-state-service';
+import { ProdOfferCharacteristic } from '../../models/cartItem';
 // ---------------------------------------------------------------
 
 
@@ -27,6 +28,8 @@ type ProductOfferDisplay = {
   productSpecificationId: number; // Konfigürasyon için
   catalogProductOfferId: number;  // Kaynak: Katalog
   campaignProductOfferId: number; // Kaynak: Kampanya
+  prodOfferCharacteristics: ProdOfferCharacteristic[];
+
 };
 
 export interface BasketItem {
@@ -113,8 +116,9 @@ export class OfferSearch implements OnInit {
       
       // --- YENİ EKLENEN ALANLAR ---
       offer.name,                   
-      offer.price,                  
-      offer.productSpecificationId  // En önemlisi
+      offer.price,       
+      offer.productSpecificationId,    
+      offer.prodOfferCharacteristics
       // --- BİTTİ ---
     );
   }
@@ -131,7 +135,8 @@ export class OfferSearch implements OnInit {
             productSpecificationId: offer.productSpecificationId, // API'den gelmeli
             catalogProductOfferId: offer.catalogProductOfferId,
             campaignProductOfferId: 0, // Kaynak katalog olduğu için 0
-            discountRate: offer.discountRate
+            discountRate: offer.discountRate,
+            prodOfferCharacteristics: offer.prodOfferCharacteristics
           }));
           this.searchResults.set(displayOffers);
         });
@@ -152,7 +157,8 @@ export class OfferSearch implements OnInit {
             productSpecificationId: offer.productSpecificationId, // API'den gelmeli
             catalogProductOfferId: 0, // Kaynak kampanya olduğu için 0
             campaignProductOfferId: offer.campaignProductOfferId,
-            discountRate: offer.discountRate
+            discountRate: offer.discountRate,
+            prodOfferCharacteristics: offer.prodOfferCharacteristics
           }));
           this.searchResults.set(displayOffers);
         });

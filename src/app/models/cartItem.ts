@@ -8,5 +8,19 @@ export interface CartItem {
   discountRate: number;
   quantity: number;
   discountedPrice: number;
-  productSpecificationId: number; // Konfigürasyon için kritik
+  productSpecificationId: number; 
+  prodOfferCharacteristics: ProdOfferCharacteristic[];
+}
+
+export interface ProdOfferCharacteristic {
+  id: number;
+  description: string;
+  unitOfMeasure: string;
+  charValue: CharValue;
+  required: boolean;
+}
+
+export interface CharValue {
+  id: number;
+  value?: any;
 }
