@@ -86,32 +86,25 @@ setSelectedBillingAccountId(id: number) {
     });
   }
 
-  addItemToCart(
+ addItemToCart(
     quantity: number,
     productOfferId: number,
-    campaignProductOfferId: number,
-    
-    productOfferName: string, 
-    price: number,
-    productSpecificationId: number,
-    prodOfferCharacteristics: ProdOfferCharacteristic[]
+    campaignProductOfferId: number
+    // Diğer tüm parametreler SİLİNDİ
   ) {
     const billingId = this.selectedBillingAccountId(); 
     if (!billingId) {
       alert('Sepete eklemek için önce bir fatura hesabı seçilmelidir.');
       return;
     }
-
+ 
+    // basketService.add'i sadece 4 parametre ile çağır
     this.basketService.add(
       billingId, 
       quantity, 
       productOfferId, 
-      campaignProductOfferId,
-      productOfferName,
-      price,
-      productSpecificationId,
-      prodOfferCharacteristics
-
+      campaignProductOfferId
+      // Diğer tüm parametreler SİLİNDİ
     ).pipe(take(1)).subscribe({
       next: () => {
         this.fetchCart(billingId); 
