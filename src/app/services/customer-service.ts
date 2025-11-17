@@ -37,7 +37,7 @@ export class CustomerService {
 
   //Address
   postAddress(addressData: any): Observable<any> {
-    return this.httpClient.post(this.apiUrl, addressData);
+    return this.httpClient.post(`${this.apiUrl}/addresses`, addressData);
   }
 
   setPrimaryAddress(addressId: number): Observable<any> {
