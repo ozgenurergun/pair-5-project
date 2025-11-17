@@ -60,7 +60,7 @@ export class CustomerService {
 
   //Billing Account
   postBillingAccount(request: CreateBillingAccountRequest): Observable<any> {
-    return this.httpClient.post<any>(`${this.apiUrl}/billingAccounts/`, request);
+    return this.httpClient.post<any>(`${this.apiUrl}/billingAccounts`, request);
   }
 
   getBillingAccountByCustomerId(id: String): Observable<BillingAccount[]> {

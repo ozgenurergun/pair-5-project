@@ -10,6 +10,7 @@ import { Cart } from '../models/cart';
 export class CustomerStateService {
   private basketService = inject(BasketService);
   public selectedBillingAccount = signal<BillingAccount | null>(null);
+  public readonly cartAddressId = computed(() => this.cart()?.addressId ?? 0);
   private cart = signal<Cart | null>(null);
   public readonly selectedBillingAccountId = computed(
     () => this.selectedBillingAccount()?.id ?? null

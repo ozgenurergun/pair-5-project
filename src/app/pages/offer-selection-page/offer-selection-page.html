@@ -39,12 +39,6 @@
     </div>
   }
 
-  <!-- 
-    Router outlet ARTIK HER ZAMAN burada.
-    Bir child route aktif olduğunda (activate) veya 
-    child route'tan çıkıldığında (deactivate) 
-    bizi bilgilendirecek.
-  -->
   <router-outlet 
     (activate)="onChildRouteActivate()" 
     (deactivate)="onChildRouteDeactivate()">

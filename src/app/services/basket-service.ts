@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Cart } from '../models/cart';
+import { Characteristic } from '../models/characteristic';
 
 @Injectable({
   providedIn: 'root',
@@ -48,5 +49,20 @@ export class BasketService {
     const url = `${this.apiUrl}${billingAccountId}/items/${cartItemId}/configure`;
     const body = Object.fromEntries(selectedSpecs);
     return this.http.post<void>(url, body);
+  }
+
+  updateItemCharacteristics(
+    billingAccountId: number,
+    cartItemId: string,
+    characteristics: Characteristic[]
+  ): Observable<void> {
+    const url = `${this.apiUrl}${billingAccountId}/items/${cartItemId}/configure`;
+    return this.http.put<void>(url, characteristics);
+  }
+
+  updateCartAddress(billingAccountId: number, addressId: number): Observable<void> {
+    const url = `${this.apiUrl}${billingAccountId}/addAddress`;
+    let params = new HttpParams().set('addressId', addressId.toString());
+    return this.http.put<void>(url, null, { params });
   }
 }
