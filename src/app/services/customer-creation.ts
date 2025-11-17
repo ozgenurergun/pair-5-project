@@ -7,14 +7,16 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root',
 })
 export class CustomerCreation {
-
-  private readonly initialState:CreateCustomerModel = {};
+  private readonly initialState: CreateCustomerModel = {};
 
   public state = signal<CreateCustomerModel>({});
 
   private instanceId = Math.random();
   constructor(private http: HttpClient) {
-    console.log(`%c[SERVICE] CustomerCreationService YARATILDI. ID: ${this.instanceId}`,'color: #4CAF50; font-weight: bold;');
+    console.log(
+      `%c[SERVICE] CustomerCreationService YARATILDI. ID: ${this.instanceId}`,
+      'color: #4CAF50; font-weight: bold;'
+    );
   }
 
   private apiUrl = 'http://localhost:8091/searchservice/api/customer-search/';
@@ -34,27 +36,24 @@ export class CustomerCreation {
         return Array.isArray(response) && response.length > 0;
       }),
       catchError((error) => {
-        // 404 hatası "yok" anlamına geliyorsa (ki bu da çok olası)
         if (error.status === 404) {
           console.log('Backend 404 verdi, yani müşteri YOK (false).');
-          return of(false); // 'false' döndür
+          return of(false);
         }
-        // Başka bir hataysa konsola yaz ve 'var' kabul et ki form ilerlemesin
         console.error('Backend check error:', error);
-        return of(true); // Hata durumunda formu kilitlemek için 'true' dönebilirsin
+        return of(true);
       })
     );
   }
 
-  private apiUrlCustomer = 'http://localhost:8091/customerservice/api/individual-customers/'
+  private apiUrlCustomer = 'http://localhost:8091/customerservice/api/individual-customers/';
 
-  public resetState():void{
-    this.state.set(this.initialState)
+  public resetState(): void {
+    this.state.set(this.initialState);
   }
 
-  postCustomer(customerData:CreateCustomerModel):Observable<any>{
-    console.log("Dbye gidiyor")
+  postCustomer(customerData: CreateCustomerModel): Observable<any> {
+    console.log('Dbye gidiyor');
     return this.http.post(this.apiUrlCustomer, customerData);
-    //this.resetState();
   }
 }

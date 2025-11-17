@@ -1,38 +1,28 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router'; // RouterLink eklendi
+import { ActivatedRoute, Router } from '@angular/router';
 import { Address } from '../../address/address';
 import { Popup } from '../../../../components/popup/popup';
-import { AddressService } from '../../../../services/address-service';
 import { CreateBillingAccountRequest } from '../../../../models/request/customer/create-billing-account-request';
-import { BillingAccountService } from '../../../../services/billing-account-service';
-
+import { CustomerService } from '../../../../services/customer-service';
 
 @Component({
-  selector: 'app-create-billing-account', // Selector güncellendi
+  selector: 'app-create-billing-account',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    Address,   // Yeniden kullanılan adres bileşeni
-    Popup      // Hata/Başarı popup'ları için
-  ],
-  templateUrl: './create-customer-account.html', // Dosya adı güncellendi
-  styleUrl: './create-customer-account.scss'    // Dosya adı güncellendi
+  imports: [CommonModule, ReactiveFormsModule, Address, Popup],
+  templateUrl: './create-customer-account.html',
+  styleUrl: './create-customer-account.scss',
 })
 export class CreateCustomerAccount implements OnInit {
-  
   billingAccountForm!: FormGroup;
   public customerId!: string;
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private billingAccountService = inject(BillingAccountService);
-  // private addressService = inject(AddressService); // <-- KALDIRILDI
+  private customerService = inject(CustomerService);
 
-  // YENİ: Seçilen adresin ID'sini tutmak için sinyal
   selectedAddressId = signal<number | null>(null);
 
   isPopupVisible = signal(false);
@@ -52,16 +42,18 @@ export class CreateCustomerAccount implements OnInit {
     }
 
     this.billingAccountForm = this.fb.group({
-      accountName: ['', [
-        Validators.required, 
-        Validators.minLength(3), 
-        Validators.maxLength(100),
-        Validators.pattern('^[a-zA-Z0-9şıüğöçŞİÜĞÖÇ -]+$')
-      ]]
+      accountName: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(100),
+          Validators.pattern('^[a-zA-Z0-9şıüğöçŞİÜĞÖÇ -]+$'),
+        ],
+      ],
     });
   }
 
-  // YENİ: app-address bileşeninden gelen seçimi yakalayan metod
   onAddressSelected(addressId: number) {
     this.selectedAddressId.set(addressId);
     console.log('Address selected:', addressId);
@@ -72,7 +64,6 @@ export class CreateCustomerAccount implements OnInit {
     return !!(field && field.invalid && (field.dirty || field.touched));
   }
 
-  // GÜNCELLENDİ: onSave metodu
   onSave() {
     if (this.billingAccountForm.invalid) {
       this.markFormGroupTouched(this.billingAccountForm);
@@ -80,33 +71,28 @@ export class CreateCustomerAccount implements OnInit {
       return;
     }
 
-    // YENİ: Adres seçilip seçilmediğini kontrol et
     if (!this.selectedAddressId()) {
       this.showPopup('Validation Error', 'Please select a billing address.');
       return;
     }
 
-    // 1. Adım: Request DTO'sunu oluştur
     const request: CreateBillingAccountRequest = {
       accountName: this.billingAccountForm.value.accountName,
       type: 'INDIVIDUAL',
       customerId: this.customerId,
-      addressId: this.selectedAddressId()! // <-- Değişti: Artık sinyalden alınıyor
+      addressId: this.selectedAddressId()!,
     };
 
-    // 2. Adım: Backend'e gönder
-    this.billingAccountService.postBillingAccount(request).subscribe({
+    this.customerService.postBillingAccount(request).subscribe({
       next: (response) => {
         console.log('Billing Account Created!', response);
-        this.goBackToList(); 
+        this.goBackToList();
       },
       error: (err) => {
         console.error('Failed to create billing account:', err);
         this.showPopup('Save Error', 'An error occurred while saving the account.');
-      }
+      },
     });
-    
-    // --- ESKİ addressService.getByCustomerId bloğu SİLİNDİ ---
   }
 
   goBackToList() {

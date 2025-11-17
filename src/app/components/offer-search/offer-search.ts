@@ -1,32 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-
-// --- IMPORTED SERVICES AND MODELS (from your provided files) ---
 import { CatalogService } from '../../services/catalog-service';
-import { CampaignService } from '../../services/campaign-service';
-import { ProductOfferService } from '../../services/product-offer-service';
 import { Catalog } from '../../models/response/catalog';
 import { Campaign } from '../../models/response/campaign';
 import { ProductOfferFromCatalog } from '../../models/response/productOffer/product-offers-from-catalog';
 import { ProductOfferFromCampaign } from '../../models/response/productOffer/product-offers-from-campaign';
-import { BasketService } from '../../services/basket-service';
-import { Subscription } from 'rxjs';
 import { CustomerStateService } from '../../services/customer-state-service';
-import { ProdOfferCharacteristic } from '../../models/cartItem';
-// ---------------------------------------------------------------
 
 type ProductOfferDisplay = {
-  id: number; // ProductOffer ID
+  id: number;
   name: string;
   price: number;
-  productSpecificationId: number; // Konfigürasyon için
-  catalogProductOfferId: number; // Kaynak: Katalog
-  campaignProductOfferId: number; // Kaynak: Kampanya
+  productSpecificationId: number;
+  catalogProductOfferId: number;
+  campaignProductOfferId: number;
 };
 
 export interface BasketItem {
-  id: string; // Basket expects string ID
+  id: string;
   name: string;
   price: number;
 }
@@ -38,29 +30,20 @@ export interface BasketItem {
   styleUrl: './offer-search.scss',
 })
 export class OfferSearch implements OnInit {
-  activeTab = signal<'catalog' | 'campaign'>('catalog');
-  searchForm!: FormGroup;
-
-  // --- INJECTED SERVICES ---
   private fb = inject(FormBuilder);
   private catalogService = inject(CatalogService);
-  private campaignService = inject(CampaignService);
-  private productOfferService = inject(ProductOfferService);
-  private basketService = inject(BasketService); // YENİ
-  private customerStateService = inject(CustomerStateService); // YENİ
-  // --- STATE SIGNALS ---
+  private customerStateService = inject(CustomerStateService);
+
+  activeTab = signal<'catalog' | 'campaign'>('catalog');
+  searchForm!: FormGroup;
   catalogs = signal<Catalog[]>([]);
   campaigns = signal<Campaign[]>([]);
   searchResults = signal<ProductOfferDisplay[]>([]);
-
-  // --- Müşteri ve Sepet Durumu ---
-  // Global state'ten seçili billing ID'yi SİNYAL olarak alıyoruz.
   selectedBillingAccountId = this.customerStateService.selectedBillingAccountId;
   currentCampaignId: number | undefined;
 
   isSearchDisabled = computed(() => {
-    // ... (Bu kod aynı kalabilir)
-    return false; // Şimdilik hep aktif olsun
+    return false;
   });
 
   ngOnInit(): void {
@@ -85,44 +68,34 @@ export class OfferSearch implements OnInit {
   }
 
   loadCampaigns(): void {
-    this.campaignService.getCampaignList().subscribe((data) => {
+    this.catalogService.getCampaignList().subscribe((data) => {
       this.campaigns.set(data);
     });
   }
 
   addToBasket(offer: ProductOfferDisplay) {
-    // 1. Global state'ten (sinyalden) billingAccountId'yi al
-    const currentBillingId = this.selectedBillingAccountId(); // Sinyali () ile oku
+    const currentBillingId = this.selectedBillingAccountId();
 
     if (!currentBillingId) {
       alert('Lütfen önce bir müşteri seçin ve fatura hesabı belirleyin.');
       return;
     }
     const quantity = 1;
-
-    // 2. Servis metodumuzu SADECE 3 GEREKLİ parametreyle çağırıyoruz
-    // (billingId state'in içinde zaten biliniyor)
-    this.customerStateService.addItemToCart(
-      quantity,
-      offer.id, // productOfferId
-      offer.campaignProductOfferId
-      // --- DİĞER TÜM PARAMETRELER SİLİNDİ ---
-    );
+    this.customerStateService.addItemToCart(quantity, offer.id, offer.campaignProductOfferId);
   }
 
   listenToDropdownChanges(): void {
-    // Katalog dropdown dinleyicisi
     this.searchForm.get('catalogSelection')?.valueChanges.subscribe((catalogId) => {
       if (catalogId) {
-        this.productOfferService.getProdOffersFromCatalogId(catalogId).subscribe((offers) => {
+        this.catalogService.getProdOffersFromCatalogId(catalogId).subscribe((offers) => {
           const displayOffers: ProductOfferDisplay[] = offers.map(
             (offer: ProductOfferFromCatalog) => ({
               id: offer.id,
               name: offer.name,
               price: offer.price,
-              productSpecificationId: offer.productSpecificationId, // API'den gelmeli
+              productSpecificationId: offer.productSpecificationId,
               catalogProductOfferId: offer.catalogProductOfferId,
-              campaignProductOfferId: 0, // Kaynak katalog olduğu için 0
+              campaignProductOfferId: 0,
               discountRate: offer.discountRate,
             })
           );
@@ -133,18 +106,17 @@ export class OfferSearch implements OnInit {
       }
     });
 
-    // Kampanya dropdown dinleyicisi
     this.searchForm.get('campaignSelection')?.valueChanges.subscribe((campaignId) => {
       if (campaignId) {
         this.currentCampaignId = campaignId;
-        this.productOfferService.getProdOffersFromCampaignId(campaignId).subscribe((offers) => {
+        this.catalogService.getProdOffersFromCampaignId(campaignId).subscribe((offers) => {
           const displayOffers: ProductOfferDisplay[] = offers.map(
             (offer: ProductOfferFromCampaign) => ({
               id: offer.id,
               name: offer.name,
               price: offer.price,
-              productSpecificationId: offer.productSpecificationId, // API'den gelmeli
-              catalogProductOfferId: 0, // Kaynak kampanya olduğu için 0
+              productSpecificationId: offer.productSpecificationId,
+              catalogProductOfferId: 0,
               campaignProductOfferId: offer.campaignProductOfferId,
               discountRate: offer.discountRate,
             })
@@ -166,12 +138,6 @@ export class OfferSearch implements OnInit {
 
   onSearch() {
     console.log('Manuel arama:', this.searchForm.value);
-    // TODO: Manuel arama servisi
     this.searchResults.set([]);
   }
-
-  /**
-   * SEPETE EKLEME FONKSİYONU
-   * @param offer Tabloda tıklanan ProductOfferDisplay nesnesi
-   */
 }

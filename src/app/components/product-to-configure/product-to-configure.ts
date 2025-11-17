@@ -1,18 +1,9 @@
-import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { CartItem } from '../../models/cartItem';
-import { ProductSpecService } from '../../services/product-spec-service';
-
-import {
-  AbstractControl,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-
-import { CustomerStateService } from '../../services/customer-state-service';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
 import { Characteristic } from '../../models/characteristic';
 import { CommonModule } from '@angular/common';
+import { CatalogService } from '../../services/catalog-service';
 
 @Component({
   selector: 'app-product-to-configure',
@@ -23,7 +14,7 @@ import { CommonModule } from '@angular/common';
 export class ProductToConfigure implements OnInit {
   @Input({ required: true }) cartItem!: CartItem;
 
-  private productSpecService = inject(ProductSpecService);
+  private catalogService = inject(CatalogService);
   private fb = inject(FormBuilder);
 
   characteristics = signal<Characteristic[]>([]);
@@ -36,7 +27,7 @@ export class ProductToConfigure implements OnInit {
       console.error('Specification ID not found on CartItem!', this.cartItem);
       return;
     }
-    this.productSpecService.getCharacteristicsByProdSpecId(specId).subscribe((chars) => {
+    this.catalogService.getCharacteristicsByProdSpecId(specId).subscribe((chars) => {
       this.characteristics.set(chars);
 
       this.buildForm(chars);
@@ -46,17 +37,12 @@ export class ProductToConfigure implements OnInit {
   private buildForm(chars: Characteristic[]): void {
     for (const char of chars) {
       const controlValidators = [];
-      console.log("required kontrol");
+      console.log('required kontrol');
       console.log(char.required);
       if (char.required) {
-        // <-- Modelinde 'isRequired' olduğunu varsayıyorum
-        
         controlValidators.push(Validators.required);
       }
-      this.configForm.addControl(
-        `char-${char.id}`,
-        this.fb.control(null, controlValidators) // <-- 'null' veya '' varsayılan değer
-      );
+      this.configForm.addControl(`char-${char.id}`, this.fb.control(null, controlValidators));
     }
   }
 
