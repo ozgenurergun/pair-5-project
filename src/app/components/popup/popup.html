@@ -1,10 +1,37 @@
+@if (isOpen) {
 <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-  <div class="bg-[#2A2A48] text-white rounded-lg shadow-xl p-8 w-full max-w-md mx-4">
+  <div
+    class="bg-[#2A2A48] text-white rounded-lg shadow-xl p-8 w-full min-w-[300px] max-w-4xl mx-4 relative max-h-[90vh] overflow-y-auto"
+  >
+    <button (click)="cancel()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    </button>
+
     @if (title) {
-    <h3 class="text-xl font-semibold text-center mb-4">{{ title }}</h3>
-    }
+    <h3 class="text-xl font-semibold text-center mb-4 text-blue-300">{{ title }}</h3>
+    } @if (message) {
     <p class="text-center text-gray-300 mb-8">{{ message }}</p>
-    <div class="flex items-center justify-center space-x-6">
+    }
+
+    <div class="mb-6">
+      <ng-content></ng-content>
+    </div>
+
+    @if (confirmText || cancelText) {
+    <div class="flex items-center justify-center space-x-6 mt-4">
       <button
         type="button"
         (click)="confirm()"
@@ -17,11 +44,13 @@
       <button
         type="button"
         (click)="cancel()"
-        class="bg-gray-200 text-gray-900 font-bold py-2 px-10 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+        class="bg-gray-600 text-white font-bold py-2 px-10 rounded-lg hover:bg-gray-500 transition-colors cursor-pointer"
       >
         {{ cancelText }}
       </button>
       }
     </div>
+    }
   </div>
 </div>
+}

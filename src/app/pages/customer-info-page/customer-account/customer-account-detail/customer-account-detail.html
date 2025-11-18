@@ -1,177 +1,177 @@
 <fieldset class="bg-[#2C2A4A] border border-gray-600 rounded-lg p-6 text-white w-full">
-  <legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">Customer Account</legend>
-
+<legend class="px-3 text-xl font-semibold text-gray-200 bg-[#2C2A4A]">Customer Account</legend>
+ 
   <div class="flex justify-start mb-6">
-    <button
-      routerLink="../create-billing-account"
-      class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
-    >
+<button routerLink="../create-billing-account"
+      class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer shadow-md">
       Create New Account
-    </button>
-  </div>
-
-  <div
-    class="grid grid-cols-12 gap-4 px-4 py-3 bg-[#4A476B] rounded-t-lg font-semibold text-gray-300"
-  >
-    <div class="col-span-1"></div>
-    <div class="col-span-2">Account Status</div>
-    <div class="col-span-2">Account Number</div>
-    <div class="col-span-3">Account Name</div>
-    <div class="col-span-2">Account Type</div>
-    <div class="col-span-2 text-center">Action</div>
-  </div>
-
-  <div class="space-y-2 mt-1">
+</button>
+</div>
+ 
+  <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-[#4A476B] rounded-t-lg font-bold text-sm uppercase text-gray-200 tracking-wide border-b border-gray-600">
+<div class="col-span-1"></div>
+<div class="col-span-2">Account Status</div>
+<div class="col-span-2">Account Number</div>
+<div class="col-span-3">Account Name</div>
+<div class="col-span-2">Account Type</div>
+<div class="col-span-2 text-center">Action</div>
+</div>
+ 
+  <div class="space-y-1 mt-1">
     @for (account of paginatedAccounts(); track account.id) {
-    <div class="border border-gray-600 rounded-lg overflow-hidden">
-      <div
-        (click)="toggleAccordion(account.id)"
-        class="grid grid-cols-12 gap-4 items-center px-4 py-4 bg-[#3a375a] hover:bg-[#4a476b] cursor-pointer transition-colors"
-      >
-        <div class="col-span-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24"
-            stroke-width="2"
-            stroke="currentColor"
-            class="w-5 h-5 transition-transform"
-            [class.rotate-180]="expandedAccountId() === account.id"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-          </svg>
-        </div>
-        <div
-          class="col-span-2"
+<div class="border border-gray-600 last:rounded-b-lg bg-[#2C2A4A] overflow-hidden">
+<div (click)="toggleAccordion(account.id)"
+        class="grid grid-cols-12 gap-4 items-center px-4 py-4 hover:bg-[#3a375a] cursor-pointer transition-colors border-b border-gray-700/50">
+<div class="col-span-1 flex justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+            class="w-5 h-5 text-gray-400 transition-transform duration-200" 
+            [class.rotate-180]="expandedAccountId() === account.id">
+<path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+</svg>
+</div>
+ 
+        <div class="col-span-2 font-medium tracking-wide text-sm"
           [class.text-green-400]="account?.status === 'ACTIVE'"
           [class.text-orange-400]="account?.status === 'SUSPENDED'"
-          [class.text-red-400]="account?.status === 'CLOSED'"
-        >
+          [class.text-red-400]="account?.status === 'CLOSED'">
           {{ account.status }}
-        </div>
-        <div class="col-span-2">{{ account.accountNumber }}</div>
-        <div class="col-span-3">{{ account.accountName }}</div>
-        <div class="col-span-2">{{ account.type }}</div>
+</div>
+ 
+        <div class="col-span-2 text-gray-200 text-sm font-medium">{{ account.accountNumber }}</div>
+<div class="col-span-3 text-gray-200 text-sm">{{ account.accountName }}</div>
+<div class="col-span-2 text-gray-300 text-sm">{{ account.type }}</div>
+ 
         <div class="col-span-2 flex items-center justify-center space-x-3">
-          <a
-            [routerLink]="['../update-billing-account', account.id]"
-            (click)="$event.stopPropagation()"
-            class="text-gray-400 hover:text-white"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-              />
-            </svg>
-          </a>
-          <button
-            (click)="onDeleteAccount(account.id); $event.stopPropagation()"
-            class="text-gray-400 hover:text-red-500 cursor-pointer"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
+<button (click)="onDeleteAccount(account.id); $event.stopPropagation()"
+            class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-white/5" title="Delete Account">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+</svg>
+</button>
+ 
+          <a [routerLink]="['../update-billing-account', account.id]" (click)="$event.stopPropagation()"
+            class="text-gray-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/5" title="Edit Account">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+</svg>
+</a>
+</div>
+</div>
+ 
       @if (expandedAccountId() === account.id) {
-      <div class="bg-gray-800 p-4 border-t border-gray-700">
-        @if (selectedAccountDetails() === null && !errorModalMessage()) {
-        <p class="text-gray-400 text-center py-4">Loading details...</p>
-        } @if (selectedAccountDetails()) {
-        <div class="grid grid-cols-2 gap-4 text-sm">
-          <div class="font-semibold text-gray-400">Customer ID:</div>
-          <div class="text-gray-200">{{ selectedAccountDetails()?.customerId }}</div>
-
-          <div class="font-semibold text-gray-400">Address ID:</div>
-          <div class="text-gray-200">{{ selectedAccountDetails()?.addressId }}</div>
-
-          <div class="font-semibold text-gray-400">Account Name:</div>
-          <div class="text-gray-200">{{ selectedAccountDetails()?.accountName }}</div>
-
-          <div class="font-semibold text-gray-400">Account Number:</div>
-          <div class="text-gray-200">{{ selectedAccountDetails()?.accountNumber }}</div>
-        </div>
-
-        <div class="mt-6 border-t border-gray-700 pt-4"></div>
-        <div class="flex items-center justify-center space-x-4">
-          <button
-            type="button"
-            (click)="onStartNewSale(account)"
-            class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
-          >
+<div class="bg-[#323050]/60 p-6 border-t border-gray-600 animate-fade-in shadow-inner">
+        @let accountOrders = getOrdersForAccount(account.accountNumber);
+<div class="overflow-hidden rounded-lg border border-gray-600 mb-6">
+<table class="w-full text-left text-sm text-gray-300">
+<thead class="bg-[#3E3B63] text-gray-200 uppercase text-xs font-semibold">
+<tr>
+<th scope="col" class="px-6 py-3 border-b border-gray-500/50">Order Total</th>
+<th scope="col" class="px-6 py-3 border-b border-gray-500/50">Product Count</th>
+<th scope="col" class="px-6 py-3 border-b border-gray-500/50">Products</th>
+<th scope="col" class="px-6 py-3 text-center border-b border-gray-500/50">Details</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-600 bg-[#2C2A4A]">
+              @for (order of accountOrders; track order.id) {
+<tr class="hover:bg-[#353257] transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap font-bold text-green-400 group-hover:text-green-300">
+                   {{ order.totalAmount | currency:'TRY':'symbol-narrow':'1.2-2' }}
+</td>
+ 
+                 <td class="px-6 py-4 whitespace-nowrap text-gray-400">
+                   {{ order.items.length }} Item(s)
+</td>
+ 
+                 <td class="px-6 py-4">
+<div class="flex flex-wrap gap-2">
+                      @for (item of order.items; track item.productId) {
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/50 text-blue-200 border border-blue-700/50">
+                          {{ item.productName }}
+</span>
+                      }
+</div>
+</td>
+ 
+                 <td class="px-6 py-4 text-center whitespace-nowrap">
+<button (click)="openOrderDetail(order)"
+                     class="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-full transition-all"
+                     title="View Order Details">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 cursor-pointer">
+<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+</svg>
+</button>
+</td>
+</tr>
+              } @empty {
+<tr>
+<td colspan="4" class="px-6 py-8 text-center text-gray-500 italic bg-[#2A2845]">
+                   No orders found for this account.
+</td>
+</tr>
+              }
+</tbody>
+</table>
+</div>
+ 
+        <div class="flex justify-center gap-4 pt-2 border-t border-gray-600/50 mt-4">
+<button type="button" (click)="onStartNewSale(account)"
+            class="bg-gray-200 text-gray-900 font-bold py-2 px-8 rounded-lg hover:bg-white transition-all shadow-sm hover:shadow-md text-sm cursor-pointer">
             Start New Sale
-          </button>
-          <button
-            type="button"
-            class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
-          >
+</button>
+<button type="button"
+            class="bg-gray-200 text-gray-900 font-bold py-2 px-8 rounded-lg hover:bg-white transition-all shadow-sm hover:shadow-md text-sm cursor-pointer">
             Transfer
-          </button>
-          <button
-            type="button"
-            class="bg-gray-200 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
-          >
+</button>
+<button type="button"
+            class="bg-gray-200 text-gray-900 font-bold py-2 px-8 rounded-lg hover:bg-white transition-all shadow-sm hover:shadow-md text-sm cursor-pointer">
             Service address change
-          </button>
-        </div>
-        }
+</button>
+</div>
+ 
       </div>
       }
-    </div>
+</div>
     }
-  </div>
-
-  <nav class="flex justify-center items-center space-x-2 mt-8">
-    @for (page of paginationPages(); track $index) { @if (page === '...') {
-    <span class="px-4 py-2 text-gray-400">...</span>
-    } @else {
-    <button
-      (click)="goToPage(page)"
-      class="px-4 py-2 rounded-lg transition-colors"
-      [class.bg-blue-600]="currentPage() === page"
-      [class.text-white]="currentPage() === page"
-      [class.text-gray-400]="currentPage() !== page"
-      [class.hover:bg-gray-700]="currentPage() !== page"
-    >
-      {{ page }}
-    </button>
-    } }
-  </nav>
+</div>
+ 
+  <nav class="flex justify-center items-center space-x-2 mt-8 pt-4 border-t border-gray-700/50">
+    @for (page of paginationPages(); track $index) { 
+      @if (page === '...') {
+<span class="px-4 py-2 text-gray-500 font-medium">...</span>
+      } @else {
+<button (click)="goToPage(page)"
+          class="px-4 py-2 rounded-lg transition-all duration-200 font-semibold text-sm border border-transparent"
+          [class.bg-blue-600]="currentPage() === page" 
+          [class.text-white]="currentPage() === page"
+          [class.shadow-lg]="currentPage() === page"
+          [class.text-gray-400]="currentPage() !== page" 
+          [class.hover:bg-gray-700]="currentPage() !== page"
+          [class.hover:text-white]="currentPage() !== page"
+          [class.hover:border-gray-600]="currentPage() !== page">
+          {{ page }}
+</button>
+      } 
+    }
+</nav>
 </fieldset>
-
+ 
 @if (isErrorModalVisible()) {
-<app-popup
-  title="Error"
-  [message]="errorModalMessage()"
-  confirmText="OK"
-  cancelText=""
-  (onConfirm)="closeErrorModal()"
-></app-popup>
-} @if (isDeleteConfirmVisible()) {
-<app-popup
-  title="Confirm Deletion"
-  message="Are you sure to delete this account?"
-  confirmText="Yes, Delete"
-  cancelText="Cancel"
-  (onConfirm)="confirmDelete()"
-  (onCancel)="onCancelDelete()"
-></app-popup>
+<app-popup title="Error" [message]="errorModalMessage()" confirmText="OK" cancelText="" (onConfirm)="closeErrorModal()"></app-popup>
 }
+ 
+@if (isDeleteConfirmVisible()) {
+<app-popup title="Confirm Deletion" message="Are you sure to delete this account?" confirmText="Yes, Delete"
+    cancelText="Cancel" (onConfirm)="confirmDelete()" (onCancel)="onCancelDelete()"></app-popup>
+}
+ 
+<app-popup
+  [isOpen]="isOrderDetailVisible()"
+  [title]="'Order Details #' + (selectedOrderForDetail()?.billingAccount?.accountNumber)"
+  [cancelText]="'Close'"
+  [confirmText]="''"
+  (onCancel)="closeOrderDetail()">
+  @if (selectedOrderForDetail()) {
+<app-order-product-detail [order]="selectedOrderForDetail()!"></app-order-product-detail>
+  }
+</app-popup>

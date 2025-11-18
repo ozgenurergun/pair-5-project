@@ -8,25 +8,21 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class Popup {
   // --- Girdiler (Inputs) ---
-  // Dışarıdan bu değerleri ayarlayabilirsin
-  @Input() title: string = ''; // Opsiyonel başlık
-  @Input() message: string = 'Are you sure?'; // Gösterilecek ana mesaj
-  @Input() confirmText: string = 'Yes'; // Onay butonu yazısı
-  // İptal butonunu opsiyonel yapalım. Eğer bu boş gelirse, buton hiç görünmez.
-  // Bu sayede "Hata" popup'ları için tek buton ('OK') kullanabilirsin.
-  @Input() cancelText: string = ''; // İptal butonu yazısı
-
+  @Input() title: string = '';
+  @Input() message: string = ''; 
+  @Input() confirmText: string = 'Yes'; 
+  @Input() cancelText: string = ''; 
+  // YENİ: Açık/Kapalı kontrolü (Varsayılan true olsun ki eski kullanımlar bozulmasın)
+  @Input() isOpen: boolean = true;
+ 
   // --- Çıktılar (Outputs) ---
-  // Kullanıcı butonlara bastığında parent component'i bilgilendirir
   @Output() onConfirm = new EventEmitter<void>();
-  @Output() onCancel = new EventEmitter<void>();
-
-  /** Onay butonuna tıklandığında */
+  @Output() onCancel = new EventEmitter<void>(); // Kapatma için bunu kullanacağız
+ 
   confirm() {
     this.onConfirm.emit();
   }
-
-  /** İptal butonuna tıklandığında */
+ 
   cancel() {
     this.onCancel.emit();
   }

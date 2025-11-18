@@ -31,11 +31,10 @@ export class SubmitOrderPage implements OnInit {
 
   selectedAddressText = signal<string>('Adres yükleniyor...');
 
-  // URL'den alınan ID'ler
+
   customerIdFromRoute: string | null | undefined = undefined;
 
   constructor() {
-    // Sepet verisi (cartAddressId) değiştiğinde adresi tekrar yüklemeyi tetiklemek için effect
     effect(() => {
       const cartAddressId = this.customerStateService.cartAddressId();
       if (cartAddressId && cartAddressId > 0 && this.customerIdFromRoute) {
@@ -45,8 +44,6 @@ export class SubmitOrderPage implements OnInit {
   }
 
   ngOnInit(): void {
-    // 1. URL'den Customer ID'yi al (Parent -> Parent route)
-    // Route yapısı: customer-info/:customerId -> offer-selection/:billingAccountId -> submit-order
     this.customerIdFromRoute = this.route.parent?.parent?.snapshot.paramMap.get('customerId');
 
     if (!this.customerIdFromRoute) {
@@ -55,13 +52,11 @@ export class SubmitOrderPage implements OnInit {
       return;
     }
 
-    // 2. Sepetteki adres ID'sini kontrol et
     const cartAddressId = this.customerStateService.cartAddressId();
 
     if (cartAddressId && cartAddressId > 0) {
       this.loadAddressDetails(cartAddressId, this.customerIdFromRoute);
     } else {
-      // Sepette adres yoksa, Fatura Hesabının adresini deneyebiliriz (Opsiyonel)
       const billingAccount = this.customerStateService.selectedBillingAccount();
       if (billingAccount && billingAccount.addressId) {
         this.loadAddressDetails(billingAccount.addressId, this.customerIdFromRoute);
@@ -69,47 +64,43 @@ export class SubmitOrderPage implements OnInit {
         this.selectedAddressText.set('Sepette seçili adres bulunamadı.');
       }
     }
-    
   }
 
-loadAddressDetails(addressId: number, customerId: string) {
-    // forkJoin ile hem adresleri hem de şehir listesini aynı anda çekiyoruz
+  loadAddressDetails(addressId: number, customerId: string) {
     forkJoin({
       addresses: this.customerService.getAddressByCustomerId(customerId),
-      cities: this.customerService.getCities(), // Şehir isimleri için bu gerekli
+      cities: this.customerService.getCities(), 
     }).subscribe({
       next: (result) => {
         const { addresses, cities } = result;
- 
-        // 1. İlgili adresi bul
+
         const addr = addresses.find((a) => a.id === addressId);
- 
+
         if (addr) {
           // 2. Şehir ve İlçe ismini bulmak için mantık (Address componentindeki mantığın aynısı)
           let cityName = '';
           let districtName = '';
- 
+
           if (addr.districtId) {
             // Şehri bul
             const city = cities.find(
               (c) => c.districts && c.districts.some((d) => d.id === addr.districtId)
             );
             cityName = city ? city.name : '';
- 
+
             // İlçeyi bul
             if (city) {
               const district = city.districts.find((d) => d.id === addr.districtId);
               districtName = district ? district.name : '';
             }
           }
- 
-          // 3. Metni formatla
-          // Örnek: İstanbul, Kadıköy - Bağdat Cad. No:15, Ev Adresi
+
+          //İstanbul, Kadıköy - Bağdat Cad. No:15, Ev Adresi
           const locationInfo = cityName && districtName ? `${districtName} / ${cityName}  ` : '';
-          const formattedAddress = `${addr.street || ''} No:${
-            addr.houseNumber || ''
-          }, ${addr.description || ''} - ${locationInfo}`;
- 
+          const formattedAddress = `${addr.street || ''} No:${addr.houseNumber || ''}, ${
+            addr.description || ''
+          } - ${locationInfo}`;
+
           this.selectedAddressText.set(formattedAddress);
         } else {
           this.selectedAddressText.set('Adres detayları listede bulunamadı.');
@@ -123,7 +114,6 @@ loadAddressDetails(addressId: number, customerId: string) {
   }
 
   mapToOrderRequest(redisData: RedisCartResponse, currentCustomerId: string): CreateOrderRequest {
-    // 1. Redis verisi dinamik bir UUID ile başlıyor (örn: "565bc...").
     // Object.values() kullanarak direkt içindeki değer dizisini alırız ve ilk elemanı seçeriz.
     const cartDetail: RedisCartDetail = Object.values(redisData)[0];
 
@@ -131,9 +121,8 @@ loadAddressDetails(addressId: number, customerId: string) {
       throw new Error('Sepet verisi bulunamadı!');
     }
 
-    // 2. Dönüşüm İşlemi
     const orderRequest: CreateOrderRequest = {
-      customerId: currentCustomerId, // Login olmuş kullanıcının ID'si
+      customerId: currentCustomerId, 
       billingAccountId: cartDetail.billingAccountId,
       addressId: cartDetail.addressId,
       items: cartDetail.cartItemList.map((item) => ({
@@ -141,9 +130,7 @@ loadAddressDetails(addressId: number, customerId: string) {
         quantity: item.quantity,
         characteristics: item.prodOfferCharacteristics.map((char) => ({
           characteristicId: char.id,
-          // Eğer seçmeli bir değerse ID'yi al, değilse 0 gönder
           charValueId: char.charValue?.id ? char.charValue.id : 0,
-          // Eğer manuel girilen bir değerse (text gibi) value'yu al
           value: char.charValue?.value || '',
         })),
       })),

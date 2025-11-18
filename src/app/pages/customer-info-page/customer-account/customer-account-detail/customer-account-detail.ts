@@ -5,18 +5,23 @@ import { Popup } from '../../../../components/popup/popup';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CustomerService } from '../../../../services/customer-service';
+import { OrderService } from '../../../../services/order-service';
+import { OrderProductResponse } from '../../../../models/response/order-product-response.models';
+import { OrderProductDetail } from "../../../../components/order-product-detail/order-product-detail";
 
 @Component({
   selector: 'app-customer-account-detail',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, Popup],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, Popup, OrderProductDetail],
   templateUrl: './customer-account-detail.html',
   styleUrl: './customer-account-detail.scss',
 })
 export class CustomerAccountDetail implements OnInit {
   private customerService = inject(CustomerService);
+  private orderService = inject(OrderService); 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private billingAccountIdToOpen: number | null = null; // <-- New property to store the ID
+  private billingAccountIdToOpen: number | null = null;
+ 
 
   isDeleteConfirmVisible = signal(false);
   accountToDeleteId = signal<number | null>(null);
@@ -26,6 +31,11 @@ export class CustomerAccountDetail implements OnInit {
   isErrorModalVisible = signal(false);
   errorModalMessage = signal('');
   allAccounts = signal<BillingAccount[]>([]);
+  allOrders = signal<OrderProductResponse[]>([]); 
+  isOrderDetailVisible = signal(false);
+  selectedOrderForDetail = signal<OrderProductResponse | null>(null);
+ 
+
   currentPage = signal(1);
   itemsPerPage = 4;
   totalPages = computed(() => Math.ceil(this.allAccounts().length / this.itemsPerPage));
@@ -36,74 +46,80 @@ export class CustomerAccountDetail implements OnInit {
   });
   paginationPages = computed(() => {
     const total = this.totalPages();
-    if (total <= 7) {
-      return Array.from({ length: total }, (_, i) => i + 1);
-    }
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
     const page = this.currentPage();
-    if (page < 5) {
-      return [1, 2, 3, 4, 5, '...', total];
-    }
-    if (page > total - 4) {
-      return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
-    }
+    if (page < 5) return [1, 2, 3, 4, 5, '...', total];
+    if (page > total - 4) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
     return [1, '...', page - 1, page, page + 1, '...', total];
   });
-
-ngOnInit() {
+ 
+  ngOnInit() {
     const idFromRoute =
-        this.route.parent?.snapshot.paramMap.get('customerId') ||
-        this.route.parent?.parent?.snapshot.paramMap.get('customerId');
-        
+      this.route.parent?.snapshot.paramMap.get('customerId') ||
+      this.route.parent?.parent?.snapshot.paramMap.get('customerId');
+ 
     if (idFromRoute) {
-        this.customerId = idFromRoute;
-        
-        if (history.state && history.state.billingAccountIdToOpen) {
-            this.billingAccountIdToOpen = Number(history.state.billingAccountIdToOpen);
-        }
-        
-        this.loadBillingAccounts();
+      this.customerId = idFromRoute;
+ 
+      if (history.state && history.state.billingAccountIdToOpen) {
+        this.billingAccountIdToOpen = Number(history.state.billingAccountIdToOpen);
+      }
+ 
+      this.loadBillingAccounts();
+      this.loadOrders(); 
     } else {
-        console.error('Customer ID not found in route parent snapshot!');
+      console.error('Customer ID not found!');
     }
-}
-
-loadBillingAccounts() {
-    if (!this.customerId) return;
-
-    this.customerService.getBillingAccountByCustomerId(this.customerId).subscribe({
-        next: (data) => {
-            this.allAccounts.set(data);
-            
-            if (this.billingAccountIdToOpen) {
-                const accountToOpen = data.find(acc => acc.id === this.billingAccountIdToOpen);
-                
-                if (accountToOpen) {
-                    this.toggleAccordion(this.billingAccountIdToOpen);
-                    
-                    const index = data.findIndex(acc => acc.id === this.billingAccountIdToOpen);
-                    if (index !== -1) {
-                        const targetPage = Math.ceil((index + 1) / this.itemsPerPage);
-                        this.currentPage.set(targetPage);
-                    }
-                }
-                this.billingAccountIdToOpen = null;
-            }
-        },
-        error: (err) => {
-            console.error('Failed to load billing accounts:', err);
-            this.errorModalMessage.set('Failed to load customer accounts.');
-            this.isErrorModalVisible.set(true);
-        },
-    });
-}
-
-  closeErrorModal() {
-    this.isErrorModalVisible.set(false);
   }
-  toggleAccordion(accountId: number) {
-    this.errorModalMessage.set('');
-    const isAlreadyOpen = this.expandedAccountId() === accountId;
+ 
+  loadBillingAccounts() {
+    if (!this.customerId) return;
+    this.customerService.getBillingAccountByCustomerId(this.customerId).subscribe({
+      next: (data) => {
+        this.allAccounts.set(data);
+        if (this.billingAccountIdToOpen) {
+          const index = data.findIndex(acc => acc.id === this.billingAccountIdToOpen);
+          if (index !== -1) {
+            this.toggleAccordion(this.billingAccountIdToOpen);
+            this.currentPage.set(Math.ceil((index + 1) / this.itemsPerPage));
+          }
+          this.billingAccountIdToOpen = null;
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load billing accounts:', err);
+        this.showError('Failed to load customer accounts.');
+      },
+    });
+  }
 
+  loadOrders() {
+    if (!this.customerId) return;
+    this.orderService.getOrdersByCustomerId(this.customerId).subscribe({
+      next: (data) => {
+        this.allOrders.set(data);
+        console.log("Orders loaded:", data);
+      },
+      error: (err) => console.error("Failed to load orders", err)
+    });
+  }
+
+  getOrdersForAccount(accountNumber: string): OrderProductResponse[] {
+    return this.allOrders().filter(o => o.billingAccount.accountNumber === accountNumber);
+  }
+
+  openOrderDetail(order: OrderProductResponse) {
+    this.selectedOrderForDetail.set(order);
+    this.isOrderDetailVisible.set(true);
+  }
+ 
+  closeOrderDetail() {
+    this.isOrderDetailVisible.set(false);
+    this.selectedOrderForDetail.set(null);
+  }
+ 
+  toggleAccordion(accountId: number) {
+    const isAlreadyOpen = this.expandedAccountId() === accountId;
     if (isAlreadyOpen) {
       this.expandedAccountId.set(null);
       this.selectedAccountDetails.set(null);
@@ -112,59 +128,54 @@ loadBillingAccounts() {
       if (account) {
         this.selectedAccountDetails.set(account);
         this.expandedAccountId.set(accountId);
-      } else {
-        console.error('Account not found in the local list:', accountId);
-        this.errorModalMessage.set('Failed to find account details locally.');
-        this.isErrorModalVisible.set(true);
-        this.expandedAccountId.set(null);
       }
     }
   }
+ 
   goToPage(page: number | string) {
-    if (typeof page === 'number') {
-      this.currentPage.set(page);
-    }
+    if (typeof page === 'number') this.currentPage.set(page);
   }
-
+ 
   onDeleteAccount(accountId: number) {
     const account = this.allAccounts().find((acc) => acc.id === accountId);
-    if (!account) {
-      console.error('Silinecek hesap bulunamadı!');
-      return;
-    }
-    if (account.status.toUpperCase() === 'ACTIVE') {
-      this.errorModalMessage.set("You can't delete active billing account");
-      this.isErrorModalVisible.set(true);
+    if (account?.status.toUpperCase() === 'ACTIVE') {
+      this.showError("You can't delete active billing account");
     } else {
       this.accountToDeleteId.set(accountId);
       this.isDeleteConfirmVisible.set(true);
     }
   }
+ 
   onCancelDelete() {
     this.isDeleteConfirmVisible.set(false);
     this.accountToDeleteId.set(null);
   }
+ 
   confirmDelete() {
     const id = this.accountToDeleteId();
     if (id === null) return;
     this.customerService.deleteBillingAccount(id).subscribe({
       next: () => {
-        console.log('Account deleted successfully');
         this.allAccounts.update((accounts) => accounts.filter((acc) => acc.id !== id));
         this.onCancelDelete();
       },
-      error: (err) => {
-        console.error('Failed to delete account:', err);
+      error: () => {
         this.onCancelDelete();
-        this.errorModalMessage.set('An error occurred while deleting the account.');
-        this.isErrorModalVisible.set(true);
+        this.showError('An error occurred while deleting the account.');
       },
     });
   }
-
+ 
   onStartNewSale(account: BillingAccount) {
     this.router.navigate(['/customer-info', this.customerId, 'offer-selection', account.id]);
-    this.expandedAccountId.set(null);
-    this.selectedAccountDetails.set(null);
+  }
+ 
+  showError(msg: string) {
+    this.errorModalMessage.set(msg);
+    this.isErrorModalVisible.set(true);
+  }
+ 
+  closeErrorModal() {
+    this.isErrorModalVisible.set(false);
   }
 }
