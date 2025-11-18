@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CreatedOrderResponse } from '../../models/response/order-response.models';
 import { CommonModule } from '@angular/common';
 
@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 })
 export class OrderSummaryPage implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute); // <-- Injected
 
   orderDetails: CreatedOrderResponse | null = null;
   addressText: string = '';
@@ -32,7 +33,18 @@ export class OrderSummaryPage implements OnInit {
   }
   
   // Anasayfaya Dönüş
-  goHome() {
-      this.router.navigate(['/']); // veya dashboard
+ goHome() {
+      // 1. URL'den billingAccountId'yi al (Parent route parameter)
+      const billingAccountIdToOpen = this.route.parent?.snapshot.paramMap.get('billingAccountId');
+      
+      // 2. 3 seviye yukarı (../../../) gidip Customer Account Detail rotasına yönlendir
+      // ve billingAccountId'yi navigation state ile gönder.
+      this.router.navigate(['../../../customer-account/customer-account-detail'], { 
+        relativeTo: this.route,
+        state: { 
+          // Bu ID'yi destination component'e (CustomerAccountDetail) taşı
+          billingAccountIdToOpen: billingAccountIdToOpen
+        }
+      });
   }
 }

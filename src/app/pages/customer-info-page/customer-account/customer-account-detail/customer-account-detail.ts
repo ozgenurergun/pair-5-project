@@ -16,6 +16,7 @@ export class CustomerAccountDetail implements OnInit {
   private customerService = inject(CustomerService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private billingAccountIdToOpen: number | null = null; // <-- New property to store the ID
 
   isDeleteConfirmVisible = signal(false);
   accountToDeleteId = signal<number | null>(null);
@@ -48,32 +49,53 @@ export class CustomerAccountDetail implements OnInit {
     return [1, '...', page - 1, page, page + 1, '...', total];
   });
 
-  ngOnInit() {
+ngOnInit() {
     const idFromRoute =
-      this.route.parent?.snapshot.paramMap.get('customerId') ||
-      this.route.parent?.parent?.snapshot.paramMap.get('customerId');
+        this.route.parent?.snapshot.paramMap.get('customerId') ||
+        this.route.parent?.parent?.snapshot.paramMap.get('customerId');
+        
     if (idFromRoute) {
-      this.customerId = idFromRoute;
-      this.loadBillingAccounts();
+        this.customerId = idFromRoute;
+        
+        if (history.state && history.state.billingAccountIdToOpen) {
+            this.billingAccountIdToOpen = Number(history.state.billingAccountIdToOpen);
+        }
+        
+        this.loadBillingAccounts();
     } else {
-      console.error('Customer ID not found in route parent snapshot!');
+        console.error('Customer ID not found in route parent snapshot!');
     }
-  }
+}
 
-  loadBillingAccounts() {
+loadBillingAccounts() {
     if (!this.customerId) return;
 
     this.customerService.getBillingAccountByCustomerId(this.customerId).subscribe({
-      next: (data) => {
-        this.allAccounts.set(data);
-      },
-      error: (err) => {
-        console.error('Failed to load billing accounts:', err);
-        this.errorModalMessage.set('Failed to load customer accounts.');
-        this.isErrorModalVisible.set(true);
-      },
+        next: (data) => {
+            this.allAccounts.set(data);
+            
+            if (this.billingAccountIdToOpen) {
+                const accountToOpen = data.find(acc => acc.id === this.billingAccountIdToOpen);
+                
+                if (accountToOpen) {
+                    this.toggleAccordion(this.billingAccountIdToOpen);
+                    
+                    const index = data.findIndex(acc => acc.id === this.billingAccountIdToOpen);
+                    if (index !== -1) {
+                        const targetPage = Math.ceil((index + 1) / this.itemsPerPage);
+                        this.currentPage.set(targetPage);
+                    }
+                }
+                this.billingAccountIdToOpen = null;
+            }
+        },
+        error: (err) => {
+            console.error('Failed to load billing accounts:', err);
+            this.errorModalMessage.set('Failed to load customer accounts.');
+            this.isErrorModalVisible.set(true);
+        },
     });
-  }
+}
 
   closeErrorModal() {
     this.isErrorModalVisible.set(false);
