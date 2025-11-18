@@ -3,6 +3,13 @@ import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerStateService } from '../../services/customer-state-service';
 import { CustomerService } from '../../services/customer-service';
+import { CreateOrderRequest, RedisCartDetail, RedisCartResponse } from '../../models/order-models';
+import { BasketService } from '../../services/basket-service';
+import { AuthService } from '../../services/auth-service';
+import { OrderService } from '../../services/order-service';
+import { CreatedOrderResponse } from '../../models/response/order-response.models';
+import { City } from '../../models/response/customer/city-response';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-submit-order-page',
@@ -11,14 +18,17 @@ import { CustomerService } from '../../services/customer-service';
   styleUrl: './submit-order-page.scss',
 })
 export class SubmitOrderPage implements OnInit {
-private router = inject(Router);
+  private router = inject(Router);
   private route = inject(ActivatedRoute);
   private customerStateService = inject(CustomerStateService);
   private customerService = inject(CustomerService);
+  private basketService = inject(BasketService);
+  private authService = inject(AuthService);
+  private orderService = inject(OrderService);
 
   cartItems = this.customerStateService.cartItems;
   totalPrice = this.customerStateService.totalPrice;
-  
+
   selectedAddressText = signal<string>('Adres yükleniyor...');
 
   // URL'den alınan ID'ler
@@ -38,16 +48,16 @@ private router = inject(Router);
     // 1. URL'den Customer ID'yi al (Parent -> Parent route)
     // Route yapısı: customer-info/:customerId -> offer-selection/:billingAccountId -> submit-order
     this.customerIdFromRoute = this.route.parent?.parent?.snapshot.paramMap.get('customerId');
-    
+
     if (!this.customerIdFromRoute) {
-      this.selectedAddressText.set('URL\'den Müşteri ID alınamadı.');
+      this.selectedAddressText.set("URL'den Müşteri ID alınamadı.");
       console.error('Customer ID not found in route path!');
       return;
     }
 
     // 2. Sepetteki adres ID'sini kontrol et
     const cartAddressId = this.customerStateService.cartAddressId();
-    
+
     if (cartAddressId && cartAddressId > 0) {
       this.loadAddressDetails(cartAddressId, this.customerIdFromRoute);
     } else {
@@ -59,27 +69,87 @@ private router = inject(Router);
         this.selectedAddressText.set('Sepette seçili adres bulunamadı.');
       }
     }
+    
   }
 
-  loadAddressDetails(addressId: number, customerId: string) {
-    // Adresleri çek
-    this.customerService.getAddressByCustomerId(customerId).subscribe({
-      next: (addresses) => {
-        const addr = addresses.find(a => a.id === addressId);
+loadAddressDetails(addressId: number, customerId: string) {
+    // forkJoin ile hem adresleri hem de şehir listesini aynı anda çekiyoruz
+    forkJoin({
+      addresses: this.customerService.getAddressByCustomerId(customerId),
+      cities: this.customerService.getCities(), // Şehir isimleri için bu gerekli
+    }).subscribe({
+      next: (result) => {
+        const { addresses, cities } = result;
+ 
+        // 1. İlgili adresi bul
+        const addr = addresses.find((a) => a.id === addressId);
+ 
         if (addr) {
-          // Şehir ve ilçe isimleri servisten geliyorsa buraya eklenebilir.
-          // Şimdilik temel bilgileri yazıyoruz.
-          const formattedAddress = `${addr.street || ''} No:${addr.houseNumber || ''}, ${addr.description || ''}`;
+          // 2. Şehir ve İlçe ismini bulmak için mantık (Address componentindeki mantığın aynısı)
+          let cityName = '';
+          let districtName = '';
+ 
+          if (addr.districtId) {
+            // Şehri bul
+            const city = cities.find(
+              (c) => c.districts && c.districts.some((d) => d.id === addr.districtId)
+            );
+            cityName = city ? city.name : '';
+ 
+            // İlçeyi bul
+            if (city) {
+              const district = city.districts.find((d) => d.id === addr.districtId);
+              districtName = district ? district.name : '';
+            }
+          }
+ 
+          // 3. Metni formatla
+          // Örnek: İstanbul, Kadıköy - Bağdat Cad. No:15, Ev Adresi
+          const locationInfo = cityName && districtName ? `${districtName} / ${cityName}  ` : '';
+          const formattedAddress = `${addr.street || ''} No:${
+            addr.houseNumber || ''
+          }, ${addr.description || ''} - ${locationInfo}`;
+ 
           this.selectedAddressText.set(formattedAddress);
         } else {
           this.selectedAddressText.set('Adres detayları listede bulunamadı.');
         }
       },
       error: (err) => {
-        console.error('Adresler yüklenirken hata:', err);
+        console.error('Veriler yüklenirken hata:', err);
         this.selectedAddressText.set('Adres bilgisi çekilemedi.');
-      }
+      },
     });
+  }
+
+  mapToOrderRequest(redisData: RedisCartResponse, currentCustomerId: string): CreateOrderRequest {
+    // 1. Redis verisi dinamik bir UUID ile başlıyor (örn: "565bc...").
+    // Object.values() kullanarak direkt içindeki değer dizisini alırız ve ilk elemanı seçeriz.
+    const cartDetail: RedisCartDetail = Object.values(redisData)[0];
+
+    if (!cartDetail) {
+      throw new Error('Sepet verisi bulunamadı!');
+    }
+
+    // 2. Dönüşüm İşlemi
+    const orderRequest: CreateOrderRequest = {
+      customerId: currentCustomerId, // Login olmuş kullanıcının ID'si
+      billingAccountId: cartDetail.billingAccountId,
+      addressId: cartDetail.addressId,
+      items: cartDetail.cartItemList.map((item) => ({
+        productOfferId: item.productOfferId,
+        quantity: item.quantity,
+        characteristics: item.prodOfferCharacteristics.map((char) => ({
+          characteristicId: char.id,
+          // Eğer seçmeli bir değerse ID'yi al, değilse 0 gönder
+          charValueId: char.charValue?.id ? char.charValue.id : 0,
+          // Eğer manuel girilen bir değerse (text gibi) value'yu al
+          value: char.charValue?.value || '',
+        })),
+      })),
+    };
+
+    return orderRequest;
   }
 
   onPrevious() {
@@ -87,9 +157,53 @@ private router = inject(Router);
   }
 
   onSubmit() {
-    console.log('Sipariş gönderiliyor...');
-    alert('Siparişiniz başarıyla oluşturuldu!');
-    // Başarılı işlem sonrası yönlendirme
-    // this.router.navigate(['/customer-info', this.customerIdFromRoute, 'customer-account']);
+    const cart = this.customerStateService.currentCart();
+
+    if (!cart) {
+      console.error('Sepet boş veya yüklenmemiş!');
+      return;
+    }
+
+    const orderRequest: CreateOrderRequest = {
+      // ... (burası aynı kalacak)
+      customerId: this.customerIdFromRoute,
+      billingAccountId: cart.billingAccountId,
+      addressId: cart.addressId,
+      items: cart.cartItems.map((item) => ({
+        productOfferId: item.productOfferId,
+        quantity: item.quantity,
+        characteristics: item.prodOfferCharacteristics.map((char) => ({
+          characteristicId: char.id,
+          charValueId: char.charValue?.id ? char.charValue.id : 0,
+          value: char.charValue?.value || '',
+        })),
+      })),
+    };
+
+    console.log("Backend'e gidecek veri:", orderRequest);
+
+    // 3. Order Service'e gönderiyoruz
+    this.orderService.createOrder(orderRequest).subscribe({
+      next: (response: CreatedOrderResponse) => {
+        console.log('Sipariş Başarılı! ID:', response.orderId);
+
+        // !!! ÖNEMLİ KISIM: Yeni sayfaya yönlendir ve veriyi taşı !!!
+        this.router.navigate(['../order-summary'], {
+          relativeTo: this.route,
+          state: {
+            orderDetails: response, // Backend'den gelen zengin veri (ID, Ürün isimleri vs.)
+            address: this.selectedAddressText(), // Ekranda zaten hesapladığımız adres metni
+            total: this.totalPrice(), // State'ten gelen toplam tutar
+          },
+        });
+
+        // Sepeti temizle
+        this.customerStateService.clearState();
+      },
+      error: (err) => {
+        console.error('Sipariş oluşturulamadı:', err);
+        alert('Sipariş oluşturulurken bir hata oluştu.');
+      },
+    });
   }
 }

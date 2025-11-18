@@ -16,6 +16,7 @@ import { UpdateCustomerAccount } from './pages/customer-info-page/customer-accou
 import { ConfigurationProductPage } from './pages/configuration-product-page/configuration-product-page';
 import { OfferSelectionPage } from './pages/offer-selection-page/offer-selection-page';
 import { SubmitOrderPage } from './pages/submit-order-page/submit-order-page';
+import { OrderSummaryPage } from './pages/order-summary-page/order-summary-page';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [loginGuard] }, 
@@ -50,7 +51,8 @@ export const routes: Routes = [
               path: 'offer-selection/:billingAccountId', component: OfferSelectionPage,
             children: [
               {path: 'configuration-product', component: ConfigurationProductPage},
-              { path: 'submit-order', component: SubmitOrderPage }
+              { path: 'submit-order', component: SubmitOrderPage },
+              { path: 'order-summary', component: OrderSummaryPage },
             ]
             },
           ] 

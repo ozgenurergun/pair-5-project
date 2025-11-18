@@ -12,6 +12,7 @@ export class CustomerStateService {
   public selectedBillingAccount = signal<BillingAccount | null>(null);
   public readonly cartAddressId = computed(() => this.cart()?.addressId ?? 0);
   private cart = signal<Cart | null>(null);
+  public readonly currentCart = this.cart.asReadonly();
   public readonly selectedBillingAccountId = computed(
     () => this.selectedBillingAccount()?.id ?? null
   );

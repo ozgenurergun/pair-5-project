@@ -26,7 +26,6 @@ export class Address implements OnInit {
     }
   }
 
-
   cities = signal<City[]>([]);
   addresses = signal<CustomerAddressResponse[] | undefined>(undefined);
   addressForm!: FormGroup;
@@ -37,7 +36,7 @@ export class Address implements OnInit {
   isErrorModalVisible = signal(false);
   errorModalMessage = signal('');
   districts = signal<any[]>([]);
-  
+
   private _customerIdInput?: string;
   private customerId!: string;
   private customerService = inject(CustomerService);
@@ -63,7 +62,6 @@ export class Address implements OnInit {
         );
       }
     }
-
   }
 
   get customerIdInput(): string | undefined {
@@ -177,7 +175,6 @@ export class Address implements OnInit {
     });
   }
 
-
   onAddAddress() {
     this.buildForm();
     this.modalMode.set('add');
@@ -223,7 +220,6 @@ export class Address implements OnInit {
     this.errorModalMessage.set(message);
     this.isErrorModalVisible.set(true);
   }
-
 
   loadAllCities() {
     this.customerService.getCities().subscribe({
