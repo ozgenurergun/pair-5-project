@@ -26,7 +26,7 @@
       -->
       @if (errorMessage()) {
         <app-popup
-          [title]="'Giriş Başarısız'"
+          [title]="'Login Failed'"
           [message]="errorMessage()!"
           [confirmText]="'Tamam'"
           [cancelText]="''" 
@@ -78,15 +78,16 @@
 
       <!-- Login Butonu -->
       <button 
-        type="submit" 
-        class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        [disabled]="isLoading() || !email || !password" > <!-- 'email' ve 'password' boşsa da kilitler -->
-        @if (isLoading()) {
-          <span>Giriş Yapılıyor...</span>
-        } @else {
-          <span>Login</span>
-        }
-      </button>
+  type="submit" 
+  class="bg-gray-200 text-gray-900 font-bold py-3 px-10 rounded-full hover:bg-gray-300 transition-colors text-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+  [disabled]="isLoading() || email.length < 3 || password.length < 3"> 
+  
+  @if (isLoading()) {
+    <span>Logining...</span>
+  } @else {
+    <span>Login</span>
+  }
+</button>
     </form>
   </div>
 </div>
