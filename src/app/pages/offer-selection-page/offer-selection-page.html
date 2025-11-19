@@ -8,10 +8,12 @@
     <div class="flex flex-col lg:flex-row gap-8">
       
       <div 
-        class="transition-all duration-300"
+        class="transition-all duration-300 min-w-0" 
         [class.lg:w-2/3]="!isBasketEmpty()" 
         [class.w-full]="isBasketEmpty()">
+        
         <app-offer-search></app-offer-search>
+      
       </div>
       
       @if (!isBasketEmpty()) {

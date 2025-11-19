@@ -1,8 +1,30 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, } from '@angular/forms';
+import {AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators, } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CustomerCreation } from '../../services/customer-creation';
 import { RouterLink } from "@angular/router";
+
+export function ageValidator(minAge: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null; // Boş kontrolünü 'required' validatörüne bırakıyoruz.
+    }
+
+    const today = new Date();
+    const birthDate = new Date(control.value);
+    
+    // Basit yıl farkı
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    // Ay ve gün kontrolü (Henüz doğum günü gelmediyse yaşı 1 düşür)
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age >= minAge ? null : { ageInvalid: true };
+  };
+}
 
 @Component({
   selector: 'app-create-customer',
@@ -44,7 +66,11 @@ export class CreateCustomer implements OnInit {
         Validators.maxLength(11),
         Validators.pattern('^[0-9]+$'),
       ]),
-      dateOfBirth: new FormControl(this.customerCreationService.state().dateOfBirth ?? '', [Validators.required]),
+// --- 2. ADIM: dateOfBirth Validasyonunu Güncelliyoruz ---
+      dateOfBirth: new FormControl(this.customerCreationService.state().dateOfBirth ?? '', [
+        Validators.required,
+        ageValidator(18) // Özel 18 yaş kontrolü buraya eklendi
+      ]),
       motherName: new FormControl(this.customerCreationService.state().motherName ?? ''),
       fatherName: new FormControl(this.customerCreationService.state().fatherName ?? ''),
       gender: new FormControl(this.customerCreationService.state().gender ?? '', [Validators.required]),

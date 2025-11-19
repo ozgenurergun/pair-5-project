@@ -141,7 +141,7 @@
             }
 
             <td class="px-4 py-3">{{ offer.id }}</td>
-            <td class="px-4 py-3">{{ offer.name }}</td>
+            <td class="px-4 py-3 md:max-w-[200px] truncate">{{ offer.name }}</td>
             <td class="px-4 py-3">
               @if (offer.discountedPrice != offer.price) {
               <span class="line-through text-gray-500 text-xs">{{

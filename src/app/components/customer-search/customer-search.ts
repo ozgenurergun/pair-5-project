@@ -20,6 +20,10 @@ export class CustomerSearch implements OnInit {
   private searchCustomerService = inject(SearchCustomerService);
   private router = inject(Router); 
 
+  currentPage = signal(0);   // 0. indexten başlar
+  pageSize = 10;             // Her sayfada 10 kayıt
+  isLastPage = signal(false);
+
   searchForm!: FormGroup;
   searchResults = signal<CustomerSearchList>([]);
   hasSearched = signal(false);
@@ -127,26 +131,50 @@ export class CustomerSearch implements OnInit {
   }
 
   onSearch(): void {
-    this.hasSearched.set(true); 
-    // getRawValue() kullan, çünkü arama yapılacak alan (örn: nationalId)
-    // diğer alanları (örn: firstName) disable edeceği için form.value'da gelmez.
-    const filters = this.searchForm.getRawValue(); 
-    
-    const page = 0;
-    const size = 10;
+    this.hasSearched.set(true);
+    this.currentPage.set(0); // Her yeni aramada 0. sayfaya dön
+    this.loadData();
+  }
+loadData(): void {
+    const filters = this.searchForm.getRawValue();
 
-    this.searchCustomerService.searchCustomers(filters, page, size)
-      .subscribe(results => {
-        this.searchResults.set(results);
+    this.searchCustomerService.searchCustomers(filters, this.currentPage(), this.pageSize)
+      .subscribe({
+        next: (results) => {
+          this.searchResults.set(results);
+          
+          // MANTIK: Eğer gelen kayıt sayısı, istediğimizden azsa son sayfadayız demektir.
+          // Örn: 10 istedik, 4 geldi. Demek ki daha fazla yok.
+          if (results.length < this.pageSize) {
+            this.isLastPage.set(true);
+          } else {
+            this.isLastPage.set(false);
+          }
+        },
+        error: (err) => console.error(err)
       });
   }
 
-  onClear(): void {
-    // reset(), valueChanges'i tetikler ve tüm alanlar boş olacağı için
-    // subscribeToFormChanges() içindeki mantık her şeyin kilidini açar.
-    this.searchForm.reset(); 
+  nextPage(): void {
+    if (!this.isLastPage()) {
+      this.currentPage.update(p => p + 1);
+      this.loadData();
+    }
+  }
+
+  // Önceki Sayfa Butonu
+  prevPage(): void {
+    if (this.currentPage() > 0) {
+      this.currentPage.update(p => p - 1);
+      this.loadData(); // Geri giderken isLastPage'i false yapmaya gerek yok, loadData günceller
+    }
+  }
+onClear(): void {
+    this.searchForm.reset();
     this.searchResults.set([]);
     this.hasSearched.set(false);
+    this.currentPage.set(0);
+    this.isLastPage.set(false);
   }
 
   goToCreateCustomer(): void {

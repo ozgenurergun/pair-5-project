@@ -58,27 +58,31 @@
         }
       </div>
 
-      <div>
-        <label for="birth-date" class="block text-sm font-medium text-gray-400 mb-1"
-          >Birth Date *</label
-        >
+     <div>
+        <label for="birth-date" class="block text-sm font-medium text-gray-400 mb-1">
+           Birth Date *
+        </label>
+        
         <div class="relative">
           <input
             formControlName="dateOfBirth"
-            type="text"
+            type="date" 
             id="birth-date"
-            class="w-full bg-gray-200 text-gray-900 rounded-lg pl-4 pr-10 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onfocus="(this.type='date')"
-            onblur="(this.type='text')"
+            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [class.border-red-500]="isFieldInvalid('dateOfBirth')"
           />
+          
           @if (isFieldInvalid('dateOfBirth')) {
-          <div class="text-red-400 mt-1 text-sm">
-            @if (createCustomerForm.get('dateOfBirth')?.hasError('required')) {
-            <small>Please choose one option.</small>
-            }
-          </div>
+            <div class="text-red-400 mt-1 text-sm">
+              @if (createCustomerForm.get('dateOfBirth')?.hasError('required')) {
+                <small>Birth date is required.</small>
+              } 
+              
+              @else if (createCustomerForm.get('dateOfBirth')?.hasError('ageInvalid')) {
+                <small>Customer must be at least 18 years old.</small>
+              }
+            </div>
           }
-       
         </div>
       </div>
 
