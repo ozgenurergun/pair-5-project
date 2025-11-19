@@ -12,6 +12,7 @@ type ProductOfferDisplay = {
   id: number;
   name: string;
   price: number;
+  discountedPrice: number;
   productSpecificationId: number;
   catalogProductOfferId: number;
   campaignProductOfferId: number;
@@ -93,6 +94,8 @@ export class OfferSearch implements OnInit {
               id: offer.id,
               name: offer.name,
               price: offer.price,
+              discountedPrice: offer.price * (1 - offer.discountRate),
+
               productSpecificationId: offer.productSpecificationId,
               catalogProductOfferId: offer.catalogProductOfferId,
               campaignProductOfferId: 0,
@@ -115,6 +118,8 @@ export class OfferSearch implements OnInit {
               id: offer.id,
               name: offer.name,
               price: offer.price,
+              discountedPrice: offer.price * (1 - offer.discountRate),
+
               productSpecificationId: offer.productSpecificationId,
               catalogProductOfferId: 0,
               campaignProductOfferId: offer.campaignProductOfferId,

@@ -1,55 +1,60 @@
 @if (order) {
 <div class="p-4 space-y-8 text-white">
-<div>
-<h3 class="text-lg font-bold text-gray-200 border-b border-gray-600 pb-3 mb-4 flex items-center">
-<span class="mr-2 text-xl">📍</span> Delivery Address
-</h3>
-<div class="grid grid-cols-2 gap-6 text-sm">
-<div class="flex flex-col">
-<span class="text-gray-400 mb-1 uppercase text-xs font-semibold tracking-wider">City/District:</span>
-<span class="font-medium text-gray-200 text-base">{{ order.address.city }} / {{ order.address.district }}</span>
-</div>
-<div class="flex flex-col">
-<span class="text-gray-400 mb-1 uppercase text-xs font-semibold tracking-wider">Street/No:</span>
-<span class="font-medium text-gray-200 text-base">{{ order.address.street }} / {{ order.address.houseNumber }}</span>
-</div>
-<div class="flex flex-col col-span-2">
-<span class="text-gray-400 mb-1 uppercase text-xs font-semibold tracking-wider">Full Address:</span>
-<span class="font-medium text-gray-300 leading-relaxed bg-[#232138] p-3 rounded border border-gray-600/50">
-          {{ order.address.description }}
-</span>
-</div>
-</div>
-</div>
-<div>
-<h3 class="text-lg font-bold text-gray-200 border-b border-gray-600 pb-3 mb-4 flex items-center">
-<span class="mr-2 text-xl">📦</span> Product Configurations
-</h3>
-<div class="space-y-4">
+  <div>
+    <h3
+      class="text-lg font-bold text-gray-200 border-b border-gray-600 pb-3 mb-4 flex items-center"
+    >
+      <span class="mr-2 text-xl">📍</span> Delivery Address
+    </h3>
+    <div class="grid grid-cols-2 gap-6 text-sm">
+      
+      <div class="flex flex-col col-span-2">
+       
+        <span
+          class="font-medium text-gray-300 leading-relaxed bg-[#232138] p-3 rounded border border-gray-600/50"
+        >
+          {{ order.address.street }} / {{ order.address.houseNumber }}, {{ order.address.description }} - {{ order.address.district }} / {{ order.address.city }} 
+        </span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h3
+      class="text-lg font-bold text-gray-200 border-b border-gray-600 pb-3 mb-4 flex items-center"
+    >
+      <span class="mr-2 text-xl">📦</span> Product Configurations
+    </h3>
+    <div class="space-y-4">
       @for (item of order.items; track item.productId) {
-<div class="bg-[#3a375a] rounded-lg p-5 border border-gray-600 shadow-md hover:border-gray-500 transition-colors">
-<div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-600/50">
-<span class="font-bold text-orange-400 text-lg tracking-wide">{{ item.productName }}</span>
-<span class="font-bold text-green-400 text-lg bg-green-400/10 px-3 py-1 rounded">
-              {{ item.discountedPrice | currency:'TRY':'symbol-narrow':'1.2-2' }}
-</span>
-</div>
-<div class="text-sm space-y-2">
-            @for (char of item.characteristics; track char.characteristicId) {
-<div class="flex justify-between items-end group">
-<span class="text-gray-400 font-medium group-hover:text-gray-300 transition-colors">
-                  {{ char.characteristicName }}
-</span>
-<span class="flex-grow border-b-2 border-dotted border-gray-600 mx-3 mb-1 opacity-40"></span>
-<span class="font-semibold text-white text-right">
-                  {{ char.value }}
-</span>
-</div>
-            }
-</div>
-</div>
+      <div
+        class="bg-[#3a375a] rounded-lg p-5 border border-gray-600 shadow-md hover:border-gray-500 transition-colors"
+      >
+        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-600/50">
+          <span class="font-bold text-orange-400 text-lg tracking-wide">{{
+            item.productName
+          }}</span>
+          <span class="font-bold text-green-400 text-lg bg-green-400/10 px-3 py-1 rounded">
+            {{ item.discountedPrice | currency : 'TRY' : 'symbol-narrow' : '1.2-2' }}
+          </span>
+        </div>
+        <div class="text-sm space-y-2">
+          @for (char of item.characteristics; track char.characteristicId) {
+          <div class="flex justify-between items-end group">
+            <span class="text-gray-400 font-medium group-hover:text-gray-300 transition-colors">
+              {{ char.characteristicName }}
+            </span>
+            <span
+              class="flex-grow border-b-2 border-dotted border-gray-600 mx-3 mb-1 opacity-40"
+            ></span>
+            <span class="font-semibold text-white text-right">
+              {{ char.value }}
+            </span>
+          </div>
+          }
+        </div>
+      </div>
       }
-</div>
-</div>
+    </div>
+  </div>
 </div>
 }
