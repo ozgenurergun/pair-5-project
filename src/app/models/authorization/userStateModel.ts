@@ -7,4 +7,5 @@ export interface UserState{
 export interface UserModel{
     sub: string;
     roles: string[];
+    firstname?: string;
 }

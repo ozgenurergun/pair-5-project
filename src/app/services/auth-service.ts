@@ -4,10 +4,13 @@ import { UserJwtModel } from '../models/authorization/userJwtModel';
 import { Observable, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
+import { AuthResponse, LoginCredentials } from '../models/authorization/userLoginModel';
+
 
 @Injectable({
   providedIn: 'root',
 })
+
 export class AuthService {
   public userState = signal<UserState>({ isLoggedIn: false });
   private http = inject(HttpClient);
@@ -19,31 +22,48 @@ export class AuthService {
 
   loadInitialState() {
     const jwt = localStorage.getItem('token');
+    const firstname = localStorage.getItem('firstname'); // İsmi storage'dan oku
+
     if (jwt) {
       const decodedJwt = jwtDecode<UserJwtModel>(jwt);
       this.userState.set({
         isLoggedIn: true,
-        user: { sub: decodedJwt.sub!, roles: decodedJwt.roles },
+        user: { 
+            sub: decodedJwt.sub!, 
+            roles: decodedJwt.roles,
+            firstname: firstname || '' // Varsa state'e yükle
+        },
       });
     }
   }
 
-  login(credentials: LoginCredentials): Observable<string> {
+  login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http
-      .post<string>(this.apiUrl, credentials, { responseType: 'text' as 'json' })
+      .post<AuthResponse>(this.apiUrl, credentials)
       .pipe(
-        tap((jwt: string) => {
-          localStorage.setItem('token', jwt);
+        tap((response: AuthResponse) => {
+          // DÜZELTME BURADA:
+          // Backend "jwtToken" gönderiyor, biz bunu alıp localStorage'a "token" adıyla kaydediyoruz.
+          localStorage.setItem('token', response.jwtToken); 
+          
+          // Backend "firstName" gönderiyor, biz bunu alıp "firstname" adıyla saklıyoruz.
+          localStorage.setItem('firstname', response.firstName);
 
-          const decodedJwt = jwtDecode<UserJwtModel>(jwt);
+          // Token'ı decode et
+          const decodedJwt = jwtDecode<UserJwtModel>(response.jwtToken);
+          
+          // State'i güncelle
           this.userState.set({
             isLoggedIn: true,
             user: {
               sub: decodedJwt.sub!,
               roles: decodedJwt.roles,
+              // State modelinizde 'firstname' (küçük harf) tanımlıysa burayı böyle eşliyoruz:
+              firstname: response.firstName, 
             },
           });
-          console.log(this.userState());
+          
+          console.log("Giriş Başarılı, State:", this.userState());
         })
       );
   }
@@ -51,5 +71,6 @@ export class AuthService {
   logout() {
     this.userState.set({ isLoggedIn: false, user: undefined });
     localStorage.removeItem('token');
+    localStorage.removeItem('firstname'); // Çıkışta ismi de sil
   }
 }

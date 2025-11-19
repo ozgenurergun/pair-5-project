@@ -10,6 +10,6 @@ import { Router } from '@angular/router';
   styleUrl: './header.scss',
 })
 export class Header {
-    
+    authService = inject(AuthService); // Service'i inject ettik
 
 }
