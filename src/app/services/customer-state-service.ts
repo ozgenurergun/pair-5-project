@@ -64,6 +64,11 @@ export class CustomerStateService {
       });
   }
 
+  clearLocalCart() {
+    this.cart.set(null);
+    
+  }
+
   addItemToCart(quantity: number, productOfferId: number, campaignProductOfferId: number) {
     const billingId = this.selectedBillingAccountId();
     if (!billingId) {

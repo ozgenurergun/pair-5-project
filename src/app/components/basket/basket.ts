@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router'; // ActivatedRoute eklendi
 import { CustomerStateService } from '../../services/customer-state-service';
 import { CartItem } from '../../models/cartItem';
+import { BasketService } from '../../services/basket-service';
 
 @Component({
   selector: 'app-basket',
@@ -13,6 +14,8 @@ import { CartItem } from '../../models/cartItem';
 })
 export class BasketComponent {
   private customerStateService = inject(CustomerStateService); // YENİ
+  private basketService = inject(BasketService);
+
   private router = inject(Router);
   private route = inject(ActivatedRoute); // YENİ
 
@@ -31,6 +34,26 @@ export class BasketComponent {
       this.customerStateService.deleteItemFromCart(item.id); // YENİ
     }
   }
+
+  onClearBasket() {
+    const currentUrl = this.router.url;
+    
+    const urlParts = currentUrl.split('/');
+    const lastPart = urlParts[urlParts.length - 1]; 
+    
+    const billingAccountId = Number(lastPart);
+
+    if (!isNaN(billingAccountId)) {
+       this.basketService.deleteCart(billingAccountId).subscribe({
+        next: () => {
+          console.log('Sepet silindi (ID: ' + billingAccountId + ')');
+          this.customerStateService.clearLocalCart();
+        },
+        error: (err) => console.error(err)
+      });
+    } else {
+      console.error('URL sonundaki değer bir sayı değil!');
+    }}
 
   /**
    * Konfigürasyon ekranına yönlendirir
