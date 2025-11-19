@@ -51,7 +51,7 @@ export class CustomerService {
   }
 
   updateAddress(addressData: CustomerAddressResponse): Observable<any> {
-    return this.httpClient.put(`${this.apiUrl}/addresses/`, addressData);
+    return this.httpClient.put(`${this.apiUrl}/addresses`, addressData);
   }
 
   deleteAddress(addressId: number): Observable<void> {

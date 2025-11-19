@@ -113,20 +113,29 @@ export class Address implements OnInit {
     });
   }
 
-  onSave() {
+ onSave() {
     if (this.addressForm.invalid) {
       this.markFormGroupTouched(this.addressForm);
       this.showErrorPopup('All mandatory fields must be filled.', null);
       return;
     }
 
-    const { city, id, ...formData } = this.addressForm.value;
+    // 1. Değişiklik: .value yerine .getRawValue() kullanıyoruz.
+    // Böylece disabled alanlar dahil tüm veriyi alırız.
+    const formValue = this.addressForm.getRawValue();
+    
+    // 2. Değişiklik: id formun içinde olmayabilir. 
+    // 'city' ve 'id'yi formData'dan ayırıyoruz.
+    const { city, id, districtId, ...formData } = formValue;
 
     if (this.modalMode() === 'add') {
       const createRequest: CreateAddressRequest = {
         ...formData,
+        // districtId: districtId, // Eğer form isimlendirmesi aynıysa otomatik eşleşir, değilse manuel ekleyin
         customerId: this.customerId,
+        districtId: districtId // Explicit olarak ekleyelim garanti olsun
       };
+
       this.customerService.postAddress(createRequest).subscribe({
         next: () => {
           this.loadAddresses();
@@ -135,9 +144,15 @@ export class Address implements OnInit {
         error: (err) => this.showErrorPopup('Error adding address.', err),
       });
     } else {
+      // UPDATE KISMI
       const updateRequest: CustomerAddressResponse = {
         ...formData,
-        id: id,
+        // ÖNEMLİ: id'yi formdan değil, düzenleme için seçilen objeden almalısınız.
+        // Eğer formda hidden control olarak id yoksa, formValue.id undefined döner.
+        // Bu örnekte 'this.selectedAddressId' veya modal açılırken set ettiğiniz bir değişkeni kullanmalısınız.
+        // Eğer formunuzda 'id' diye bir FormControl varsa o zaman formValue.id çalışır.
+        id: id, // Veya: this.currentEditingAddressId
+        districtId: districtId,
       };
 
       this.customerService.updateAddress(updateRequest).subscribe({
