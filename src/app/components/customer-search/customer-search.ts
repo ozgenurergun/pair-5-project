@@ -27,7 +27,7 @@ export class CustomerSearch implements OnInit {
 
   // === YENİ KURAL MANTIĞI ===
   // FR 4 & 5: Alanları iki gruba ayırıyoruz
-  private uniqueIdFields = ['nationalId', 'id', 'customerNumber', 'value', 'orderNumber'];
+  private uniqueIdFields = ['nationalId', 'id', 'customerNumber', 'value', 'orderId'];
   private nameFields = ['firstName', 'lastName'];
   // ==========================
 
@@ -48,7 +48,7 @@ export class CustomerSearch implements OnInit {
       value: [''],        
       firstName: [''],
       lastName: [''],
-      orderNumber: ['']
+      orderId: ['']
     });
 
     this.subscribeToFormChanges();
