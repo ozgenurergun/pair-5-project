@@ -45,9 +45,9 @@
         <div>
           <label class="block text-sm font-medium text-gray-400 mb-1">Prod Offer ID</label>
           <input
-            type="text"
+            type="number"
             formControlName="catalogOfferId"
-            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5"
+            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
         <div>
@@ -55,12 +55,12 @@
           <input
             type="text"
             formControlName="catalogOfferName"
-            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5"
+            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
         <button
           type="submit"
-          [disabled]="isSearchDisabled()"
+          [disabled]="checkSearchDisabled()"
           class="bg-gray-200 text-gray-900 font-bold py-2.5 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Search
@@ -87,9 +87,10 @@
         <div>
           <label class="block text-sm font-medium text-gray-400 mb-1">Prod Offer ID</label>
           <input
-            type="text"
+            type="number"
             formControlName="campaignOfferId"
-            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5"
+            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            placeholder=""
           />
         </div>
         <div>
@@ -97,12 +98,12 @@
           <input
             type="text"
             formControlName="campaignName"
-            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5"
+            class="w-full bg-gray-200 text-gray-900 rounded-lg px-4 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
         <button
           type="submit"
-          [disabled]="isSearchDisabled()"
+          [disabled]="checkSearchDisabled()"
           class="bg-gray-200 text-gray-900 font-bold py-2.5 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Search
@@ -141,9 +142,21 @@
 
             <td class="px-4 py-3">{{ offer.id }}</td>
             <td class="px-4 py-3">{{ offer.name }}</td>
-            <td class="px-4 py-3">{{ offer.discountedPrice | currency : 'TRY' }}</td>
+            <td class="px-4 py-3">
+              @if (offer.discountedPrice != offer.price) {
+              <span class="line-through text-gray-500 text-xs">{{
+                offer.price | currency : 'TRY '
+              }}</span>
+              <span class="ml-1">{{ offer.discountedPrice | currency : 'TRY ' }}</span>
+              } @else {
+              <span>{{ offer.price | currency : 'TRY ' }}</span>
+              }
+            </td>
             <td class="px-4 py-3 text-center">
-              <button (click)="addToBasket(offer)" class="text-gray-400 hover:text-white cursor-pointer">
+              <button
+                (click)="addToBasket(offer)"
+                class="text-gray-400 hover:text-white cursor-pointer"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"

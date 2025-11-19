@@ -29,14 +29,7 @@
         </div>
 
         <div class="col-span-3 text-sm font-medium text-right">
-          @if (item.discountRate > 0) {
-          <span class="line-through text-gray-500 text-xs">{{
-            item.price | currency : 'TRY'
-          }}</span>
-          <span class="ml-1">{{ item.discountedPrice | currency : 'TRY' }}</span>
-          } @else {
-          <span>{{ item.price | currency : 'TRY' }}</span>
-          }
+          <span>{{ item.discountedPrice | currency : 'TRY' }}</span>
         </div>
 
         <div class="col-span-2 flex items-center justify-center">
@@ -47,16 +40,17 @@
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-trash"
+              viewBox="0 0 16 16"
             >
               <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12.54 0c.342.052.682.107 1.022.166m11.518 0v.198a2.25 2.25 0 0 0 .75 1.983l-4.82 4.226a2.25 2.25 0 0 1-3.182 0l-4.82-4.226A2.25 2.25 0 0 0 3.633 6.18v-.198m14.456 0-2.086-3.614A2.25 2.25 0 0 0 14.217 1H9.783a2.25 2.25 0 0 0-1.93.977L5.83 5.79m14.456 0A48.108 48.108 0 0 0 3.322 5.79m14.456 0c.342.052.682.107 1.022.166"
+                d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"
+              />
+              <path
+                d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"
               />
             </svg>
           </button>
@@ -68,21 +62,21 @@
     </div>
 
     @if (cartItems().length > 0) {
-    <div class="mt-4"> <div class="pt-4 border-t-2 border-gray-600">
+    <div class="mt-4">
+      <div class="pt-4 border-t-2 border-gray-600">
         <div class="flex justify-between items-center">
           <span class="text-lg font-semibold text-gray-300">Total:</span>
-          <span class="text-2xl font-bold text-white">{{ totalPrice() | currency:'TRY' }}</span>
+          <span class="text-2xl font-bold text-white">{{ totalPrice() | currency : 'TRY' }}</span>
         </div>
       </div>
-      
-      <button 
+
+      <button
         (click)="onClearBasket()"
-        class="w-full mt-4 bg-gray-200 text-gray-900 font-bold py-2.5 px-6 rounded-lg 
-               hover:bg-gray-300 transition-colors cursor-pointer">
+        class="w-full mt-4 bg-gray-200 text-gray-900 font-bold py-2.5 px-6 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+      >
         Clear Basket
       </button>
-      
     </div>
-  }
+    }
   </div>
 </div>
